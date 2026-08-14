@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraSAT / UrbanSAT — Mapa Urbano — 13/08/2026</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; }
+        #map { width: 100%; height: 100vh; }
+        .leaflet-popup-content { font-size: 13px; line-height: 1.5; }
+        #legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        #legend h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #0ea5e9;
+        }
+        #legend .subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        #legend .types {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+            font-size: 13px;
+        }
+        #legend .stats {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 12px;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="legend">
+        <h3>TerraSAT / UrbanSAT</h3>
+        <div class="subtitle">Monitoreo Urbano Satelital — 13/08/2026</div>
+        <div style="display:flex;align-items:center;gap:8px;margin:4px 0;"><div style="width:16px;height:12px;border-radius:2px;background:#dc2626;border:1px solid #dc2626;"></div><span>Crítico (1)</span></div><div style="display:flex;align-items:center;gap:8px;margin:4px 0;"><div style="width:16px;height:12px;border-radius:2px;background:#ea580c;border:1px solid #ea580c;"></div><span>Alerta (9)</span></div><div style="display:flex;align-items:center;gap:8px;margin:4px 0;"><div style="width:16px;height:12px;border-radius:2px;background:#16a34a;border:1px solid #16a34a;"></div><span>Normal (5)</span></div>
+        <div class="types">
+            🏗️ Construcción no declarada: 6 zonas<br>🌡️ Isla de calor: 2 zonas<br>🌳 Pérdida de verde: 2 zonas
+        </div>
+        <div class="stats">
+            <b>15</b> zonas · <b>7</b> ciudades<br>
+            <b>22,050</b> ha monitoreadas<br>
+            <b>2,461</b> ha con cambios
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map', {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([-20, -60], 3);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 18,
+            subdomains: 'abcd'
+        }).addTo(map);
+
+    L.rectangle([[-31.4300, -58.0200], [-31.3300, -57.9200]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🏗️ Centro, Salto</b><br>País: Uruguay<br>Tipo: Construcción no declarada<br>Estado: Alerta<br>Área sector: 1,200 ha<br>Área afectada: 72 ha<br>Causa: Cambio de uso de suelo detectado<br>Confianza: 85%");
+    L.rectangle([[-31.3500, -58.0000], [-31.2500, -57.9000]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.15, opacity: 0.8}).addTo(map).bindPopup("<b>✅ Norte industrial, Salto</b><br>País: Uruguay<br>Tipo: Sin cambios<br>Estado: Normal<br>Área sector: 850 ha<br>");
+    L.rectangle([[-31.4700, -57.9500], [-31.3700, -57.8500]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🏗️ Periurbano este, Salto</b><br>País: Uruguay<br>Tipo: Construcción no declarada<br>Estado: Alerta<br>Área sector: 1,500 ha<br>Área afectada: 91 ha<br>Causa: Cambio de uso de suelo detectado<br>Confianza: 92%");
+    L.rectangle([[-34.5100, -57.8900], [-34.4100, -57.7900]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.15, opacity: 0.8}).addTo(map).bindPopup("<b>✅ Centro histórico, Colonia</b><br>País: Uruguay<br>Tipo: Sin cambios<br>Estado: Normal<br>Área sector: 600 ha<br>");
+    L.rectangle([[-34.5300, -57.8500], [-34.4300, -57.7500]], {fillColor: "#dc2626", color: "#dc2626", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🌡️ Zona franca, Colonia</b><br>País: Uruguay<br>Tipo: Isla de calor<br>Estado: Crítico<br>Área sector: 900 ha<br>Área afectada: 193 ha<br>Causa: Isla de calor urbano intensificada<br>Confianza: 91%");
+    L.rectangle([[-30.9500, -55.6000], [-30.8500, -55.5000]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🏗️ Periurbano norte, Rivera</b><br>País: Uruguay<br>Tipo: Construcción no declarada<br>Estado: Alerta<br>Área sector: 1,100 ha<br>Área afectada: 132 ha<br>Causa: Cambio de uso de suelo detectado<br>Confianza: 89%");
+    L.rectangle([[-30.9600, -55.6100], [-30.8600, -55.5100]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.15, opacity: 0.8}).addTo(map).bindPopup("<b>✅ Centro comercial, Rivera</b><br>País: Uruguay<br>Tipo: Sin cambios<br>Estado: Normal<br>Área sector: 700 ha<br>");
+    L.rectangle([[-34.1500, -56.2700], [-34.0500, -56.1700]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🌳 Residencial sur, Florida</b><br>País: Uruguay<br>Tipo: Pérdida de verde<br>Estado: Alerta<br>Área sector: 800 ha<br>Área afectada: 152 ha<br>Causa: Pérdida de cobertura verde<br>Confianza: 88%");
+    L.rectangle([[-34.1400, -56.3000], [-34.0400, -56.2000]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.15, opacity: 0.8}).addTo(map).bindPopup("<b>✅ Industrial oeste, Florida</b><br>País: Uruguay<br>Tipo: Sin cambios<br>Estado: Normal<br>Área sector: 650 ha<br>");
+    L.rectangle([[-25.2500, -57.5500], [-25.1500, -57.4500]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🏗️ Periurbano norte, Asunción</b><br>País: Paraguay<br>Tipo: Construcción no declarada<br>Estado: Alerta<br>Área sector: 3,500 ha<br>Área afectada: 421 ha<br>Causa: Cambio de uso de suelo detectado<br>Confianza: 93%");
+    L.rectangle([[-25.4000, -57.6500], [-25.3000, -57.5500]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🌡️ Bañado sur, Asunción</b><br>País: Paraguay<br>Tipo: Isla de calor<br>Estado: Alerta<br>Área sector: 2,200 ha<br>Área afectada: 829 ha<br>Causa: Isla de calor urbano intensificada<br>Confianza: 93%");
+    L.rectangle([[-17.8000, -63.2000], [-17.7000, -63.1000]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🏗️ Zona industrial, Santa Cruz</b><br>País: Bolivia<br>Tipo: Construcción no declarada<br>Estado: Alerta<br>Área sector: 2,800 ha<br>Área afectada: 292 ha<br>Causa: Cambio de uso de suelo detectado<br>Confianza: 89%");
+    L.rectangle([[-17.8300, -63.1500], [-17.7300, -63.0500]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.15, opacity: 0.8}).addTo(map).bindPopup("<b>✅ Periurbano este, Santa Cruz</b><br>País: Bolivia<br>Tipo: Sin cambios<br>Estado: Normal<br>Área sector: 3,100 ha<br>");
+    L.rectangle([[-2.9500, -79.0500], [-2.8500, -78.9500]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🌳 Centro histórico, Cuenca</b><br>País: Ecuador<br>Tipo: Pérdida de verde<br>Estado: Alerta<br>Área sector: 950 ha<br>Área afectada: 188 ha<br>Causa: Pérdida de cobertura verde<br>Confianza: 89%");
+    L.rectangle([[-3.0000, -79.0700], [-2.9000, -78.9700]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.35, opacity: 0.8}).addTo(map).bindPopup("<b>🏗️ Periurbano sur, Cuenca</b><br>País: Ecuador<br>Tipo: Construcción no declarada<br>Estado: Alerta<br>Área sector: 1,200 ha<br>Área afectada: 91 ha<br>Causa: Cambio de uso de suelo detectado<br>Confianza: 88%");
+    </script>
+</body>
+</html>

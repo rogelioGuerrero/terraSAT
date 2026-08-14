@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraSAT / AgroSAT — Mapa de Alerta — 12/08/2026</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f8fafc; }
+        #map { width: 100%; height: 100vh; }
+        .leaflet-popup-content { font-size: 13px; line-height: 1.5; }
+        #legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            padding: 16px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        #legend h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #0ea5e9;
+        }
+        #legend .subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        #legend .stats {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 12px;
+            color: #475569;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="legend">
+        <h3>TerraSAT / AgroSAT</h3>
+        <div class="subtitle">Alerta Temprana Agroclimática — 12/08/2026</div>
+        <div style="display:flex;align-items:center;gap:8px;margin:4px 0;"><div style="width:16px;height:12px;border-radius:2px;background:#dc2626;border:1px solid #dc2626;"></div><span>Crítico (2)</span></div><div style="display:flex;align-items:center;gap:8px;margin:4px 0;"><div style="width:16px;height:12px;border-radius:2px;background:#ea580c;border:1px solid #ea580c;"></div><span>Alerta (3)</span></div><div style="display:flex;align-items:center;gap:8px;margin:4px 0;"><div style="width:16px;height:12px;border-radius:2px;background:#ca8a04;border:1px solid #ca8a04;"></div><span>Vigilancia (2)</span></div><div style="display:flex;align-items:center;gap:8px;margin:4px 0;"><div style="width:16px;height:12px;border-radius:2px;background:#16a34a;border:1px solid #16a34a;"></div><span>Normal (6)</span></div>
+        <div class="stats">
+            <b>13</b> zonas · <b>7</b> países<br>
+            <b>1,355,000</b> ha monitoreadas<br>
+            <b>207,907</b> ha en alerta
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map', {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([-10, -62], 4);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 18,
+            subdomains: 'abcd'
+        }).addTo(map);
+
+        // Color por país según peor estado de sus zonas
+        var countryColors = { "Honduras": "#dc2626", "Guatemala": "#16a34a", "Nicaragua": "#ca8a04", "Colombia": "#ea580c", "Brazil": "#dc2626", "Argentina": "#16a34a", "Chile": "#ca8a04" };
+
+        fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson')
+            .then(r => r.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    filter: function(f) {
+                        return countryColors.hasOwnProperty(f.properties.NAME);
+                    },
+                    style: function(f) {
+                        var color = countryColors[f.properties.NAME];
+                        return {
+                            color: color,
+                            weight: 1.5,
+                            opacity: 0.5,
+                            fillOpacity: 0.05,
+                            fillColor: color
+                        };
+                    }
+                }).addTo(map);
+            });
+
+        // Rectángulos por zona (footprint de observación)
+    L.rectangle([[14.2000, -88.3500], [14.5000, -88.0500]], {fillColor: "#dc2626", color: "#dc2626", weight: 2.5, fillOpacity: 0.4, opacity: 0.8}).addTo(map).bindPopup("<b>Intibucá, Honduras</b><br>Cultivo: Café<br>Estado: Crítico<br>Área: 45,000 ha<br>Afectada: 21,037 ha<br>Causa: Enfermedad del cafetal<br>Anticipación: 18 días");
+    L.rectangle([[14.0000, -86.7000], [14.3000, -86.4000]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.4, opacity: 0.8}).addTo(map).bindPopup("<b>El Paraíso, Honduras</b><br>Cultivo: Café<br>Estado: Alerta<br>Área: 38,000 ha<br>Afectada: 8,967 ha<br>Causa: Déficit hídrico<br>Anticipación: 15 días");
+    L.rectangle([[15.4300, -90.4500], [15.7300, -90.1500]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.25, opacity: 0.8}).addTo(map).bindPopup("<b>Alta Verapaz, Guatemala</b><br>Cultivo: Café<br>Estado: Normal<br>Área: 52,000 ha<br>");
+    L.rectangle([[12.9500, -86.1500], [13.2500, -85.8500]], {fillColor: "#ca8a04", color: "#ca8a04", weight: 2.5, fillOpacity: 0.4, opacity: 0.8}).addTo(map).bindPopup("<b>Jinotega, Nicaragua</b><br>Cultivo: Café<br>Estado: Vigilancia<br>Área: 42,000 ha<br>Afectada: 8,103 ha<br>Causa: Signos tempranos de deterioro<br>Anticipación: 12 días");
+    L.rectangle([[4.9200, -75.6500], [5.2200, -75.3500]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.4, opacity: 0.8}).addTo(map).bindPopup("<b>Caldas, Colombia</b><br>Cultivo: Café<br>Estado: Alerta<br>Área: 65,000 ha<br>Afectada: 18,435 ha<br>Causa: Enfermedad del cafetal<br>Anticipación: 15 días");
+    L.rectangle([[4.3100, -75.8200], [4.6100, -75.5200]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.25, opacity: 0.8}).addTo(map).bindPopup("<b>Quindío, Colombia</b><br>Cultivo: Café<br>Estado: Normal<br>Área: 48,000 ha<br>");
+    L.rectangle([[-19.3400, -40.4900], [-19.0400, -40.1900]], {fillColor: "#ea580c", color: "#ea580c", weight: 2.5, fillOpacity: 0.4, opacity: 0.8}).addTo(map).bindPopup("<b>Espírito Santo, Brasil</b><br>Cultivo: Café<br>Estado: Alerta<br>Área: 85,000 ha<br>Afectada: 24,467 ha<br>Causa: Déficit hídrico<br>Anticipación: 15 días");
+    L.rectangle([[-18.8560, -44.6647], [-18.5440, -44.3353]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.25, opacity: 0.8}).addTo(map).bindPopup("<b>Minas Gerais, Brasil</b><br>Cultivo: Café<br>Estado: Normal<br>Área: 120,000 ha<br>");
+    L.rectangle([[-12.7548, -55.9610], [-12.2452, -55.4390]], {fillColor: "#dc2626", color: "#dc2626", weight: 2.5, fillOpacity: 0.4, opacity: 0.8}).addTo(map).bindPopup("<b>Mato Grosso, Brasil</b><br>Cultivo: Soja<br>Estado: Crítico<br>Área: 320,000 ha<br>Afectada: 135,001 ha<br>Causa: Sequía severa<br>Anticipación: 18 días");
+    L.rectangle([[-31.6111, -64.4039], [-31.2289, -63.9561]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.25, opacity: 0.8}).addTo(map).bindPopup("<b>Córdoba, Argentina</b><br>Cultivo: Soja<br>Estado: Normal<br>Área: 180,000 ha<br>");
+    L.rectangle([[-35.1500, -71.1500], [-34.8500, -70.8500]], {fillColor: "#ca8a04", color: "#ca8a04", weight: 2.5, fillOpacity: 0.4, opacity: 0.8}).addTo(map).bindPopup("<b>Valle Central, Chile</b><br>Cultivo: Viñas<br>Estado: Vigilancia<br>Área: 55,000 ha<br>Afectada: 8,151 ha<br>Causa: Signos tempranos de deterioro<br>Anticipación: 12 días");
+    L.rectangle([[-33.0400, -68.9953], [-32.7400, -68.6647]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.25, opacity: 0.8}).addTo(map).bindPopup("<b>Mendoza, Argentina</b><br>Cultivo: Viñas<br>Estado: Normal<br>Área: 95,000 ha<br>");
+    L.rectangle([[-22.2064, -48.2226], [-21.7936, -47.7774]], {fillColor: "#16a34a", color: "#16a34a", weight: 1.5, fillOpacity: 0.25, opacity: 0.8}).addTo(map).bindPopup("<b>São Paulo, Brasil</b><br>Cultivo: Caña<br>Estado: Normal<br>Área: 210,000 ha<br>");
+    </script>
+</body>
+</html>
