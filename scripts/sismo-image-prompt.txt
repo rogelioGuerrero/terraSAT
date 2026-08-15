@@ -1,0 +1,11 @@
+You are a cinematic 3D visualization artist creating a hero image for a seismic terrain analysis social media post.
+
+SUBJECT: A dramatic cross-section of the Earth's crust after an earthquake, shown like a layered cake or hamburger cut in half — revealing distinct geological layers. The top layer shows lush green vegetation with patches of brown where vegetation was lost. Below it, a cracked soil layer. Then a displaced rock stratum showing clear horizontal shift between left and right sides. Deeper layers show angled fault planes with visible displacement. The cross-section face is illuminated to reveal texture, color, and deformation in each layer. On the surface above, a small Latin American mountain town with subtle structural cracks visible. Photorealistic 3D render, NOT flat illustration.
+
+CAMERA: Slight angle showing both the surface landscape (top) and the underground cross-section (front face) simultaneously. The terrain is visually "sliced open" like a geological textbook diagram but rendered photorealistically. 16:9 widescreen.
+
+LIGHTING: Warm dramatic light from the left illuminating the cross-section face, making each geological layer glow with its distinct color — greens for vegetation, browns for soil, grays and ochres for rock, dark lines for fault planes. Cool ambient light on the surface town. Cinematic depth.
+
+ENVIRONMENT: Andean mountain landscape, tropical vegetation on surface. The cross-section reveals ~500 meters of depth: topsoil with roots, weathered rock, sedimentary layers tilted by tectonic force, a clear fault line where layers don't align left-to-right. Water table visible as a thin blue line between layers. The deformation is visible as layers that shift horizontally — left side higher than right side, showing the tectonic displacement.
+
+STYLE: Photorealistic 3D geological visualization, premium quality. Like a high-end National Geographic cross-section render. Scientifically plausible but visually stunning. The layered composition should immediately communicate "we can see inside the Earth and measure how it moved." NO text, NO watermark, NO logo, NO words in the image — clean visual only.

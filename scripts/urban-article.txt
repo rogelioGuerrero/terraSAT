@@ -1,10 +1,18 @@
-Cambio Urbano en Latinoamérica: Alertas y Tendencias
+El asfalto se come a Latinoamérica: lo que ven los satélites desde el cielo
 
-Nuestro análisis de imágenes satelitales de agencias reconocidas como NASA y ESA revela cambios significativos en varias zonas urbanas de Latinoamérica. La comparación de imágenes de distintos períodos muestra un aumento en la construcción de nuevas áreas urbanas y un incremento en las islas de calor en varias ciudades.
+Comparamos imágenes satelitales de la Agencia Espacial Europea entre enero 2024 y junio 2026 en 12 ciudades de Latinoamérica. Analizamos NDVI (índice de vegetación) y NDBI (índice de construcción). Esto es lo que encontramos:
 
-Los cambios detectados se agrupan en tres categorías principales: nuevas construcciones, incremento de islas de calor y pérdida de áreas verdes. Se han detectado nuevas construcciones en zonas como el Centro y el Periurbano este de Salto, Uruguay, así como en el Periurbano norte de Rivera, Uruguay, y el Periurbano norte de Asunción, Paraguay. Además, se han identificado áreas con un aumento significativo en las islas de calor, como la Zona franca de Colonia, Uruguay, y el Bañado sur de Asunción, Paraguay. La pérdida de áreas verdes también es notable en zonas como el Residencial sur de Florida, Uruguay, y el Centro histórico de Cuenca, Ecuador.
+Barranquilla lidera la recuperación de vegetación urbana con un aumento de 15.7% en NDVI, pero también registró la mayor expansión de superficie construida: +8.8% en NDBI. Bogotá no se queda atrás: +13.7% en vegetación urbana en su centro y +6.2% en construcción. Medellín (+9.3% vegetación, +2.9% construcción), Cali (+8.6% vegetación, con superficie construida estable) y Caracas (+7.5% vegetación, +5.2% construcción) completan el panorama colombiano-venezolano.
 
-Estas zonas están bajo vigilancia constante para monitorear cualquier cambio adicional. Por otro lado, algunas zonas no presentan cambios significativos, como el Centro histórico de Salto, Uruguay, y el Centro comercial de Rivera, Uruguay.
+Pero el dato más alarmante está en el Cono Sur. Santiago de Chile registró +10% en vegetación urbana, pero la expansión de superficie construida disparó +31.2% en NDBI: la cifra más alta de todas las ciudades analizadas. Esto coincide con lo que documenta Corporación Ciudades: la cobertura vegetal del Gran Santiago cayó de 44% a 30% entre 2000 y 2015, y aunque se recuperó a 38% en 2025, comunas como Pudahuel pasaron de 40% a 20% de vegetación, registrando temperaturas superficiales de 43°C en enero 2024.
 
-¿Su municipio necesita monitoreo satelital del territorio? UrbanSAT detecta cambios urbanos antes del recorrido en terreno. Reportes personalizados por sector. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🛰️ 🏗️ 🌡️
-#UrbanSAT #MonitoreoSatelital #CambioUrbano
+Buenos Aires muestra el mismo patrón: +3.2% en vegetación pero +28% en expansión de superficie construida. El IberAtlas, presentado en junio de 2026 por la UCCI e ICLEI, confirma lo que ven los satélites: Buenos Aires tiene 93% de su territorio como paisaje urbano y apenas 3.85% de cobertura arbórea. Es la ciudad más cementada del atlas iberoamericano.
+
+Quito también preocupa: la expansión de superficie construida creció +17.7% en NDBI, segundo lugar después de Santiago. En Quevedo, Ecuador, una investigación de la Revista Cartográfica (2026) midió temperaturas superficiales del suelo entre 48°C y 61°C por islas de calor urbano.
+
+Ciudad de Panamá registró +9% en vegetación y +5.6% en construcción. Un estudio geoespacial de Esri Panamá y FSU confirmó que las islas de calor se expandieron visiblemente entre 2000-2006 y 2019-2025. Asunción, Paraguay, mostró +3.5% en vegetación y +1.9% en construcción: Global Forest Watch reportó que la ciudad perdió 190 hectáreas de árboles en dos décadas, 96% por expansión urbana. Montevideo fue la única ciudad donde la superficie construida se mantuvo estable (-1.5%).
+
+El Banco Mundial advierte que la mortalidad asociada al calor creció 140% en dos décadas. Solo en 2023, 48.000 adultos mayores murieron prematuramente por calor en la región. MapBiomas Venezuela confirmó que las ciudades venezolanas se expandieron 72% entre 1985 y 2024: casi 160.000 nuevas hectáreas de asfalto.
+
+El patrón es claro: la vegetación se recupera en algunas ciudades, pero el concreto avanza mucho más rápido. ¿Su municipio necesita monitoreo satelital del territorio? UrbanSAT detecta cambios urbanos antes del recorrido en terreno. Reportes personalizados por sector: expansión urbana, islas de calor, pérdida de áreas verdes. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🛰️ 🌳
+#UrbanSAT #CiudadesInteligentes #MonitoreoUrbano #IslaDeCalor #Latinoamérica 🏙️

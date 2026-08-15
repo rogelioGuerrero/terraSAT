@@ -1,0 +1,11 @@
+You are a cinematic 3D visualization artist creating a hero image for an urban heat island and city expansion social media post about Latin America.
+
+SUBJECT: A split aerial view of a Latin American megacity divided diagonally — left side shows dense grey urban sprawl with concrete, asphalt, rooftops and minimal trees, with visible heat waves rising from the surface in reddish-orange tones. Right side shows the same city with lush green tree canopy, parks, vegetated corridors and cooler blue-green tones. The diagonal split is not a hard line but a gradient transition, showing the real-world boundary between cemented neighborhoods and green ones. A satellite grid overlay faintly visible across the entire image, suggesting satellite analysis. Photorealistic 3D render, NOT flat illustration.
+
+CAMERA: High-altitude oblique perspective looking down at approximately 45 degrees, showing both the urban texture and the vegetation contrast. 16:9 widescreen composition. Sharp focus across the entire frame.
+
+LIGHTING: Midday sun with atmospheric haze. The concrete side radiates warm reddish-orange heat tones with subtle heat shimmer. The vegetated side glows with cool blue-green freshness. The contrast in color temperature should immediately communicate "this side is hot, this side is cool."
+
+ENVIRONMENT: Large Latin American city spanning the frame. Dense grid streets on the concrete side with apartment blocks, commercial buildings, parking lots. On the green side: tree-lined avenues, urban parks, green corridors connecting neighborhoods. A river or coastline visible in the background. The scale should feel like a capital city — Buenos Aires, Santiago, Bogotá — not a small town.
+
+STYLE: Photorealistic 3D aerial visualization, premium quality. Like a high-end National Geographic urban climate analysis render. The color temperature contrast between hot concrete and cool vegetation is the key visual message. NO text, NO watermark, NO logo, NO words in the image — clean visual only.
