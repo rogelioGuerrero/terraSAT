@@ -43,6 +43,14 @@ export function TerraSATHero() {
           </span>
         </h1>
 
+        <div className="mt-4 flex items-center justify-center gap-3 text-sm font-semibold tracking-wide text-primary">
+          <span>Procesa</span>
+          <span className="text-border">·</span>
+          <span>Analiza</span>
+          <span className="text-border">·</span>
+          <span>Alerta</span>
+        </div>
+
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
           Mapas interactivos e informes de inteligencia satelital para tu territorio.
           Detección de deterioro agrícola 15 días antes de síntomas visibles.
