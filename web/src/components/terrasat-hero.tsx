@@ -32,7 +32,7 @@ export function TerraSATHero() {
       <div className="relative z-10 mx-auto max-w-4xl px-4 py-32 text-center sm:px-6 lg:px-8">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary">
           <Satellite className="h-3.5 w-3.5" />
-          Inteligencia satelital para agricultura y ciudades en Latinoamérica y el Caribe
+          Procesa · Analiza · Alerta
         </div>
 
         <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
@@ -42,14 +42,6 @@ export function TerraSATHero() {
             para anticipar eventos
           </span>
         </h1>
-
-        <div className="mt-4 flex items-center justify-center gap-3 text-sm font-semibold tracking-wide text-primary">
-          <span>Procesa</span>
-          <span className="text-border">·</span>
-          <span>Analiza</span>
-          <span className="text-border">·</span>
-          <span>Alerta</span>
-        </div>
 
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
           Mapas interactivos e informes de inteligencia satelital para tu territorio.
