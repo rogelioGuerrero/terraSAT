@@ -36,10 +36,10 @@ export function TerraSATHero() {
         </div>
 
         <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-          Lo que el satélite ve,
+          Imágenes satelitales
           <br />
           <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            antes de que se vea
+            para anticipar eventos
           </span>
         </h1>
 
