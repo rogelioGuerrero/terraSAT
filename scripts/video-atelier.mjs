@@ -12,20 +12,22 @@
  *   node scripts/video-atelier.mjs --query "agriculture aerial" [--count 5] [--cta "texto"]
  */
 
-import { existsSync, mkdirSync, writeFileSync, unlinkSync, statSync } from "fs";
-import { resolve, join, dirname, basename } from "path";
+import { existsSync, mkdirSync, unlinkSync, statSync, createWriteStream } from "fs";
+import { resolve, join, dirname, basename, relative } from "path";
 import { execFileSync } from "child_process";
 import ffmpegStatic from "ffmpeg-static";
 import ffmpeg from "fluent-ffmpeg";
 import { fileURLToPath } from "url";
 import http from "http";
+import { Readable } from "stream";
+import { pipeline } from "stream/promises";
+import { fetchPexels, toClipMetadata } from "./pexels-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const FFMPEG = ffmpegStatic;
 ffmpeg.setFfmpegPath(FFMPEG);
 
-const PEXELS_KEY = "cn1L5H2haPcdyVqVVQHSiHv7cESwnxIbnFW5cTFes6BHwXjqcwqi0t4E";
 const ATELIER_DIR = resolve(ROOT, "scripts", ".atelier");
 
 // ── Args ──
@@ -46,7 +48,11 @@ let outputPath = null;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--query" && args[i + 1]) { initialQuery = args[i + 1]; i++; }
-  else if (args[i] === "--count" && args[i + 1]) { maxCount = parseInt(args[i + 1]); i++; }
+  else if (args[i] === "--count" && args[i + 1]) {
+    const v = parseInt(args[i + 1], 10);
+    maxCount = Number.isNaN(v) || v < 1 ? 10 : v;
+    i++;
+  }
   else if (args[i] === "--cta" && args[i + 1]) { ctaText = args[i + 1]; i++; }
   else if (args[i] === "--output" && args[i + 1]) { outputPath = resolve(args[i + 1]); i++; }
 }
@@ -58,39 +64,23 @@ if (!outputPath) {
 // ── Helpers ──
 
 async function searchVideos(query, perPage = 15) {
-  const url = `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=landscape`;
-  const res = await fetch(url, { headers: { Authorization: PEXELS_KEY } });
-  const data = await res.json();
-
-  const suitable = data.videos.filter(
-    v => v.duration <= 15 && v.video_files.some(f => f.quality === "hd" && f.width === 1920)
+  const data = await fetchPexels(
+    `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=${perPage}&orientation=landscape`
   );
-  const pool = suitable.length > 0 ? suitable : data.videos;
-
-  return pool.slice(0, maxCount).map(v => {
-    const hdFile = v.video_files.find(f => f.quality === "hd" && f.width === 1920)
-      || v.video_files.find(f => f.quality === "hd")
-      || v.video_files[0];
-    const previewFile = v.video_files.find(f => f.quality === "sd" && f.width <= 640)
-      || v.video_files.find(f => f.quality === "sd")
-      || hdFile;
-    return {
-      id: v.id,
-      duration: v.duration,
-      downloadUrl: hdFile.link,
-      previewUrl: previewFile.link,
-      posterUrl: v.image,
-      width: hdFile.width,
-      height: hdFile.height,
-    };
-  });
+  const videos = Array.isArray(data.videos) ? data.videos : [];
+  const pool = videos.filter(
+    v => typeof v.duration === "number" && v.duration <= 15 && Array.isArray(v.video_files) && v.video_files.length > 0
+  );
+  const source = pool.length > 0 ? pool : videos;
+  return source.slice(0, maxCount).map(toClipMetadata);
 }
 
 async function downloadFile(url, path) {
   const res = await fetch(url);
-  const buffer = Buffer.from(await res.arrayBuffer());
-  writeFileSync(path, buffer);
-  return buffer.length;
+  if (!res.ok) throw new Error(`HTTP ${res.status} al descargar ${url}`);
+  if (!res.body) throw new Error("Respuesta vacía");
+  await pipeline(Readable.fromWeb(res.body), createWriteStream(path));
+  return statSync(path).size;
 }
 
 function compressVideo(inputPath, outPath, width = 1280, crf = 30) {
@@ -111,6 +101,15 @@ function compressVideo(inputPath, outPath, width = 1280, crf = 30) {
       .on("error", reject)
       .run();
   });
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 // ── Generar HTML sandbox (dos fases: explorar + ordenar) ──
@@ -322,7 +321,7 @@ function generateSandboxHTML(cta, initialQuery) {
 </header>
 
 <div class="search-bar">
-  <input type="text" id="searchInput" placeholder="Buscar videos en Pexels... (ej: aerial drone agriculture, city timelapse, forest satellite)" value="${initialQuery.replace(/"/g, '&quot;')}" onkeydown="if(event.key==='Enter')doSearch()">
+  <input type="text" id="searchInput" placeholder="Buscar videos en Pexels... (ej: aerial drone agriculture, city timelapse, forest satellite)" value="${escapeHtml(initialQuery)}" onkeydown="if(event.key==='Enter')doSearch()">
   <button id="searchBtn" onclick="doSearch()">🔍 Buscar</button>
 </div>
 
@@ -347,7 +346,7 @@ function generateSandboxHTML(cta, initialQuery) {
   </div>
   <div class="row">
     <label>CTA:</label>
-    <input type="text" id="ctaInput" value="${cta.replace(/"/g, '&quot;')}" placeholder="Ej: Observación satelital para Latinoamérica">
+    <input type="text" id="ctaInput" value="${escapeHtml(cta)}" placeholder="Ej: Observación satelital para Latinoamérica">
   </div>
   <div class="row">
     <button onclick="generate()">🎬 Generar Video Final</button>
@@ -568,7 +567,8 @@ function startSandboxServer(cta, initialQuery) {
         req.on("data", chunk => body += chunk);
         req.on("end", async () => {
           try {
-            const selection = JSON.parse(body);
+            const parsed = JSON.parse(body);
+            const selection = validateSelection(parsed);
             console.log("\n✓ Selección recibida del humano");
             console.log(`  Clips: ${selection.clips.length}`);
             console.log(`  CTA: "${selection.cta}"`);
@@ -592,11 +592,17 @@ function startSandboxServer(cta, initialQuery) {
 
       // Servir video final
       if (req.method === "GET" && req.url.startsWith("/video/")) {
-        const fileName = decodeURIComponent(req.url.slice(7));
-        const filePath = join(ATELIER_DIR, fileName);
-        if (existsSync(filePath)) {
-          const stat = statSync(filePath);
-          const fileSize = stat.size;
+        const rawName = decodeURIComponent(req.url.slice(7));
+        const filePath = resolve(ATELIER_DIR, rawName);
+        const rel = relative(ATELIER_DIR, filePath);
+        if (rel.startsWith("..") || rel === "") {
+          res.writeHead(403, { "Content-Type": "text/plain" });
+          res.end("Forbidden");
+          return;
+        }
+        const fileStat = statSync(filePath, { throwIfNoEntry: false });
+        if (fileStat?.isFile()) {
+          const fileSize = fileStat.size;
           const range = req.headers.range;
 
           if (range) {
@@ -633,58 +639,91 @@ function startSandboxServer(cta, initialQuery) {
   });
 }
 
+function validateClip(c) {
+  if (!c || typeof c !== "object") throw new Error("Clip inválido");
+  if (!Number.isFinite(c.id) || c.id <= 0) throw new Error("ID de clip inválido");
+  if (!Number.isFinite(c.duration) || c.duration <= 0) throw new Error("Duración de clip inválida");
+  if (typeof c.downloadUrl !== "string" || !/^https?:\/\//.test(c.downloadUrl)) throw new Error("URL de descarga inválida");
+  if (!Number.isFinite(c.width) || !Number.isFinite(c.height)) throw new Error("Resolución de clip inválida");
+}
+
+function validateSelection(sel) {
+  if (!sel || !Array.isArray(sel.clips) || sel.clips.length === 0) {
+    throw new Error("Selección vacía");
+  }
+  if (sel.clips.length > 20) throw new Error("Máximo 20 clips");
+  for (const c of sel.clips) validateClip(c);
+  if (typeof sel.cta !== "string") sel.cta = "";
+  if (sel.cta.length > 120) throw new Error("CTA demasiado larga (máx. 120 caracteres)");
+  return sel;
+}
+
 // ── Descargar, comprimir y ensamblar (solo clips seleccionados) ──
 async function downloadAndAssemble(selection) {
-  const { clips: selectedClips, cta } = selection;
+  const validated = validateSelection(selection);
+  const { clips: selectedClips, cta } = validated;
 
-  // 1. Descargar y comprimir solo los seleccionados
-  console.log("\n── Descargando y comprimiendo clips seleccionados ──");
   const compressedPaths = [];
+  const toClean = [];
 
-  for (let i = 0; i < selectedClips.length; i++) {
-    const c = selectedClips[i];
-    console.log(`\n[${i + 1}/${selectedClips.length}] Video ${c.id} (${c.duration}s)`);
+  try {
+    // 1. Descargar y comprimir solo los seleccionados
+    console.log("\n── Descargando y comprimiendo clips seleccionados ──");
+    for (let i = 0; i < selectedClips.length; i++) {
+      const c = selectedClips[i];
+      console.log(`\n[${i + 1}/${selectedClips.length}] Video ${c.id} (${c.duration}s)`);
 
-    const rawPath = join(ATELIER_DIR, `clip-${i}-raw.mp4`);
-    const rawSize = await downloadFile(c.downloadUrl, rawPath);
-    console.log(`  Descargado: ${(rawSize / 1024 / 1024).toFixed(1)} MB`);
+      const rawPath = join(ATELIER_DIR, `clip-${i}-raw.mp4`);
+      toClean.push(rawPath);
+      const rawSize = await downloadFile(c.downloadUrl, rawPath);
+      console.log(`  Descargado: ${(rawSize / 1024 / 1024).toFixed(1)} MB`);
 
-    const compressedPath = join(ATELIER_DIR, `clip-${i}.mp4`);
-    await compressVideo(rawPath, compressedPath, 1280, 30);
-    const compressedSize = statSync(compressedPath).size;
-    console.log(`  Comprimido: ${(rawSize / 1024 / 1024).toFixed(1)} MB → ${(compressedSize / 1024 / 1024).toFixed(1)} MB`);
+      const compressedPath = join(ATELIER_DIR, `clip-${i}.mp4`);
+      toClean.push(compressedPath);
+      await compressVideo(rawPath, compressedPath, 1280, 30);
+      const compressedSize = statSync(compressedPath).size;
+      console.log(`  Comprimido: ${(rawSize / 1024 / 1024).toFixed(1)} MB → ${(compressedSize / 1024 / 1024).toFixed(1)} MB`);
 
-    unlinkSync(rawPath);
-    console.log(`  Raw eliminado`);
+      unlinkSync(rawPath);
+      console.log(`  Raw eliminado`);
 
-    compressedPaths.push(compressedPath);
+      compressedPaths.push(compressedPath);
+    }
+
+    // 2. Generar cards con el CTA (fijo 1280x720 para output 16:9)
+    console.log("\n── Generando cards (intro + CTA) ──");
+    const cardsArgs = ["scripts/gen-cards-terrasat.mjs", "--width", "1280", "--height", "720", "--fps", "24", "--cta", cta || "Observación satelital para Latinoamérica"];
+    execFileSync("node", cardsArgs, { encoding: "utf8", stdio: "inherit", cwd: ROOT });
+    console.log("✓ Cards generados");
+
+    // 3. Ensamblar con branding
+    console.log("\n── Ensamblando video final ──");
+    const brandingArgs = [
+      "scripts/add-branding-video-terrasat.mjs",
+      ...compressedPaths,
+      "--output", outputPath,
+      "--width", "1280",
+      "--height", "720",
+      "--fps", "24",
+      "--crf", "23",
+      "--preset", "medium",
+      "--cleanup",
+    ];
+
+    execFileSync("node", brandingArgs, { encoding: "utf8", stdio: "inherit", cwd: ROOT });
+
+    const finalSize = statSync(outputPath).size;
+    const sizeMB = (finalSize / 1024 / 1024).toFixed(1);
+    console.log(`\n✓ Video final: ${outputPath}`);
+    console.log(`  Tamaño: ${sizeMB} MB`);
+
+    return { path: outputPath, sizeMB };
+  } catch (err) {
+    for (const p of toClean) {
+      try { if (existsSync(p)) unlinkSync(p); } catch {}
+    }
+    throw err;
   }
-
-  // 2. Generar cards con el CTA
-  console.log("\n── Generando cards (intro + CTA) ──");
-  const cardsArgs = ["scripts/gen-cards-terrasat.mjs", "--ref", compressedPaths[0]];
-  if (cta) cardsArgs.push("--cta", cta);
-
-  execFileSync("node", cardsArgs, { encoding: "utf8", stdio: "inherit", cwd: ROOT });
-  console.log("✓ Cards generados");
-
-  // 3. Ensamblar con branding
-  console.log("\n── Ensamblando video final ──");
-  const brandingArgs = [
-    "scripts/add-branding-video-terrasat.mjs",
-    ...compressedPaths,
-    "--output", outputPath,
-    "--cleanup",
-  ];
-
-  execFileSync("node", brandingArgs, { encoding: "utf8", stdio: "inherit", cwd: ROOT });
-
-  const finalSize = statSync(outputPath).size;
-  const sizeMB = (finalSize / 1024 / 1024).toFixed(1);
-  console.log(`\n✓ Video final: ${outputPath}`);
-  console.log(`  Tamaño: ${sizeMB} MB`);
-
-  return { path: outputPath, sizeMB };
 }
 
 // ── Main ──
@@ -724,6 +763,12 @@ async function main() {
   // Mantener el proceso vivo
   process.on("SIGINT", () => {
     console.log("\nCerrando atelier...");
+    server.close();
+    process.exit(0);
+  });
+
+  process.on("SIGTERM", () => {
+    console.log("\nCerrando atelier (SIGTERM)...");
     server.close();
     process.exit(0);
   });

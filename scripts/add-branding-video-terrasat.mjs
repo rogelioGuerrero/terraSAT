@@ -23,15 +23,17 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, statSyn
 import { resolve, dirname, join, basename, extname } from "path";
 import { execFileSync } from "child_process";
 import { tmpdir } from "os";
+import { fileURLToPath } from "url";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const FFMPEG = ffmpegStatic;
-const CARDS_DIR = resolve("scripts", ".cards");
+const CARDS_DIR = resolve(__dirname, ".cards");
 const FADE_DUR = 0.4;
 
 // ── Args ──
 const args = process.argv.slice(2);
 if (!args[0] || args[0] === "--help" || args[0] === "-h") {
-  console.log("Uso: node scripts/add-branding-video-terrasat.mjs clip1.mp4 [clip2.mp4] [--output path] [--crf 23] [--cleanup]");
+  console.log("Uso: node scripts/add-branding-video-terrasat.mjs clip1.mp4 [clip2.mp4] [--output path] [--width 1280] [--height 720] [--fps 24] [--crf 23] [--cleanup]");
   console.log("");
   console.log("Requiere intro.mp4 y cta.mp4 en scripts/.cards/ (gen-cards-terrasat.mjs)");
   console.log("--cleanup: borra los videos originales después de ensamblar");
@@ -40,12 +42,30 @@ if (!args[0] || args[0] === "--help" || args[0] === "-h") {
 
 const inputPaths = [];
 let outputPath = null;
+let targetWidth = null;
+let targetHeight = null;
+let targetFps = null;
 let crf = "23";
 let preset = "veryfast";
 let cleanup = false;
 
 for (let i = 0; i < args.length; i++) {
   if (args[i] === "--output" && args[i + 1]) { outputPath = resolve(args[i + 1]); i++; }
+  else if (args[i] === "--width" && args[i + 1]) {
+    const v = parseInt(args[i + 1], 10);
+    if (!Number.isNaN(v) && v > 0) targetWidth = v;
+    i++;
+  }
+  else if (args[i] === "--height" && args[i + 1]) {
+    const v = parseInt(args[i + 1], 10);
+    if (!Number.isNaN(v) && v > 0) targetHeight = v;
+    i++;
+  }
+  else if (args[i] === "--fps" && args[i + 1]) {
+    const v = parseInt(args[i + 1], 10);
+    if (!Number.isNaN(v) && v > 0) targetFps = v;
+    i++;
+  }
   else if (args[i] === "--crf" && args[i + 1]) { crf = args[i + 1]; i++; }
   else if (args[i] === "--preset" && args[i + 1]) { preset = args[i + 1]; i++; }
   else if (args[i] === "--cleanup") { cleanup = true; }
@@ -146,10 +166,14 @@ async function createOverlayPng(w, h, outPath) {
 // ── Procesar un clip: overlay + fade in/out + normalizar ──
 function processClip(inputPath, outputPath, overlayPath, w, h, fps) {
   const probe = probeVideo(inputPath);
-  const dur = probe?.duration || 10;
+  const dur = probe?.duration;
+  if (!dur || dur <= 0) throw new Error(`Duración inválida para ${inputPath}`);
 
-  let fadeFilter = `,fade=t=in:st=0:d=${FADE_DUR}`;
-  fadeFilter += `,fade=t=out:st=${(dur - FADE_DUR).toFixed(2)}:d=${FADE_DUR}`;
+  const fadeInDur = Math.min(FADE_DUR, dur / 2);
+  const fadeOutDur = Math.min(FADE_DUR, Math.max(0, dur - fadeInDur));
+
+  let fadeFilter = `,fade=t=in:st=0:d=${fadeInDur.toFixed(3)}`;
+  fadeFilter += `,fade=t=out:st=${(dur - fadeOutDur).toFixed(3)}:d=${fadeOutDur.toFixed(3)}`;
 
   const processArgs = [
     "-y",
@@ -171,14 +195,16 @@ function processClip(inputPath, outputPath, overlayPath, w, h, fps) {
 }
 
 // ── Concat con concat demuxer ──
-function concatVideos(fileList, outPath) {
+function concatVideos(fileList, outPath, w, h, fps) {
   const listFile = join(tmpdir(), `concat_${Date.now()}.txt`);
   const list = fileList.map(f => `file '${f.replace(/'/g, "'\\''")}'`).join("\n");
   writeFileSync(listFile, list);
 
+  const scaleFilter = `scale=${w}:${h}:force_original_aspect_ratio=decrease,pad=${w}:${h}:(ow-iw)/2:(oh-ih)/2:black,format=yuv420p,fps=${fps}`;
   const concatArgs = [
     "-y", "-f", "concat", "-safe", "0",
     "-i", listFile,
+    "-vf", scaleFilter,
     "-c:v", "libx264", "-preset", preset, "-crf", crf,
     "-pix_fmt", "yuv420p",
     "-an",
@@ -195,60 +221,72 @@ function concatVideos(fileList, outPath) {
 
 // ── Main ──
 async function main() {
-  const probe = probeVideo(inputPaths[0]);
-  if (!probe) { console.error("Error: no se pudo leer el video"); process.exit(1); }
-  const { width, height, fps } = probe;
+  const tempFiles = [];
+  try {
+    const probe = (targetWidth && targetHeight) ? null : probeVideo(inputPaths[0]);
+    if ((!targetWidth || !targetHeight) && !probe) { console.error("Error: no se pudo leer el video"); process.exit(1); }
 
-  console.log("═══════════════════════════════════════════");
-  console.log("  Ensamblaje Video TerraSAT");
-  console.log("═══════════════════════════════════════════\n");
-  console.log(`Target: ${width}x${height}@${fps}fps`);
-  console.log(`Clips: ${inputPaths.length} | Intro: 2s | CTA: 5s`);
-  if (cleanup) console.log(`Cleanup: SÍ (borrar originales)\n`);
+    const width = targetWidth ?? probe?.width;
+    const height = targetHeight ?? probe?.height;
+    const fps = targetFps ?? (probe?.fps || 24);
 
-  // 1. Generar overlay PNG
-  const tmpDir = join(tmpdir(), "terrasat-branding");
-  if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
-  const overlayPng = join(tmpDir, `overlay_${width}x${height}.png`);
-  await createOverlayPng(width, height, overlayPng);
-  console.log("✓ Overlay generado");
+    console.log("═══════════════════════════════════════════");
+    console.log("  Ensamblaje Video TerraSAT");
+    console.log("═══════════════════════════════════════════\n");
+    console.log(`Target: ${width}x${height}@${fps}fps`);
+    console.log(`Clips: ${inputPaths.length} | Intro: 2s | CTA: 5s`);
+    if (cleanup) console.log(`Cleanup: SÍ (borrar originales)\n`);
 
-  // 2. Procesar clips (overlay + fade + normalizar)
-  const processedClips = [];
-  for (let i = 0; i < inputPaths.length; i++) {
-    const out = join(tmpDir, `clip_${i}.mp4`);
-    console.log(`Procesando clip ${i + 1}/${inputPaths.length}...`);
-    processClip(inputPaths[i], out, overlayPng, width, height, fps);
-    processedClips.push(out);
-    console.log(`  ✓ ${basename(inputPaths[i])}`);
-  }
+    // 1. Generar overlay PNG
+    const tmpDir = join(tmpdir(), "terrasat-branding");
+    if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
+    const overlayPng = join(tmpDir, `overlay_${width}x${height}.png`);
+    tempFiles.push(overlayPng);
+    await createOverlayPng(width, height, overlayPng);
+    console.log("✓ Overlay generado");
 
-  // 3. Concat: intro + clips + cta
-  const allFiles = [introPath, ...processedClips, ctaPath];
-  console.log(`\nConcatenando ${allFiles.length} segmentos...`);
-
-  concatVideos(allFiles, outputPath);
-
-  const outputSize = readFileSync(outputPath).length;
-  console.log(`\n✓ Video final: ${outputPath}`);
-  console.log(`  Tamaño: ${(outputSize / 1024 / 1024).toFixed(1)} MB`);
-  console.log(`  Estructura: Intro 2s → ${inputPaths.length} clip(s) → CTA 5s`);
-
-  // 4. Cleanup: borrar videos originales pesados
-  if (cleanup) {
-    console.log("\nLimpiando videos originales...");
-    let totalFreed = 0;
-    for (const p of inputPaths) {
-      try {
-        const size = statSync(p).size;
-        unlinkSync(p);
-        totalFreed += size;
-        console.log(`  ✓ Borrado: ${basename(p)} (${(size / 1024 / 1024).toFixed(1)} MB)`);
-      } catch (e) {
-        console.log(`  ✗ No se pudo borrar: ${basename(p)} (${e.message})`);
-      }
+    // 2. Procesar clips (overlay + fade + normalizar)
+    const processedClips = [];
+    for (let i = 0; i < inputPaths.length; i++) {
+      const out = join(tmpDir, `clip_${i}.mp4`);
+      tempFiles.push(out);
+      console.log(`Procesando clip ${i + 1}/${inputPaths.length}...`);
+      processClip(inputPaths[i], out, overlayPng, width, height, fps);
+      processedClips.push(out);
+      console.log(`  ✓ ${basename(inputPaths[i])}`);
     }
-    console.log(`  Total liberado: ${(totalFreed / 1024 / 1024).toFixed(1)} MB`);
+
+    // 3. Concat: intro + clips + cta
+    const allFiles = [introPath, ...processedClips, ctaPath];
+    console.log(`\nConcatenando ${allFiles.length} segmentos...`);
+
+    concatVideos(allFiles, outputPath, width, height, fps);
+
+    const outputSize = statSync(outputPath).size;
+    console.log(`\n✓ Video final: ${outputPath}`);
+    console.log(`  Tamaño: ${(outputSize / 1024 / 1024).toFixed(1)} MB`);
+    console.log(`  Estructura: Intro 2s → ${inputPaths.length} clip(s) → CTA 5s`);
+
+    // 4. Cleanup: borrar videos originales pesados
+    if (cleanup) {
+      console.log("\nLimpiando videos originales...");
+      let totalFreed = 0;
+      for (const p of inputPaths) {
+        try {
+          const size = statSync(p).size;
+          unlinkSync(p);
+          totalFreed += size;
+          console.log(`  ✓ Borrado: ${basename(p)} (${(size / 1024 / 1024).toFixed(1)} MB)`);
+        } catch (e) {
+          console.log(`  ✗ No se pudo borrar: ${basename(p)} (${e.message})`);
+        }
+      }
+      console.log(`  Total liberado: ${(totalFreed / 1024 / 1024).toFixed(1)} MB`);
+    }
+  } finally {
+    for (const f of tempFiles) {
+      try { if (existsSync(f)) unlinkSync(f); } catch {}
+    }
   }
 }
 

@@ -21,12 +21,14 @@
 import ffmpegStatic from "ffmpeg-static";
 import sharp from "sharp";
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "fs";
-import { resolve, join } from "path";
+import { resolve, dirname, join } from "path";
 import { execFileSync } from "child_process";
 import { tmpdir } from "os";
+import { fileURLToPath } from "url";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const FFMPEG = ffmpegStatic;
-const CARDS_DIR = resolve("scripts", ".cards");
+const CARDS_DIR = resolve(__dirname, ".cards");
 
 // ── Args ──
 const args = process.argv.slice(2);
@@ -73,7 +75,7 @@ if (refVideo && existsSync(refVideo)) {
 // ── CTA por defecto de TerraSAT ──
 function extractCTA() {
   if (ctaText) return ctaText;
-  return "Observación satelital para Latinoamérica";
+  return "¿Necesitas inteligencia satelital de tu territorio? Solicita un mapa interactivo piloto de tu región o ciudad.";
 }
 
 // ── Icono SVG inline (satélite estilizado de TerraSAT) ──
@@ -106,12 +108,13 @@ function wrapText(text, maxChars) {
 
 // ── Generar PNGs ──
 
-// Intro: fondo oscuro verde-azulado, icono satélite, "TerraSAT" + tagline
+// Intro: fondo oscuro verde-azulado, icono satélite, "TerraSAT" + título + tagline
 async function makeIntroPng(w, h, outPath) {
-  const iconSize = Math.round(w * 0.15);
-  const brandSize = Math.round(w * 0.07);
-  const tagSize = Math.round(w * 0.032);
-  const cy = Math.round(h * 0.42);
+  const iconSize = Math.round(w * 0.12);
+  const brandSize = Math.round(w * 0.065);
+  const titleSize = Math.round(w * 0.045);
+  const tagSize = Math.round(w * 0.028);
+  const cy = Math.round(h * 0.38);
 
   const svg = `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -121,7 +124,7 @@ async function makeIntroPng(w, h, outPath) {
     <linearGradient id="icon" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#059669"/><stop offset="100%" stop-color="#0d9488"/>
     </linearGradient>
-    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+    <radialGradient id="glow" cx="0.5" cy="0.38" r="0.5">
       <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
     </radialGradient>
   </defs>
@@ -132,7 +135,8 @@ async function makeIntroPng(w, h, outPath) {
     <g transform="translate(128, 128) scale(10.67)" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${SATELLITE_ICON}</g>
   </g>
   <text x="${w / 2}" y="${cy + brandSize * 0.8}" font-family="Arial, Helvetica, sans-serif" font-size="${brandSize}" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="2">TerraSAT</text>
-  <text x="${w / 2}" y="${cy + brandSize * 0.8 + tagSize * 1.8}" font-family="Arial, Helvetica, sans-serif" font-size="${tagSize}" font-weight="400" fill="#6ee7b7" text-anchor="middle" letter-spacing="3">Observación satelital LAC</text>
+  <text x="${w / 2}" y="${cy + brandSize * 0.8 + titleSize * 1.4}" font-family="Arial, Helvetica, sans-serif" font-size="${titleSize}" font-weight="600" fill="#6ee7b7" text-anchor="middle" letter-spacing="1">Imágenes satelitales para anticipar eventos</text>
+  <text x="${w / 2}" y="${cy + brandSize * 0.8 + titleSize * 1.4 + tagSize * 1.8}" font-family="Arial, Helvetica, sans-serif" font-size="${tagSize}" font-weight="400" fill="#a7f3d0" text-anchor="middle" letter-spacing="3" opacity="0.8">Observación satelital LAC</text>
 </svg>`;
   writeFileSync(outPath, await sharp(Buffer.from(svg)).png().toBuffer());
 }
@@ -222,6 +226,8 @@ async function main() {
   const cta = extractCTA();
   console.log(`CTA: "${cta}"\n`);
 
+  // CTA de la SPA: "¿Necesitas inteligencia satelital de tu territorio?"
+
   // 1. Generar PNGs
   const introPng = join(tmpDir, `intro_${width}x${height}.png`);
   const ctaPng = join(tmpDir, `cta_${width}x${height}.png`);
@@ -236,8 +242,8 @@ async function main() {
   const introMp4 = join(CARDS_DIR, "intro.mp4");
   const ctaMp4 = join(CARDS_DIR, "cta.mp4");
 
-  console.log(`Renderizando intro.mp4 (${width}x${height}@${fps}, 2s, fade 0.4s, Ken Burns)...`);
-  renderCardPngToMp4(introPng, introMp4, 2, 0.4, true);
+  console.log(`Renderizando intro.mp4 (${width}x${height}@${fps}, 3s, fade 0.5s, Ken Burns)...`);
+  renderCardPngToMp4(introPng, introMp4, 3, 0.5, true);
   console.log("  ✓");
 
   console.log(`Renderizando cta.mp4 (${width}x${height}@${fps}, 5s, fade 0.5s)...`);
@@ -245,7 +251,7 @@ async function main() {
   console.log("  ✓\n");
 
   console.log(`Cards generados en: ${CARDS_DIR}`);
-  console.log(`  intro.mp4 — 2s (reutilizable)`);
+  console.log(`  intro.mp4 — 3s (reutilizable)`);
   console.log(`  cta.mp4   — 5s (CTA actual)`);
 }
 
