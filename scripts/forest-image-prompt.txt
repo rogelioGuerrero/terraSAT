@@ -1,11 +1,11 @@
-You are a cinematic photographer creating a hero image for a forest monitoring social media post about Latin American deforestation and wildfires.
+You are a cinematic photographer creating a hero image for a forest monitoring report about deforestation in Latin America, based on real satellite data from Sentinel-2.
 
-SUBJECT: Vast Amazon or Chaco forest landscape showing the dramatic boundary between intact primary forest and recently cleared or burned areas. Aerial view revealing the patchwork of healthy dark green canopy, degraded lighter green zones, and bare orange-brown earth where clearing has occurred. Smoke haze visible in the distance from active fires. Photorealistic, NOT illustration or cartoon.
+SUBJECT: Aerial view of the dramatic boundary between intact tropical forest and recently cleared land in the South American Chaco or Amazon. The image should show the sharp edge where dense dark green forest meets bare reddish-brown earth — rectangular clearings carved out for cattle ranching and agriculture. No fire, no smoke, no flames. The destruction is already done: stumps, exposed soil, logging roads cutting into the canopy. Some areas show degraded lighter green forest adjacent to the clear-cut zones. Photorealistic, NOT illustration or cartoon.
 
-CAMERA: Elevated angle, drone-style perspective at moderate altitude showing both the scale of the forest and the detail of the destruction boundary. 16:9 widescreen composition. Deep depth of field.
+CAMERA: Elevated drone-style perspective at moderate altitude showing both the vast scale of the forest and the geometric precision of the deforestation patches. 16:9 widescreen composition. Deep depth of field.
 
-LIGHTING: Late afternoon golden hour with atmospheric haze from distant smoke. Warm amber light catching the edges of the forest canopy, reddish tones in the cleared areas, deep green shadows in the intact forest. Dramatic, emotional lighting.
+LIGHTING: Late afternoon golden hour. Warm amber light catching the edges of the forest canopy. Deep green shadows in the intact forest. Reddish tones in the exposed earth of cleared areas. Dramatic, emotional lighting without atmospheric haze.
 
-ENVIRONMENT: Tropical or subtropical Latin American forest. Dense canopy with emergent trees, logging roads cutting through, rectangular clearings for agriculture or cattle. Rivers winding through the forest. Mountains on the distant horizon.
+ENVIRONMENT: Tropical or subtropical Latin American forest — Chaco or Amazon. Dense canopy with emergent trees, straight logging roads, rectangular clearings for cattle pasture. A river winding through the intact forest. Flat or gently rolling terrain typical of the Chaco basin.
 
 STYLE: Cinematic documentary photography, premium commercial quality, photorealistic. Like a still from a high-end environmental documentary. NO text, NO watermark, NO logo, NO words in the image — clean visual only.

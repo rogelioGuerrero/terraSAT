@@ -19,8 +19,8 @@ import edge_tts
 
 BASE = Path(__file__).parent.parent
 ASSETS = BASE / "web" / "src" / "assets"
-OUTPUT = BASE / "scripts" / "demo-narrated-video.mp4"
-TTS_OUTPUT = BASE / "scripts" / "demo-narration.mp3"
+OUTPUT = BASE / "scripts" / "forest-narrated-video.mp4"
+TTS_OUTPUT = BASE / "scripts" / "forest-narration.mp3"
 OVERLAY_PNG = BASE / "scripts" / "overlay-terrasat.png"
 INTRO_MP4 = BASE / "scripts" / ".cards" / "intro.mp4"
 OUTRO_MP4 = BASE / "scripts" / ".cards" / "cta.mp4"
@@ -37,31 +37,50 @@ CLIP_FADE_DUR = 0.5     # Fade entre clips (through black)
 # Voz latino neutra
 VOICE = "es-US-AlonsoNeural"
 
-# Narración del artículo de AgroSAT
+# Narración del artículo de ForestSAT
 NARRATION = (
-    "Sequía afecta cultivos en Latinoamérica. "
-    "La sequía está causando estrés en cultivos de café, soja y viñas en varias regiones de Latinoamérica. "
-    "Nuestro sistema de alerta temprana, basado en imágenes satelitales de agencias reconocidas como NASA y ESA, "
-    "detecta situaciones atípicas 15 días antes de que aparezcan síntomas visibles. "
+    "Lo que el satélite ve cuando el bosque desaparece. "
+    "Consultamos imágenes de Sentinel-2 de la Agencia Espacial Europea entre agosto de 2025 y junio de 2026 "
+    "en 10 zonas forestales de 8 países de Latinoamérica. "
+    "Calculamos NDVI e NBR para cada zona. "
+    "Tres zonas muestran una señal doble de deforestación y quema simultánea, "
+    "algo que solo se ve cuando el bosque está siendo eliminado activamente. "
     "\n\n"
-    "Zonas en alerta. "
-    "En Honduras, las regiones de Intibucá y El Paraíso presentan sequía severa y moderada, respectivamente, "
-    "afectando a más de 25 mil hectáreas de café. "
-    "En Brasil, Mato Grosso enfrenta una sequía severa que afecta a más de 139 mil hectáreas de soja, "
-    "mientras que Espíritu Santo presenta sequía moderada en sus cultivos de café. "
-    "En Colombia, la región de Caldas también enfrenta sequía moderada en sus cultivos de café. "
+    "El Chaco paraguayo registró la caída más profunda: NDVI cayó 0.394 y NBR se desplomó 0.297. "
+    "Es la señal más severa de las 10 zonas analizadas. "
+    "La combinación de pérdida de vegetación y caída del NBR apunta a tala seguida de quema, "
+    "el patrón clásico de expansión ganadera en el Chaco. "
     "\n\n"
-    "Zonas bajo vigilancia. "
-    "Jinotega en Nicaragua y Valle Central en Chile presentan sequía leve en sus cultivos de café y viñas, respectivamente. "
+    "Leticia, en la frontera amazónica de Colombia, muestra el mismo patrón: "
+    "NDVI menos 0.362 y NBR menos 0.305. "
+    "El Ideam reportó que la deforestación nacional subió 5.2 por ciento en 2025, "
+    "con 72 mil hectáreas perdidas en la Amazonía colombiana. "
+    "El satélite de la ESA confirma lo que Ideam detectó desde el suelo. "
     "\n\n"
-    "¿Su plantación o empresa agroindustrial opera en alguna de estas zonas? "
-    "AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles. "
-    "Reportes personalizados disponibles."
+    "Darién, en Panamá, presenta la tercera señal doble. "
+    "Pero aquí hay una historia más compleja. "
+    "Global Forest Watch documentó que la pérdida de bosque en el Parque Nacional Darién se redujo 88 por ciento "
+    "entre 2022 y 2025, gracias a guardaparques equipados con alertas satelitales. "
+    "La presión se desplazó hacia el buffer. "
+    "\n\n"
+    "Pero no todo es pérdida. "
+    "Manaus, en el corazón del Amazonas brasileño, mostró recuperación: "
+    "NDVI más 0.202 y NBR más 0.157. "
+    "MapBiomas confirmó que Brasil redujo su deforestación 20 por ciento en 2025. "
+    "\n\n"
+    "El Observatorio Regional Amazónico reportó que la deforestación cayó 68 por ciento en 2025. "
+    "Pero MAAP estimó que aún se deforestaron 736 mil hectáreas, "
+    "con 132 mil dentro de áreas protegidas y territorios indígenas. "
+    "La reducción es real, pero el problema estructural persiste. "
+    "\n\n"
+    "ForestSAT detecta pérdida de cobertura, áreas quemadas y degradación forestal "
+    "con datos de Sentinel-2 de la ESA. "
+    "Reportes personalizados por zona y monitoreo continuo."
 )
 
-# Videos de AgroSAT
+# Videos de ForestSAT
 CLIPS = [
-    ASSETS / "informe-agrosat-crisis-video-opt.mp4",
+    ASSETS / "informe-forest-video-opt.mp4",
     ASSETS / "informe-coffee-hill-video-opt.mp4",
     ASSETS / "informe-soybean-video-opt.mp4",
     ASSETS / "informe-coffee-video-opt.mp4",

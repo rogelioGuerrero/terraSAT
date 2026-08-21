@@ -100,14 +100,19 @@ PRODUCT_CONFIGS = {
         "image_bbox": [-74.12, 4.55, -74.02, 4.65],
     },
     "forest": {
-        "title": "ForestSAT — Análisis de cobertura forestal",
+        "title": "ForestSAT — Análisis de cobertura forestal LAC",
         "indices": ["ndvi", "nbr"],
         "zones": [
-            {"name": "Amazonas (Leticia)", "lat": -4.21, "lng": -69.93},
-            {"name": "Chocó (Quibdó)", "lat": 5.69, "lng": -76.66},
-            {"name": "Orinoquía (Villavicencio)", "lat": 4.14, "lng": -73.62},
-            {"name": "Sierra Nevada (Santa Marta)", "lat": 10.90, "lng": -73.75},
-            {"name": "Darién", "lat": 8.40, "lng": -77.40},
+            {"name": "Amazonas (Leticia, Colombia)", "lat": -4.21, "lng": -69.93},
+            {"name": "Amazonas (Manaus, Brasil)", "lat": -3.47, "lng": -62.21},
+            {"name": "Chocó (Quibdó, Colombia)", "lat": 5.69, "lng": -76.66},
+            {"name": "Darién (Panamá)", "lat": 8.40, "lng": -77.40},
+            {"name": "Selva Lacandona (Chiapas, México)", "lat": 16.10, "lng": -90.90},
+            {"name": "Cerrado (Goiás, Brasil)", "lat": -15.00, "lng": -52.00},
+            {"name": "Chaco (Presidente Hayes, Paraguay)", "lat": -22.50, "lng": -60.50},
+            {"name": "Yungas (La Paz, Bolivia)", "lat": -16.00, "lng": -67.50},
+            {"name": "Madre de Dios (Perú)", "lat": -12.50, "lng": -69.00},
+            {"name": "Sierra Nevada (Santa Marta, Colombia)", "lat": 10.90, "lng": -73.75},
         ],
         "pre_range": ("2025-08-01T00:00:00Z", "2025-10-31T23:59:59Z"),
         "post_range": ("2026-06-01T00:00:00Z", "2026-08-14T23:59:59Z"),
@@ -142,9 +147,9 @@ PRODUCT_CONFIGS = {
 # ═══════════════════════════════════════════════════════════════
 
 INDEX_DEFS = {
-    "ndvi": {"bands": ["B04", "B08"], "formula": "(B04 - B08) / (B04 + B08)"},
+    "ndvi": {"bands": ["B08", "B04"], "formula": "(B08 - B04) / (B08 + B04)"},
     "nbr":  {"bands": ["B08", "B12"], "formula": "(B08 - B12) / (B08 + B12)"},
-    "ndre": {"bands": ["B05", "B08"], "formula": "(B05 - B08) / (B05 + B08)"},
+    "ndre": {"bands": ["B08", "B05"], "formula": "(B08 - B05) / (B08 + B05)"},
     "ndbi": {"bands": ["B08", "B12"], "formula": "(B12 - B08) / (B12 + B08)"},
     "ndwi": {"bands": ["B03", "B08"], "formula": "(B03 - B08) / (B03 + B08)"},
 }

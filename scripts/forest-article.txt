@@ -1,9 +1,20 @@
-Incendios forestales en Latinoamérica: una amenaza creciente
-La situación forestal en Latinoamérica es alarmante, con grandes extensiones de bosque afectadas por incendios y deforestación. Comparamos imágenes antes y después del evento utilizando imágenes satelitales de agencias reconocidas como NASA y ESA, lo que nos permite detectar áreas quemadas, deforestación y degradación forestal.
+    Lo que el satélite ve cuando el bosque desaparece
 
-En Chile, las zonas más afectadas por incendios son Maule Centro, Maule Costa y Biobío Interior, con severidad quemada alta y áreas afectadas de 1499 km², 950 km² y 916 km², respectivamente. Biobío Costa y Araucanía también presentan severidad quemada moderada, con áreas de 446 km² y 408 km². Por otro lado, Concepción no presenta áreas quemadas.
+    Consultamos imágenes de Sentinel-2 de la Agencia Espacial Europea entre agosto-octubre 2025 y junio-agosto 2026 en 10 zonas forestales de 8 países de Latinoamérica. Calculamos NDVI (índice de vegetación) y NBR (índice de área quemada) para cada zona. Lo que encontramos nos sorprendió: tres zonas muestran una señal doble de deforestación y quema simultánea, algo que solo se ve cuando el bosque está siendo eliminado activamente. 🛰️
 
-En Paraguay, la deforestación es un problema significativo, con áreas deforestadas en Alto Paraguay, Boquerón y Presidente Hayes, que suman 754 km², 421 km² y 335 km², respectivamente. Chaco Central presenta una área degradada de 151 km². Afortunadamente, zonas como Defensores del Chaco y Medanos del Chaco se mantienen intactas.
+    El Chaco paraguayo registró la caída más profunda: NDVI cayó 0.394 y NBR se desplomó 0.297. Es la señal más severa de las 10 zonas analizadas. El NBR por debajo de 0.10 indica que el bosque que estaba ahí en agosto 2025 ya no está en junio 2026. La combinación de pérdida de vegetación y caída del NBR apunta a tala followed by burning, el patrón clásico de expansión ganadera en el Chaco. 🌳
 
-¿Su organización trabaja en conservación, silvicultura o carbono? ForestSAT detecta pérdida de cobertura, áreas quemadas y degradación forestal con validación multi-sensor. Reportes para REDD+, certificación y cumplimiento normativo. Contacto: info@agtisa.com 🛰️
-#ForestSAT #Bosques #Conservación 🌲🔥
+    Leticia, en la frontera amazónica de Colombia, muestra el mismo patrón: NDVI -0.362 y NBR -0.305. La coincidencia es alarmante porque el Instituto de Hidrología de Colombia (Ideam) reportó que la deforestación nacional subió 5.2% en 2025, con 72,409 hectáreas perdidas en la Amazonía colombiana. El satélite de la ESA confirma lo que Ideam detectó desde el suelo. 🔥
+
+    Darién, en Panamá, presenta la tercera señal doble: NDVI -0.313 y NBR -0.264. Pero aquí hay una historia más compleja. Global Forest Watch documentó que la pérdida de bosque en el Parque Nacional Darién se redujo 88% entre 2022 y 2025, gracias a guardaparques equipados con alertas satelitales Starlink y EarthRanger. Nuestro análisis detectó degradación en la zona del Darién pero no necesariamente dentro del parque protegido. La presión se desplazó hacia el buffer. 🛡️
+
+    El Chocó colombicano (Quibdó) muestra daño forestal moderado: NDVI -0.108 y NBR -0.143. La Selva Lacandona de Chiapas perdió vegetación (NDVI -0.134) sin quema asociada, lo que sugiere degradación progresiva más que incendio. Madre de Dios, en Perú, registró estrés leve consistente con la presión minera y agrícola que MAAP documentó como la tercera mayor de la Amazonía. 🌿
+
+    Pero no todo es pérdida. Manaus, en el corazón del Amazonas brasileño, mostró recuperación: NDVI +0.202 y NBR +0.157. El MapBiomas confirmó que Brasil redujo su deforestación 20% en 2025, con la Amazonía brasileña bajando a 298,000 hectáreas. El satélite de la ESA ve la misma recuperación que MapBiomas detectó desde el suelo. Las Yungas bolivianas también mostraron recuperación fuerte (NDVI +0.486), aunque parte de este cambio puede reflejar diferencias estacionales entre la temporada seca y la de transición. 📈
+
+    El contexto regional es claro. El Observatorio Regional Amazónico de la OTCA reportó que la deforestación amazónica cayó 68% en 2025 respecto al pico de 2024. World Resources Institute confirmó una reducción del 36% en pérdida de bosque tropical a nivel global. Pero MAAP estimó que aún se deforestaron 736,484 hectáreas en la Amazonía en 2025, con 132,000 hectáreas dentro de áreas protegidas y territorios indígenas. La reducción es real, pero el problema estructural persiste. ⚠️
+
+    La OTCA advirtió que 2024 fue un año pico por sequía severa e incendios. WRI proyecta que El Niño en 2026 podría intensificar el riesgo de incendios. Nuestro análisis satelital ya detecta estrés forestal en 6 de 10 zonas monitoreadas. El satélite no espera a que el bosque arda para avisar. 🌎
+
+    ¿Su organización trabaja en conservación, silvicultura, carbono o REDD+? ForestSAT detecta pérdida de cobertura, áreas quemadas y degradación forestal con datos de Sentinel-2 de la ESA. Reportes personalizados por zona, validación multi-sensor y monitoreo continuo. Contacto: info@agtisa.com 🛰️
+    #ForestSAT #Bosques #Conservación

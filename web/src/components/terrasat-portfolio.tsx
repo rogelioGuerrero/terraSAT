@@ -17,6 +17,7 @@ import urbanSprawlImg from "@/assets/informe-urban-sprawl-opt.jpg"
 import coffeeHillImg from "@/assets/informe-coffee-hill-opt.jpg"
 import urbanTreesImg from "@/assets/informe-urban-trees-opt.jpg"
 import agrosatCrisisImg from "@/assets/informe-agrosat-crisis-opt.jpg"
+import forestImg from "@/assets/informe-forest-opt.jpg"
 
 import agrosatCrisisVideo from "@/assets/informe-agrosat-crisis-video-opt.mp4"
 import coffeeVideo from "@/assets/informe-coffee-video-opt.mp4"
@@ -25,6 +26,7 @@ import soybeanVideo from "@/assets/informe-soybean-video-opt.mp4"
 import urbanSprawlVideo from "@/assets/informe-urban-sprawl-video-opt.mp4"
 import coffeeHillVideo from "@/assets/informe-coffee-hill-video-opt.mp4"
 import urbanTreesVideo from "@/assets/informe-urban-trees-video-opt.mp4"
+import forestVideo from "@/assets/informe-forest-video-opt.mp4"
 
 const imageMap: Record<string, string> = {
   "informe-coffee-opt.jpg": coffeeImg,
@@ -34,6 +36,7 @@ const imageMap: Record<string, string> = {
   "informe-coffee-hill-opt.jpg": coffeeHillImg,
   "informe-urban-trees-opt.jpg": urbanTreesImg,
   "informe-agrosat-crisis-opt.jpg": agrosatCrisisImg,
+  "informe-forest-opt.jpg": forestImg,
 }
 
 const videoMap: Record<string, string> = {
@@ -44,12 +47,13 @@ const videoMap: Record<string, string> = {
   "informe-urban-sprawl-video-opt.mp4": urbanSprawlVideo,
   "informe-coffee-hill-video-opt.mp4": coffeeHillVideo,
   "informe-urban-trees-video-opt.mp4": urbanTreesVideo,
+  "informe-forest-video-opt.mp4": forestVideo,
 }
 
 interface Informe {
   id: string
   title: string
-  category: "agrosat" | "urbansat"
+  category: "agrosat" | "urbansat" | "forestsat"
   date: string
   location: string
   image: string
@@ -60,7 +64,7 @@ interface Informe {
 
 const informes: Informe[] = informesData.map((item) => ({
   ...item,
-  category: item.category as "agrosat" | "urbansat",
+  category: item.category as "agrosat" | "urbansat" | "forestsat",
   image: imageMap[item.image] ?? coffeeImg,
   video: item.video ? (videoMap[item.video] ?? undefined) : undefined,
 }))
@@ -69,12 +73,13 @@ const filters = [
   { label: "Todos", value: "all" as const },
   { label: "AgroSAT", value: "agrosat" as const },
   { label: "UrbanSAT", value: "urbansat" as const },
+  { label: "ForestSAT", value: "forestsat" as const },
 ]
 
 const PAGE_SIZE = 6
 
 export function TerraSATPortfolio() {
-  const [filter, setFilter] = useState<"all" | "agrosat" | "urbansat">("all")
+  const [filter, setFilter] = useState<"all" | "agrosat" | "urbansat" | "forestsat">("all")
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [selected, setSelected] = useState<Informe | null>(null)
 
@@ -82,7 +87,7 @@ export function TerraSATPortfolio() {
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
 
-  function handleFilterChange(value: "all" | "agrosat" | "urbansat") {
+  function handleFilterChange(value: "all" | "agrosat" | "urbansat" | "forestsat") {
     setFilter(value)
     setVisibleCount(PAGE_SIZE)
   }
@@ -141,10 +146,12 @@ export function TerraSATPortfolio() {
                     "absolute top-3 right-3 rounded-full px-2.5 py-0.5 text-[10px] font-medium",
                     boletin.category === "agrosat"
                       ? "bg-amber-400/20 text-amber-400"
-                      : "bg-primary/20 text-primary"
+                      : boletin.category === "forestsat"
+                        ? "bg-green-500/20 text-green-500"
+                        : "bg-primary/20 text-primary"
                   )}
                 >
-                  {boletin.category === "agrosat" ? "AgroSAT" : "UrbanSAT"}
+                  {boletin.category === "agrosat" ? "AgroSAT" : boletin.category === "forestsat" ? "ForestSAT" : "UrbanSAT"}
                 </div>
               </div>
 
@@ -222,10 +229,12 @@ export function TerraSATPortfolio() {
                     "absolute top-4 right-4 rounded-full px-3 py-1 text-xs font-medium",
                     selected.category === "agrosat"
                       ? "bg-amber-400/20 text-amber-400"
-                      : "bg-primary/20 text-primary"
+                      : selected.category === "forestsat"
+                        ? "bg-green-500/20 text-green-500"
+                        : "bg-primary/20 text-primary"
                   )}
                 >
-                  {selected.category === "agrosat" ? "AgroSAT" : "UrbanSAT"}
+                  {selected.category === "agrosat" ? "AgroSAT" : selected.category === "forestsat" ? "ForestSAT" : "UrbanSAT"}
                 </div>
               </div>
 

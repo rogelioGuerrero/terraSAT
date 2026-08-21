@@ -25,3 +25,7 @@ Thumbs.db
 # Script temp artifacts
 scripts/.atelier/
 scripts/.cards/
+
+# Raw video downloads (temp)
+scripts/*-raw.mp4
+scripts/*-pexels-*.mp4
