@@ -1,0 +1,18 @@
+{
+  "_description": "Zonas monitoreadas por el boletín AgroSAT. Editar/eliminar/agregar libremente — el pipeline es agnóstico a la lista. area_ha define el tamaño del bbox consultado a Sentinel-2 (~sqrt(area)); puede ser una finca de 50 ha o una región de 300k ha. Mismo pipeline para zoom país o finca.",
+  "zones": [
+    { "name": "Intibucá", "country": "Honduras", "crop": "Café", "lat": 14.35, "lng": -88.20, "area_ha": 45000 },
+    { "name": "El Paraíso", "country": "Honduras", "crop": "Café", "lat": 14.15, "lng": -86.55, "area_ha": 38000 },
+    { "name": "Alta Verapaz", "country": "Guatemala", "crop": "Café", "lat": 15.58, "lng": -90.30, "area_ha": 52000 },
+    { "name": "Jinotega", "country": "Nicaragua", "crop": "Café", "lat": 13.10, "lng": -86.00, "area_ha": 42000 },
+    { "name": "Caldas", "country": "Colombia", "crop": "Café", "lat": 5.07, "lng": -75.50, "area_ha": 65000 },
+    { "name": "Quindío", "country": "Colombia", "crop": "Café", "lat": 4.46, "lng": -75.67, "area_ha": 48000 },
+    { "name": "Espírito Santo", "country": "Brasil", "crop": "Café", "lat": -19.19, "lng": -40.34, "area_ha": 85000 },
+    { "name": "Minas Gerais", "country": "Brasil", "crop": "Café", "lat": -18.70, "lng": -44.50, "area_ha": 120000 },
+    { "name": "Mato Grosso", "country": "Brasil", "crop": "Soja", "lat": -12.50, "lng": -55.70, "area_ha": 320000 },
+    { "name": "Córdoba", "country": "Argentina", "crop": "Soja", "lat": -31.42, "lng": -64.18, "area_ha": 180000 },
+    { "name": "Valle Central", "country": "Chile", "crop": "Viñas", "lat": -35.00, "lng": -71.00, "area_ha": 55000 },
+    { "name": "Mendoza", "country": "Argentina", "crop": "Viñas", "lat": -32.89, "lng": -68.83, "area_ha": 95000 },
+    { "name": "São Paulo", "country": "Brasil", "crop": "Caña", "lat": -22.00, "lng": -48.00, "area_ha": 210000 }
+  ]
+}

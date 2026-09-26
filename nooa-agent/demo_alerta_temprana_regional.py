@@ -23,6 +23,7 @@ Ejecutar: uv run python nooa-agent/demo_alerta_temprana_regional.py [--simulate]
 
 from __future__ import annotations
 
+import json
 import logging
 import random
 import sys
@@ -74,7 +75,22 @@ class AgroZone:
 # Zonas agroclimáticas — Centroamérica + Suramérica
 # ═════════════════════════════════════════════════════════════════════
 
+ZONES_CONFIG_PATH = Path(__file__).parent / "agro_zones_config.json"
+
+
 def generate_zones() -> list[AgroZone]:
+    """Lista de zonas monitoreadas. Si existe agro_zones_config.json se usa
+    ese archivo (configuración PoC — editable sin tocar código); si no,
+    se usan las zonas por defecto de abajo."""
+    if ZONES_CONFIG_PATH.exists():
+        data = json.loads(ZONES_CONFIG_PATH.read_text(encoding="utf-8"))
+        return [
+            AgroZone(
+                z["name"], z["country"], z["crop"],
+                float(z["lat"]), float(z["lng"]), int(z["area_ha"]),
+            )
+            for z in data["zones"]
+        ]
     return [
         # ─── Centroamérica: café ───
         AgroZone("Intibucá", "Honduras", "Café", 14.35, -88.20, 45_000),
@@ -226,7 +242,7 @@ REGLAS CRÍTICAS:
 - SI puedes decir: "análisis de vegetación y temperatura de dosel"
 - SI puedes decir: "datos de precipitación satelital"
 - SI puedes decir: "trabajamos con datos espectrales y 20 años de datos históricos"
-- SI puedes decir: "detectamos situaciones atípicas 15 días antes de que aparezcan síntomas visibles"
+- SI puedes decir: "detectamos situaciones atípicas semanas antes de que aparezcan síntomas visibles"
 - Las zonas marcadas "sin datos" no pudieron evaluarse por nubosidad persistente; menciónalo en una sola línea breve
 - NO uses frases defensivas como "no es magia" o "no es ciencia ficción"
 - Tono: afirmativo y seguro, no justificativo
@@ -238,7 +254,7 @@ ESTRUCTURA DEL BOLETÍN:
 4. Zonas bajo vigilancia: mención breve agrupada
 5. Zonas normales: una sola línea
 6. CTA abierto que menciona audiencias específicas para que el lector se identifique:
-   "¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
+   "¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos semanas antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
 7. 3 hashtags al final
 
 FORMATO:
@@ -335,7 +351,7 @@ def _fallback_article(zones: list[AgroZone]) -> str:
         lines.append(f"\n🌫️ Sin evaluación por nubosidad persistente: {names}")
 
     lines.append("")
-    lines.append("¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com")
+    lines.append("¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos semanas antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com")
     lines.append("")
     lines.append("#AgroSAT #TerraSAT #AlertaTemprana")
 
