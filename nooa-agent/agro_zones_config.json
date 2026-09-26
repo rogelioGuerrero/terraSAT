@@ -1,5 +1,5 @@
 {
-  "_description": "Zonas monitoreadas por el boletín AgroSAT. Editar/eliminar/agregar libremente — el pipeline es agnóstico a la lista. area_ha define el tamaño del bbox consultado a Sentinel-2 (~sqrt(area)); puede ser una finca de 50 ha o una región de 300k ha. Mismo pipeline para zoom país o finca.",
+  "_description": "Zonas monitoreadas por el boletín AgroSAT. Editar/eliminar/agregar libremente — el pipeline es agnóstico a la lista y a la escala. Mínimo requerido por zona: lat + lng (una finca nueva solo necesita coordenadas). Opcionales: name, country, crop, area_ha (default 2000 ha — define el tamaño del bbox consultado a Sentinel-2). Sirve igual para una región de 300k ha o una finca de 50 ha.",
   "zones": [
     { "name": "Intibucá", "country": "Honduras", "crop": "Café", "lat": 14.35, "lng": -88.20, "area_ha": 45000 },
     { "name": "El Paraíso", "country": "Honduras", "crop": "Café", "lat": 14.15, "lng": -86.55, "area_ha": 38000 },

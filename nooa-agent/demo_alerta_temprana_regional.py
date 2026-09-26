@@ -84,13 +84,19 @@ def generate_zones() -> list[AgroZone]:
     se usan las zonas por defecto de abajo."""
     if ZONES_CONFIG_PATH.exists():
         data = json.loads(ZONES_CONFIG_PATH.read_text(encoding="utf-8"))
-        return [
-            AgroZone(
-                z["name"], z["country"], z["crop"],
-                float(z["lat"]), float(z["lng"]), int(z["area_ha"]),
-            )
-            for z in data["zones"]
-        ]
+        zones = []
+        for z in data["zones"]:
+            # Mínimo requerido: lat + lng. El resto tiene defaults —
+            # una finca nueva solo necesita coordenadas.
+            lat, lng = float(z["lat"]), float(z["lng"])
+            zones.append(AgroZone(
+                z.get("name") or f"Zona {lat:.2f},{lng:.2f}",
+                z.get("country", ""),
+                z.get("crop", "Cultivo"),
+                lat, lng,
+                int(z.get("area_ha", 2000)),
+            ))
+        return zones
     return [
         # ─── Centroamérica: café ───
         AgroZone("Intibucá", "Honduras", "Café", 14.35, -88.20, 45_000),
