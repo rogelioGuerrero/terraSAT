@@ -18,6 +18,7 @@ import coffeeHillImg from "@/assets/informe-coffee-hill-opt.jpg"
 import urbanTreesImg from "@/assets/informe-urban-trees-opt.jpg"
 import agrosatCrisisImg from "@/assets/informe-agrosat-crisis-opt.jpg"
 import forestImg from "@/assets/informe-forest-opt.jpg"
+import agrosatAlertImg from "@/assets/informe-agrosat-alert-opt.jpg"
 
 import agrosatCrisisVideo from "@/assets/informe-agrosat-crisis-video-opt.mp4"
 import coffeeVideo from "@/assets/informe-coffee-video-opt.mp4"
@@ -27,6 +28,7 @@ import urbanSprawlVideo from "@/assets/informe-urban-sprawl-video-opt.mp4"
 import coffeeHillVideo from "@/assets/informe-coffee-hill-video-opt.mp4"
 import urbanTreesVideo from "@/assets/informe-urban-trees-video-opt.mp4"
 import forestVideo from "@/assets/informe-forest-video-opt.mp4"
+import agrosatAlertVideo from "@/assets/informe-agrosat-alert-video-opt.mp4"
 
 const imageMap: Record<string, string> = {
   "informe-coffee-opt.jpg": coffeeImg,
@@ -37,6 +39,7 @@ const imageMap: Record<string, string> = {
   "informe-urban-trees-opt.jpg": urbanTreesImg,
   "informe-agrosat-crisis-opt.jpg": agrosatCrisisImg,
   "informe-forest-opt.jpg": forestImg,
+  "informe-agrosat-alert-opt.jpg": agrosatAlertImg,
 }
 
 const videoMap: Record<string, string> = {
@@ -48,6 +51,7 @@ const videoMap: Record<string, string> = {
   "informe-coffee-hill-video-opt.mp4": coffeeHillVideo,
   "informe-urban-trees-video-opt.mp4": urbanTreesVideo,
   "informe-forest-video-opt.mp4": forestVideo,
+  "informe-agrosat-alert-video-opt.mp4": agrosatAlertVideo,
 }
 
 interface Informe {

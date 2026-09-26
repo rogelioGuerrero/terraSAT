@@ -27,12 +27,21 @@ Informe mensual con mapa interactivo de nuevas construcciones, islas de calor ur
 
 ## Pipeline de publicación
 
+**Automatizado** (`.github/workflows/agrosat-weekly.yml`): cada lunes 12:00 UTC corre
+análisis → mapa → screenshot → branding → publicación en Facebook.
+Secrets requeridos en el repo: `CDSE_USERNAME`, `CDSE_PASSWORD`, `GROQ_API_KEY`,
+`PEXELS_API_KEY`, `FB_PAGE_ID`, `FB_PAGE_ACCESS_TOKEN`. `workflow_dispatch` con `dry_run=true`
+genera todo sin publicar. Si el job falla (p.ej. token de FB expirado), el
+mismo pipeline se corre manual:
+
 1. Generar análisis: `python nooa-agent/demo_alerta_temprana_regional.py` (AgroSAT) o `python nooa-agent/demo_urban_sat.py` (UrbanSAT)
-2. Generar mapa: `python nooa-agent/generate_map.py` (AgroSAT) o `python nooa-agent/generate_urban_map.py` (UrbanSAT)
-3. Generar imagen artística en Gemini con prompt
-4. `node scripts/split-analysis.mjs` — efecto mitad natural / mitad análisis B/N
+   - AgroSAT usa **datos reales** por defecto: Sentinel-2 L2A (NDVI/NDRE via CDSE Statistical API, máscara de nubes SCL) + precipitación Open-Meteo/ERA5 vs climatología de 5 años. Ventana actual (21 días) vs mismo período del año anterior. Zonas sin imagen limpia salen como "sin datos". Usar `--simulate` para la simulación histórica.
+   - Salidas: `scripts/generated-article.txt`, `scripts/gemini-prompt.txt`, `scripts/agro-zones.json`
+2. Generar mapa: `python nooa-agent/generate_map.py` (lee `agro-zones.json`; `--simulate` para ignorarlo) o `python nooa-agent/generate_urban_map.py` (UrbanSAT)
+3. Foto de cultivo: `node scripts/fetch-pexels-photo.mjs "<query>"` (o imagen Gemini opcional con `gemini-prompt.txt`)
+4. `node scripts/combine-images.mjs "<foto>" "<mapa>"` — o `split-analysis.mjs` para efecto mitad natural / mitad análisis
 5. `node scripts/add-branding-terrasat.mjs` — branding + período de observación
-6. Publicar imagen + artículo en Facebook
+6. Publicar: `node scripts/fb-post.mjs "<imagen>" "@scripts/generated-article.txt"` (`--dry-run` para previsualizar)
 7. Actualizar SPA: agregar entrada a `web/src/data/informes.json` + imagen optimizada en `web/src/assets/`
 
 ---
@@ -65,9 +74,11 @@ npm run build  # build de producción a dist/
 - `uv` para gestión de dependencias Python
 
 ```bash
-uv sync
+uv sync --no-install-project   # el pyproject declara build que no aplica a este repo
 npm install
 ```
+
+Correr scripts Python con `.venv/Scripts/python` (Windows) o `uv run --no-sync python`.
 
 ## Contacto
 

@@ -13,8 +13,12 @@ Salidas:
   1. Boletín impreso en consola
   2. scripts/generated-article.txt — artículo listo para Facebook
   3. scripts/gemini-prompt.txt — prompt para generar imagen
+  4. scripts/agro-zones.json — estados por zona (insumo de generate_map.py)
 
-Ejecutar: uv run python nooa-agent/demo_alerta_temprana_regional.py
+Datos reales por defecto (Sentinel-2 via CDSE + precipitación Open-Meteo).
+Para la simulación histórica usar --simulate.
+
+Ejecutar: uv run python nooa-agent/demo_alerta_temprana_regional.py [--simulate]
 """
 
 from __future__ import annotations
@@ -53,10 +57,13 @@ class AgroZone:
     modis_z_score: float = 0.0
 
     # Estado calculado
-    status: str = "normal"  # normal / vigilancia / alerta / critico
+    status: str = "normal"  # normal / vigilancia / alerta / critico / sin_datos
     alert_cause: str = ""
     affected_area_ha: int = 0
     days_early_warning: int = 0
+
+    # Metadata de procedencia (modo real: fechas, días válidos, valores)
+    data_meta: dict = field(default_factory=dict)
 
     # Para el boletín
     headline: str = ""
@@ -153,36 +160,48 @@ def simulate_zones(zones: list[AgroZone], seed: int = 2026):
         zone.rainfall_pct = ((zone.rainfall_mm - chirps_normal) / chirps_normal) * 100
 
         # Clasificación — causa varía por cultivo y precipitación
-        if zone.ndre_delta < -0.08 and zone.ndvi_delta < -0.02:
-            zone.status = "critico"
-            if zone.rainfall_pct < -20:
-                zone.alert_cause = "Sequía severa"
-            elif zone.crop == "Café":
-                zone.alert_cause = "Enfermedad del cafetal"
-            else:
-                zone.alert_cause = "Deterioro severo del cultivo"
-            zone.affected_area_ha = int(zone.area_ha * rng.uniform(0.35, 0.50))
-            zone.days_early_warning = 18
-        elif zone.ndre_delta < -0.03 and zone.ndvi_delta < -0.01:
-            zone.status = "alerta"
-            if zone.rainfall_pct < -20:
-                zone.alert_cause = "Déficit hídrico"
-            elif zone.crop == "Café":
-                zone.alert_cause = "Enfermedad del cafetal"
-            else:
-                zone.alert_cause = "Deterioro del cultivo"
-            zone.affected_area_ha = int(zone.area_ha * rng.uniform(0.20, 0.35))
-            zone.days_early_warning = 15
-        elif zone.ndre_delta < -0.015:
-            zone.status = "vigilancia"
-            zone.alert_cause = "Signos tempranos de deterioro"
-            zone.affected_area_ha = int(zone.area_ha * rng.uniform(0.10, 0.20))
-            zone.days_early_warning = 12
+        classify_zone(zone, rng)
+
+
+def classify_zone(zone: AgroZone, rng: random.Random | None = None) -> None:
+    """
+    Clasifica el estado de una zona a partir de ndre_delta, ndvi_delta y
+    rainfall_pct ya cargados (simulados o reales). Sin rng usa fracciones
+    fijas para estimar el área afectada.
+    """
+    def frac(lo: float, hi: float) -> float:
+        return rng.uniform(lo, hi) if rng else (lo + hi) / 2
+
+    if zone.ndre_delta < -0.08 and zone.ndvi_delta < -0.02:
+        zone.status = "critico"
+        if zone.rainfall_pct < -20:
+            zone.alert_cause = "Sequía severa"
+        elif zone.crop == "Café":
+            zone.alert_cause = "Enfermedad del cafetal"
         else:
-            zone.status = "normal"
-            zone.alert_cause = ""
-            zone.affected_area_ha = 0
-            zone.days_early_warning = 0
+            zone.alert_cause = "Deterioro severo del cultivo"
+        zone.affected_area_ha = int(zone.area_ha * frac(0.35, 0.50))
+        zone.days_early_warning = 18
+    elif zone.ndre_delta < -0.03 and zone.ndvi_delta < -0.01:
+        zone.status = "alerta"
+        if zone.rainfall_pct < -20:
+            zone.alert_cause = "Déficit hídrico"
+        elif zone.crop == "Café":
+            zone.alert_cause = "Enfermedad del cafetal"
+        else:
+            zone.alert_cause = "Deterioro del cultivo"
+        zone.affected_area_ha = int(zone.area_ha * frac(0.20, 0.35))
+        zone.days_early_warning = 15
+    elif zone.ndre_delta < -0.015:
+        zone.status = "vigilancia"
+        zone.alert_cause = "Signos tempranos de deterioro"
+        zone.affected_area_ha = int(zone.area_ha * frac(0.10, 0.20))
+        zone.days_early_warning = 12
+    else:
+        zone.status = "normal"
+        zone.alert_cause = ""
+        zone.affected_area_ha = 0
+        zone.days_early_warning = 0
 
 
 # ═════════════════════════════════════════════════════════════════════
@@ -208,6 +227,7 @@ REGLAS CRÍTICAS:
 - SI puedes decir: "datos de precipitación satelital"
 - SI puedes decir: "trabajamos con datos espectrales y 20 años de datos históricos"
 - SI puedes decir: "detectamos situaciones atípicas 15 días antes de que aparezcan síntomas visibles"
+- Las zonas marcadas "sin datos" no pudieron evaluarse por nubosidad persistente; menciónalo en una sola línea breve
 - NO uses frases defensivas como "no es magia" o "no es ciencia ficción"
 - Tono: afirmativo y seguro, no justificativo
 
@@ -241,9 +261,10 @@ def generate_bulletin_article(zones: list[AgroZone]) -> str:
 
     zones_data = []
     for z in zones:
+        status_label = "sin datos (nubosidad)" if z.status == "sin_datos" else z.status
         zones_data.append(
             f"- {z.name}, {z.country}: {z.area_ha:,} ha | "
-            f"Estado: {z.status} | "
+            f"Estado: {status_label} | "
             f"Causa: {z.alert_cause or 'normal'} | "
             f"Área afectada: {z.affected_area_ha:,} ha | "
             f"Precipitación: {z.rainfall_pct:+.0f}% vs normal | "
@@ -259,7 +280,7 @@ def generate_bulletin_article(zones: list[AgroZone]) -> str:
                 {"role": "user", "content": prompt},
             ],
             temperature=0.6,
-            max_tokens=600,
+            max_tokens=4000,
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
@@ -272,6 +293,7 @@ def _fallback_article(zones: list[AgroZone]) -> str:
     alert_zones = [z for z in zones if z.status in ("critico", "alerta")]
     vigilancia = [z for z in zones if z.status == "vigilancia"]
     normales = [z for z in zones if z.status == "normal"]
+    sin_datos = [z for z in zones if z.status == "sin_datos"]
 
     total_affected = sum(z.affected_area_ha for z in alert_zones)
 
@@ -298,6 +320,10 @@ def _fallback_article(zones: list[AgroZone]) -> str:
     if normales:
         names = ", ".join(f"{z.name} ({z.country})" for z in normales)
         lines.append(f"\n✅ Condición normal: {names}")
+
+    if sin_datos:
+        names = ", ".join(z.name for z in sin_datos)
+        lines.append(f"\n🌫️ Sin evaluación por nubosidad persistente: {names}")
 
     lines.append("")
     lines.append("¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com")
@@ -333,6 +359,7 @@ STATUS_ICON = {
     "vigilancia": "🟡",
     "alerta": "🟠",
     "critico": "🔴",
+    "sin_datos": "🌫️",
 }
 
 
@@ -342,7 +369,7 @@ def print_bulletin(zones: list[AgroZone], article: str, today: date):
     affected_ha = sum(z.affected_area_ha for z in zones if z.status in ("critico", "alerta"))
     vigilancia_ha = sum(z.affected_area_ha for z in zones if z.status == "vigilancia")
 
-    by_status = {"normal": 0, "vigilancia": 0, "alerta": 0, "critico": 0}
+    by_status = {"normal": 0, "vigilancia": 0, "alerta": 0, "critico": 0, "sin_datos": 0}
     for z in zones:
         by_status[z.status] += 1
 
@@ -366,6 +393,7 @@ def print_bulletin(zones: list[AgroZone], article: str, today: date):
     print(f"  🟠 Alerta:     {by_status['alerta']} zonas")
     print(f"  🟡 Vigilancia: {by_status['vigilancia']} zonas")
     print(f"  ✅ Normal:     {by_status['normal']} zonas")
+    print(f"  🌫️ Sin datos:   {by_status['sin_datos']} zonas")
     print()
     print(f"  Superficie en alerta: {affected_ha:,} ha ({affected_ha/total_ha*100:.0f}%)")
     print(f"  Superficie en vigilancia: {vigilancia_ha:,} ha")
@@ -377,7 +405,7 @@ def print_bulletin(zones: list[AgroZone], article: str, today: date):
     print(f"  {'Zona':<20} {'País':<14} {'Cultivo':<10} {'Estado':<12} {'Área afectada':<16} {'Causa'}")
     print(f"  {'─' * 20} {'─' * 14} {'─' * 10} {'─' * 12} {'─' * 16} {'─' * 20}")
 
-    priority = {"critico": 0, "alerta": 1, "vigilancia": 2, "normal": 3}
+    priority = {"critico": 0, "alerta": 1, "vigilancia": 2, "normal": 3, "sin_datos": 4}
     for z in sorted(zones, key=lambda z: priority.get(z.status, 99)):
         icon = STATUS_ICON.get(z.status, "?")
         affected = f"{z.affected_area_ha:,} ha" if z.affected_area_ha > 0 else "—"
@@ -437,14 +465,36 @@ def save_outputs(article: str, today: date):
 # ═════════════════════════════════════════════════════════════════════
 
 def main():
-    today = date(2026, 8, 12)
+    import argparse
 
-    # ─── Simular ────────────────────────────────────────────────
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+    parser = argparse.ArgumentParser(description="AgroSAT — boletín pan-regional de alerta temprana")
+    parser.add_argument("--simulate", action="store_true",
+                        help="Usar datos simulados en vez de Sentinel-2 + Open-Meteo reales")
+    args = parser.parse_args()
+
+    today = date.today()
+
+    # ─── Datos ──────────────────────────────────────────────────
     zones = generate_zones()
-    simulate_zones(zones, seed=2026)
+    if args.simulate:
+        print("  Modo simulación (--simulate)\n")
+        simulate_zones(zones, seed=2026)
+        from agro_real_data import dump_zones_json
+        dump_zones_json(zones, source="simulated", today=today)
+    else:
+        print("  Modo datos reales — Sentinel-2 (CDSE) + Open-Meteo\n")
+        try:
+            from agro_real_data import collect_real_zones
+            collect_real_zones(zones, today=today)
+        except Exception as e:
+            print(f"\n  ERROR recolectando datos reales: {e}")
+            print("  Reintentar con --simulate para datos de demostración.")
+            sys.exit(2)
 
     # ─── Generar artículo con LLM ───────────────────────────────
-    print("  Generando boletín con LLM...\n")
+    print("\n  Generando boletín con LLM...\n")
     article = generate_bulletin_article(zones)
 
     # ─── Imprimir boletín ───────────────────────────────────────
@@ -453,14 +503,17 @@ def main():
     # ─── Guardar salidas para pipeline FB ───────────────────────
     save_outputs(article, today)
 
+    week_start = today - timedelta(days=6)
+    period = f"{week_start.strftime('%d/%m')}–{today.strftime('%d/%m/%Y')}"
+
     print(f"\n  {'─' * 66}")
     print(f"  Pipeline de publicación:")
     print(f"  1. Generar mapa: python nooa-agent/generate_map.py")
     print(f"     → Abrir scripts/agrosat-map.html en navegador, capturar pantalla")
     print(f"  2. Generar imagen artística en Gemini con scripts/gemini-prompt.txt")
     print(f"  3. node scripts/combine-images.mjs \"imagen_gemini.png\" \"captura_mapa.png\" --output \"scripts/agrosat-combined.jpg\"")
-    print(f"  4. node scripts/add-branding-terrasat.mjs \"scripts/agrosat-combined.jpg\" --period \"05–11 de agosto 2026\"")
-    print(f"  5. node scripts/fb-post.mjs \"mapa_branded.jpg\" @scripts/generated-article.txt")
+    print(f"  4. node scripts/add-branding-terrasat.mjs \"scripts/agrosat-combined.jpg\" --period \"{period}\"")
+    print(f"  5. Publicar imagen + scripts/generated-article.txt en Facebook")
     print(f"  {'─' * 66}")
 
 

@@ -1,11 +1,13 @@
-Alerta Agrícola en Latinoamérica
-La situación en la región es crítica, con varias zonas afectadas por enfermedades y déficit hídrico. Nuestro análisis de imágenes satelitales de agencias reconocidas como NASA y ESA muestra un panorama preocupante para los agricultores. 🛰️
+Alerta temprana: sequía y enfermedad amenazan cultivos latinoamericanos  
 
-En café, Intibucá (Honduras) y Caldas (Colombia) suman 39,000 ha con enfermedad del cafetal. En soja, Mato Grosso (Brasil) pierde 135,000 ha por sequía severa. También observamos déficit hídrico en Espírito Santo (Brasil) y El Paraíso (Honduras), lo que puede afectar la producción de cultivos. 🌱
+🛰️ Los análisis de vegetación y temperatura de dosel, basados en imágenes satelitales de agencias reconocidas (NASA, ESA) y datos de precipitación satelital, revelan déficit hídrico crítico y brotes de enfermedad en áreas estratégicas. En los próximos 15 días varios cultivos podrían enfrentar pérdidas si no se adoptan medidas preventivas.  
 
-Jinotega (Nicaragua) y Valle Central (Chile) están bajo vigilancia debido a signos tempranos de deterioro en sus cultivos. Es importante monitorear la situación para tomar medidas preventivas. ⚠️
+Zonas en alerta: En café, Caldas (Colombia) y Espírito Santo (Brasil) suman 54 000 ha afectados, combinando déficit hídrico y la enfermedad del cafetal. En cultivos de alto valor en Alta Verapaz (Guatemala) se registra déficit hídrico sobre 14 300 ha, elevando el riesgo de estrés hídrico.  
 
-La mayoría de las zonas en Argentina, como Córdoba y Mendoza, y en Brasil, como Minas Gerais y São Paulo, se encuentran en estado normal. 
+Zonas bajo vigilancia: En Honduras (El Paraíso) y Nicaragua (Jinotega) se observan 12 000 ha con signos tempranos de deterioro. En Colombia (Quindío) y Chile (Valle Central) la vigilancia cubre 15 450 ha, donde la precipitación está muy por debajo del promedio histórico.  
 
-¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Contacto: info@agtisa.com 📡
-#AgroSAT #AgriculturaSostenible #AlertaAgrícola
+Zonas normales: Intibucá (Honduras), Minas Gerais y São Paulo (Brasil), Mato Grosso (Brasil), Córdoba y Mendoza (Argentina) se mantienen sin anomalías detectadas.  
+
+¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🌱 ☕  
+
+#AlertaAgro #SequíaLatam #CaféEnRiesgo

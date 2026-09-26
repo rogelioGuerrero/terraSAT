@@ -14,7 +14,7 @@ load_dotenv()
 
 # ─── LLM ──────────────────────────────────────────────────────────────
 
-MODEL = os.getenv("NOOA_MODEL", "groq/llama-3.3-70b-versatile")
+MODEL = os.getenv("NOOA_MODEL", "groq/openai/gpt-oss-120b")
 
 # ─── CDSE / Sentinel ──────────────────────────────────────────────────
 

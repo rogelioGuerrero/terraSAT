@@ -28,6 +28,7 @@ STATUS_COLOR = {
     "alerta": "#ea580c",
     "vigilancia": "#ca8a04",
     "normal": "#16a34a",
+    "sin_datos": "#9ca3af",
 }
 
 STATUS_LABEL = {
@@ -35,9 +36,10 @@ STATUS_LABEL = {
     "alerta": "Alerta",
     "vigilancia": "Vigilancia",
     "normal": "Normal",
+    "sin_datos": "Sin datos",
 }
 
-STATUS_PRIORITY = {"critico": 0, "alerta": 1, "vigilancia": 2, "normal": 3}
+STATUS_PRIORITY = {"critico": 0, "alerta": 1, "vigilancia": 2, "normal": 3, "sin_datos": 4}
 
 # Mapeo nombre país (en zones) → nombre en Natural Earth GeoJSON
 COUNTRY_GEOJSON = {
@@ -78,8 +80,12 @@ def generate_map_html(zones, today_str: str) -> str:
     for z in zones:
         color = STATUS_COLOR.get(z.status, "#666")
         south, west, north, east = _zone_bounds(z.lat, z.lng, z.area_ha)
-        fill_opacity = 0.25 if z.status == "normal" else 0.40
-        stroke_weight = 1.5 if z.status == "normal" else 2.5
+        if z.status == "sin_datos":
+            fill_opacity, stroke_weight, dash = 0.10, 1.5, 'dashArray: "5", '
+        elif z.status == "normal":
+            fill_opacity, stroke_weight, dash = 0.25, 1.5, ""
+        else:
+            fill_opacity, stroke_weight, dash = 0.40, 2.5, ""
 
         popup = (
             f"<b>{z.name}, {z.country}</b><br>"
@@ -99,6 +105,7 @@ def generate_map_html(zones, today_str: str) -> str:
             f'    L.rectangle([[{south:.4f}, {west:.4f}], [{north:.4f}, {east:.4f}]], {{'
             f'fillColor: "{color}", '
             f'color: "{color}", '
+            f'{dash}'
             f'weight: {stroke_weight}, '
             f'fillOpacity: {fill_opacity}, '
             f'opacity: 0.8'
@@ -189,9 +196,8 @@ def generate_map_html(zones, today_str: str) -> str:
             attributionControl: false
         }}).setView([-10, -62], 4);
 
-        L.tileLayer('https://{{s}}.basemaps.cartocdn.com/light_all/{{z}}/{{x}}/{{y}}{{r}}.png', {{
-            maxZoom: 18,
-            subdomains: 'abcd'
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{{z}}/{{y}}/{{x}}', {{
+            maxZoom: 18
         }}).addTo(map);
 
         // Color por país según peor estado de sus zonas
@@ -224,14 +230,43 @@ def generate_map_html(zones, today_str: str) -> str:
 </html>"""
 
 
+def load_zones_from_json(path: Path):
+    """Carga zonas desde scripts/agro-zones.json (generado por el boletín)."""
+    import json
+    from types import SimpleNamespace
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    zones = [SimpleNamespace(**z) for z in payload["zones"]]
+    return zones, payload
+
+
 def main():
+    import argparse
     from datetime import date
 
-    today = date(2026, 8, 12)
-    today_str = today.strftime("%d/%m/%Y")
+    parser = argparse.ArgumentParser(description="AgroSAT — mapa HTML del boletín")
+    parser.add_argument("--simulate", action="store_true",
+                        help="Ignorar agro-zones.json y simular datos")
+    args = parser.parse_args()
 
-    zones = generate_zones()
-    simulate_zones(zones, seed=2026)
+    json_path = Path("scripts/agro-zones.json")
+
+    if not args.simulate and json_path.exists():
+        zones, payload = load_zones_from_json(json_path)
+        gen_at = payload.get("generated_at", "")
+        try:
+            today_str = date.fromisoformat(gen_at).strftime("%d/%m/%Y")
+        except ValueError:
+            today_str = date.today().strftime("%d/%m/%Y")
+        source = payload.get("source", "?")
+        print(f"Zonas cargadas desde {json_path} (fuente: {source}, generado: {gen_at})")
+    else:
+        if not json_path.exists():
+            print(f"No existe {json_path}; usando simulación. "
+                  f"Correr demo_alerta_temprana_regional.py primero para datos reales.")
+        today_str = date.today().strftime("%d/%m/%Y")
+        zones = generate_zones()
+        simulate_zones(zones, seed=2026)
 
     html = generate_map_html(zones, today_str)
 

@@ -1,0 +1,107 @@
+name: AgroSAT — Boletín semanal
+
+# Pipeline automatizado: Sentinel-2 (CDSE) + Open-Meteo -> LLM (Groq) ->
+# mapa Leaflet -> screenshot -> branding -> Facebook.
+# El path manual local es el mismo set de comandos (ver README), y sirve de
+# fallback si el job falla (p.ej. FB_PAGE_ACCESS_TOKEN expirado).
+
+on:
+  schedule:
+    - cron: "0 12 * * 1"   # lunes 12:00 UTC (~08:00-09:00 Paraguay)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Generar todo pero NO publicar en Facebook"
+        type: boolean
+        default: true
+
+env:
+  CDSE_USERNAME: ${{ secrets.CDSE_USERNAME }}
+  CDSE_PASSWORD: ${{ secrets.CDSE_PASSWORD }}
+  GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+  PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+  FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+  FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+
+jobs:
+  boletin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Dependencias Python (sin instalar el paquete local)
+        run: uv sync --no-install-project
+
+      - name: Dependencias Node (sharp, etc.)
+        run: npm ci
+
+      - name: Boletín con datos reales (CDSE + Open-Meteo + Groq)
+        run: uv run --no-sync python nooa-agent/demo_alerta_temprana_regional.py
+
+      - name: Mapa Leaflet (lee scripts/agro-zones.json)
+        run: uv run --no-sync python nooa-agent/generate_map.py
+
+      - name: Screenshot del mapa (Playwright headless)
+        run: |
+          npx -y playwright@1.55.0 install --with-deps chromium
+          npx -y playwright@1.55.0 screenshot \
+            --viewport-size=1280,860 --wait-for-timeout=8000 \
+            "file://$PWD/scripts/agrosat-map.html" \
+            scripts/agrosat-map-screenshot.png
+
+      - name: Foto de cultivo (Pexels — reemplaza imagen Gemini manual)
+        run: |
+          node scripts/fetch-pexels-photo.mjs \
+            "dry agriculture field aerial" \
+            --output scripts/agrosat-pexels-photo.jpg
+
+      - name: Combinar foto + mapa
+        run: |
+          node scripts/combine-images.mjs \
+            scripts/agrosat-pexels-photo.jpg \
+            scripts/agrosat-map-screenshot.png \
+            --output scripts/agrosat-combined.jpg
+
+      - name: Branding TerraSAT + período
+        run: |
+          PERIOD="$(date -d '6 days ago' +%d/%m) – $(date +%d/%m/%Y)"
+          node scripts/add-branding-terrasat.mjs \
+            scripts/agrosat-combined.jpg --period "$PERIOD"
+
+      - name: Publicar en Facebook
+        if: github.event_name == 'schedule' || inputs.dry_run != true
+        run: |
+          node scripts/fb-post.mjs \
+            scripts/agrosat-combined_branded.jpg \
+            @scripts/generated-article.txt
+
+      - name: Dry-run (dispatch sin publicación)
+        if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        run: |
+          node scripts/fb-post.mjs \
+            scripts/agrosat-combined_branded.jpg \
+            @scripts/generated-article.txt --dry-run
+
+      - name: Artefactos generados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agrosat-boletin-${{ github.run_id }}
+          path: |
+            scripts/agro-zones.json
+            scripts/generated-article.txt
+            scripts/gemini-prompt.txt
+            scripts/agrosat-map.html
+            scripts/agrosat-map-screenshot.png
+            scripts/agrosat-pexels-photo.jpg
+            scripts/agrosat-combined.jpg
+            scripts/agrosat-combined_branded.jpg
+          retention-days: 90

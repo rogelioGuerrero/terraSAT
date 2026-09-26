@@ -1,0 +1,419 @@
+{
+  "generated_at": "2026-09-25",
+  "source": "real",
+  "window": {
+    "current": [
+      "2026-09-04T00:00:00Z",
+      "2026-09-25T23:59:59Z"
+    ],
+    "baseline": [
+      "2025-09-04T00:00:00Z",
+      "2025-09-25T23:59:59Z"
+    ]
+  },
+  "zones": [
+    {
+      "name": "Intibucá",
+      "country": "Honduras",
+      "crop": "Café",
+      "lat": 14.35,
+      "lng": -88.2,
+      "area_ha": 45000,
+      "status": "normal",
+      "alert_cause": "",
+      "affected_area_ha": 0,
+      "days_early_warning": 0,
+      "ndvi_delta": -0.0044,
+      "ndre_delta": -0.0006,
+      "rainfall_mm": 91.4,
+      "rainfall_pct": -51.1,
+      "meta": {
+        "ndvi_base": 0.6417,
+        "ndvi_cur": 0.6373,
+        "ndre_base": 0.4113,
+        "ndre_cur": 0.4107,
+        "days_base": 4,
+        "days_cur": 4,
+        "latest_image": "2026-09-17",
+        "precip": {
+          "mm": 91.39999999999999,
+          "pct": -51.12299465240642,
+          "n_days": 22,
+          "normal_mm": 187.0
+        }
+      }
+    },
+    {
+      "name": "El Paraíso",
+      "country": "Honduras",
+      "crop": "Café",
+      "lat": 14.15,
+      "lng": -86.55,
+      "area_ha": 38000,
+      "status": "vigilancia",
+      "alert_cause": "Signos tempranos de deterioro",
+      "affected_area_ha": 5700,
+      "days_early_warning": 12,
+      "ndvi_delta": -0.0379,
+      "ndre_delta": -0.0202,
+      "rainfall_mm": 76.5,
+      "rainfall_pct": -41.8,
+      "meta": {
+        "ndvi_base": 0.6595,
+        "ndvi_cur": 0.6216,
+        "ndre_base": 0.4065,
+        "ndre_cur": 0.3863,
+        "days_base": 10,
+        "days_cur": 5,
+        "latest_image": "2026-09-24",
+        "precip": {
+          "mm": 76.5,
+          "pct": -41.76309378806333,
+          "n_days": 22,
+          "normal_mm": 131.35999999999999
+        }
+      }
+    },
+    {
+      "name": "Alta Verapaz",
+      "country": "Guatemala",
+      "crop": "Café",
+      "lat": 15.58,
+      "lng": -90.3,
+      "area_ha": 52000,
+      "status": "alerta",
+      "alert_cause": "Déficit hídrico",
+      "affected_area_ha": 14300,
+      "days_early_warning": 15,
+      "ndvi_delta": -0.1044,
+      "ndre_delta": -0.0736,
+      "rainfall_mm": 163.8,
+      "rainfall_pct": -51.0,
+      "meta": {
+        "ndvi_base": 0.7343,
+        "ndvi_cur": 0.6299,
+        "ndre_base": 0.5003,
+        "ndre_cur": 0.4267,
+        "days_base": 3,
+        "days_cur": 4,
+        "latest_image": "2026-09-20",
+        "precip": {
+          "mm": 163.8,
+          "pct": -50.99329822881762,
+          "n_days": 22,
+          "normal_mm": 334.24
+        }
+      }
+    },
+    {
+      "name": "Jinotega",
+      "country": "Nicaragua",
+      "crop": "Café",
+      "lat": 13.1,
+      "lng": -86.0,
+      "area_ha": 42000,
+      "status": "vigilancia",
+      "alert_cause": "Signos tempranos de deterioro",
+      "affected_area_ha": 6300,
+      "days_early_warning": 12,
+      "ndvi_delta": -0.0325,
+      "ndre_delta": -0.0151,
+      "rainfall_mm": 89.7,
+      "rainfall_pct": -26.0,
+      "meta": {
+        "ndvi_base": 0.6117,
+        "ndvi_cur": 0.5792,
+        "ndre_base": 0.3766,
+        "ndre_cur": 0.3614,
+        "days_base": 4,
+        "days_cur": 5,
+        "latest_image": "2026-09-24",
+        "precip": {
+          "mm": 89.7,
+          "pct": -26.002309849859756,
+          "n_days": 22,
+          "normal_mm": 121.22
+        }
+      }
+    },
+    {
+      "name": "Caldas",
+      "country": "Colombia",
+      "crop": "Café",
+      "lat": 5.07,
+      "lng": -75.5,
+      "area_ha": 65000,
+      "status": "alerta",
+      "alert_cause": "Déficit hídrico",
+      "affected_area_ha": 17875,
+      "days_early_warning": 15,
+      "ndvi_delta": -0.1225,
+      "ndre_delta": -0.0767,
+      "rainfall_mm": 212.7,
+      "rainfall_pct": -37.3,
+      "meta": {
+        "ndvi_base": 0.6444,
+        "ndvi_cur": 0.5219,
+        "ndre_base": 0.4222,
+        "ndre_cur": 0.3456,
+        "days_base": 5,
+        "days_cur": 5,
+        "latest_image": "2026-09-24",
+        "precip": {
+          "mm": 212.7,
+          "pct": -37.34904270986746,
+          "n_days": 22,
+          "normal_mm": 339.5
+        }
+      }
+    },
+    {
+      "name": "Quindío",
+      "country": "Colombia",
+      "crop": "Café",
+      "lat": 4.46,
+      "lng": -75.67,
+      "area_ha": 48000,
+      "status": "vigilancia",
+      "alert_cause": "Signos tempranos de deterioro",
+      "affected_area_ha": 7200,
+      "days_early_warning": 12,
+      "ndvi_delta": -0.0183,
+      "ndre_delta": -0.0166,
+      "rainfall_mm": 266.9,
+      "rainfall_pct": -64.1,
+      "meta": {
+        "ndvi_base": 0.5488,
+        "ndvi_cur": 0.5305,
+        "ndre_base": 0.3689,
+        "ndre_cur": 0.3524,
+        "days_base": 6,
+        "days_cur": 5,
+        "latest_image": "2026-09-24",
+        "precip": {
+          "mm": 266.9,
+          "pct": -64.06451960361913,
+          "n_days": 22,
+          "normal_mm": 742.72
+        }
+      }
+    },
+    {
+      "name": "Espírito Santo",
+      "country": "Brasil",
+      "crop": "Café",
+      "lat": -19.19,
+      "lng": -40.34,
+      "area_ha": 85000,
+      "status": "critico",
+      "alert_cause": "Enfermedad del cafetal",
+      "affected_area_ha": 36125,
+      "days_early_warning": 18,
+      "ndvi_delta": -0.1204,
+      "ndre_delta": -0.0823,
+      "rainfall_mm": 52.6,
+      "rainfall_pct": 106.6,
+      "meta": {
+        "ndvi_base": 0.5056,
+        "ndvi_cur": 0.3852,
+        "ndre_base": 0.3281,
+        "ndre_cur": 0.2457,
+        "days_base": 3,
+        "days_cur": 3,
+        "latest_image": "2026-09-21",
+        "precip": {
+          "mm": 52.6,
+          "pct": 106.598586017282,
+          "n_days": 22,
+          "normal_mm": 25.46
+        }
+      }
+    },
+    {
+      "name": "Minas Gerais",
+      "country": "Brasil",
+      "crop": "Café",
+      "lat": -18.7,
+      "lng": -44.5,
+      "area_ha": 120000,
+      "status": "normal",
+      "alert_cause": "",
+      "affected_area_ha": 0,
+      "days_early_warning": 0,
+      "ndvi_delta": 0.1336,
+      "ndre_delta": 0.0804,
+      "rainfall_mm": 32.3,
+      "rainfall_pct": 369.5,
+      "meta": {
+        "ndvi_base": 0.3493,
+        "ndvi_cur": 0.483,
+        "ndre_base": 0.2049,
+        "ndre_cur": 0.2853,
+        "days_base": 5,
+        "days_cur": 5,
+        "latest_image": "2026-09-24",
+        "precip": {
+          "mm": 32.3,
+          "pct": 369.47674418604646,
+          "n_days": 22,
+          "normal_mm": 6.88
+        }
+      }
+    },
+    {
+      "name": "Mato Grosso",
+      "country": "Brasil",
+      "crop": "Soja",
+      "lat": -12.5,
+      "lng": -55.7,
+      "area_ha": 320000,
+      "status": "normal",
+      "alert_cause": "",
+      "affected_area_ha": 0,
+      "days_early_warning": 0,
+      "ndvi_delta": -0.0028,
+      "ndre_delta": -0.0053,
+      "rainfall_mm": 12.4,
+      "rainfall_pct": -18.0,
+      "meta": {
+        "ndvi_base": 0.3322,
+        "ndvi_cur": 0.3294,
+        "ndre_base": 0.2066,
+        "ndre_cur": 0.2013,
+        "days_base": 7,
+        "days_cur": 6,
+        "latest_image": "2026-09-22",
+        "precip": {
+          "mm": 12.4,
+          "pct": -17.989417989417984,
+          "n_days": 22,
+          "normal_mm": 15.12
+        }
+      }
+    },
+    {
+      "name": "Córdoba",
+      "country": "Argentina",
+      "crop": "Soja",
+      "lat": -31.42,
+      "lng": -64.18,
+      "area_ha": 180000,
+      "status": "normal",
+      "alert_cause": "",
+      "affected_area_ha": 0,
+      "days_early_warning": 0,
+      "ndvi_delta": 0.035,
+      "ndre_delta": 0.0253,
+      "rainfall_mm": 16.0,
+      "rainfall_pct": -24.5,
+      "meta": {
+        "ndvi_base": 0.2876,
+        "ndvi_cur": 0.3226,
+        "ndre_base": 0.1766,
+        "ndre_cur": 0.2019,
+        "days_base": 6,
+        "days_cur": 8,
+        "latest_image": "2026-09-23",
+        "precip": {
+          "mm": 16.0,
+          "pct": -24.457034938621337,
+          "n_days": 22,
+          "normal_mm": 21.18
+        }
+      }
+    },
+    {
+      "name": "Valle Central",
+      "country": "Chile",
+      "crop": "Viñas",
+      "lat": -35.0,
+      "lng": -71.0,
+      "area_ha": 55000,
+      "status": "vigilancia",
+      "alert_cause": "Signos tempranos de deterioro",
+      "affected_area_ha": 8250,
+      "days_early_warning": 12,
+      "ndvi_delta": -0.0523,
+      "ndre_delta": -0.0221,
+      "rainfall_mm": 42.9,
+      "rainfall_pct": -59.5,
+      "meta": {
+        "ndvi_base": 0.6003,
+        "ndvi_cur": 0.548,
+        "ndre_base": 0.394,
+        "ndre_cur": 0.372,
+        "days_base": 5,
+        "days_cur": 4,
+        "latest_image": "2026-09-21",
+        "precip": {
+          "mm": 42.9,
+          "pct": -59.48243294295429,
+          "n_days": 22,
+          "normal_mm": 105.88
+        }
+      }
+    },
+    {
+      "name": "Mendoza",
+      "country": "Argentina",
+      "crop": "Viñas",
+      "lat": -32.89,
+      "lng": -68.83,
+      "area_ha": 95000,
+      "status": "normal",
+      "alert_cause": "",
+      "affected_area_ha": 0,
+      "days_early_warning": 0,
+      "ndvi_delta": NaN,
+      "ndre_delta": NaN,
+      "rainfall_mm": 13.1,
+      "rainfall_pct": -40.1,
+      "meta": {
+        "ndvi_base": NaN,
+        "ndvi_cur": NaN,
+        "ndre_base": NaN,
+        "ndre_cur": NaN,
+        "days_base": 5,
+        "days_cur": 5,
+        "latest_image": "2026-09-21",
+        "precip": {
+          "mm": 13.1,
+          "pct": -40.07319304666056,
+          "n_days": 22,
+          "normal_mm": 21.86
+        }
+      }
+    },
+    {
+      "name": "São Paulo",
+      "country": "Brasil",
+      "crop": "Caña",
+      "lat": -22.0,
+      "lng": -48.0,
+      "area_ha": 210000,
+      "status": "normal",
+      "alert_cause": "",
+      "affected_area_ha": 0,
+      "days_early_warning": 0,
+      "ndvi_delta": 0.1337,
+      "ndre_delta": 0.0752,
+      "rainfall_mm": 122.2,
+      "rainfall_pct": 872.9,
+      "meta": {
+        "ndvi_base": 0.3762,
+        "ndvi_cur": 0.5099,
+        "ndre_base": 0.2324,
+        "ndre_cur": 0.3076,
+        "days_base": 4,
+        "days_cur": 3,
+        "latest_image": "2026-09-17",
+        "precip": {
+          "mm": 122.2,
+          "pct": 872.9299363057326,
+          "n_days": 22,
+          "normal_mm": 12.559999999999999
+        }
+      }
+    }
+  ]
+}

@@ -30,6 +30,7 @@ const informes = [
   { id: "4", query: "city urban expansion construction aerial", file: "informe-urban-sprawl" },
   { id: "5", query: "coffee plantation mountain hill aerial", file: "informe-coffee-hill" },
   { id: "6", query: "city trees park green aerial drone", file: "informe-urban-trees" },
+  { id: "9", query: "drought agriculture field dry aerial", file: "informe-agrosat-alert" },
 ];
 
 const ASSETS_DIR = resolve(ROOT, "web", "src", "assets");
@@ -129,10 +130,18 @@ async function main() {
     mkdirSync(ASSETS_DIR, { recursive: true });
   }
 
-  console.log("Buscando y descargando videos de Pexels...");
-  console.log(`Total: ${informes.length} informes`);
+  // Filtro opcional: node fetch-pexels-videos.mjs [id]
+  const onlyId = process.argv[2];
+  const lista = onlyId ? informes.filter(i => i.id === onlyId) : informes;
+  if (onlyId && lista.length === 0) {
+    console.error(`Sin informe con id "${onlyId}"`);
+    process.exit(1);
+  }
 
-  for (const inf of informes) {
+  console.log("Buscando y descargando videos de Pexels...");
+  console.log(`Total: ${lista.length} informes`);
+
+  for (const inf of lista) {
     try {
       await processInforme(inf);
     } catch (err) {
