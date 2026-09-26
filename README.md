@@ -41,7 +41,10 @@ mismo pipeline se corre manual:
 3. Foto de cultivo: `node scripts/fetch-pexels-photo.mjs "<query>"` (o imagen Gemini opcional con `gemini-prompt.txt`)
 4. `node scripts/combine-images.mjs "<foto>" "<mapa>"` — o `split-analysis.mjs` para efecto mitad natural / mitad análisis
 5. `node scripts/add-branding-terrasat.mjs` — branding + período de observación
-6. Publicar: `node scripts/fb-post.mjs "<imagen>" "@scripts/generated-article.txt"` (`--dry-run` para previsualizar)
+6. Publicar en Facebook:
+   - **Webhook (recomendado)**: `PUBLISH_WEBHOOK_URL` de un escenario Make.com/Zapier (Custom webhook → Facebook "Create a Post") — `node scripts/post-webhook.mjs "<imagen>" "@articulo.txt"`. Necesario porque la app Meta actual no puede obtener `pages_read_engagement` sin App Review.
+   - **Graph API**: `node scripts/fb-post.mjs "<imagen>" "@scripts/generated-article.txt"` (solo si la app tiene permisos pages_*; `--dry-run` para previsualizar)
+   - **Manual**: subir imagen + pegar artículo en el compositor de la página
 7. Actualizar SPA: agregar entrada a `web/src/data/informes.json` + imagen optimizada en `web/src/assets/`
 
 ---

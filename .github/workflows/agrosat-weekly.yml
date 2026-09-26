@@ -22,6 +22,7 @@ env:
   PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
   FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
   FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+  PUBLISH_WEBHOOK_URL: ${{ secrets.PUBLISH_WEBHOOK_URL }}
 
 jobs:
   boletin:
@@ -76,8 +77,19 @@ jobs:
           node scripts/add-branding-terrasat.mjs \
             scripts/agrosat-combined.jpg --period "$PERIOD"
 
-      - name: Publicar en Facebook
-        if: github.event_name == 'schedule' || inputs.dry_run != true
+      # Publicación: webhook (Make.com/Zapier, app FB ya autorizada) tiene
+      # prioridad; fb-post.mjs queda como alternativa si la app Meta obtiene
+      # permisos pages_* algún día. Sin ninguno configurado, los artefactos
+      # quedan para publicación manual.
+      - name: Publicar vía webhook (Make/Zapier)
+        if: (github.event_name == 'schedule' || inputs.dry_run != true) && env.PUBLISH_WEBHOOK_URL != ''
+        run: |
+          node scripts/post-webhook.mjs \
+            scripts/agrosat-combined_branded.jpg \
+            @scripts/generated-article.txt
+
+      - name: Publicar vía Graph API (si hay permisos)
+        if: (github.event_name == 'schedule' || inputs.dry_run != true) && env.PUBLISH_WEBHOOK_URL == '' && env.FB_PAGE_ACCESS_TOKEN != ''
         run: |
           node scripts/fb-post.mjs \
             scripts/agrosat-combined_branded.jpg \
@@ -86,9 +98,15 @@ jobs:
       - name: Dry-run (dispatch sin publicación)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
         run: |
-          node scripts/fb-post.mjs \
-            scripts/agrosat-combined_branded.jpg \
-            @scripts/generated-article.txt --dry-run
+          if [ -n "$PUBLISH_WEBHOOK_URL" ]; then
+            node scripts/post-webhook.mjs \
+              scripts/agrosat-combined_branded.jpg \
+              @scripts/generated-article.txt --dry-run
+          else
+            node scripts/fb-post.mjs \
+              scripts/agrosat-combined_branded.jpg \
+              @scripts/generated-article.txt --dry-run
+          fi
 
       - name: Artefactos generados
         if: always()
