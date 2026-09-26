@@ -55,6 +55,7 @@ function setup() {
     output: [
       { id: "ndvi", bands: 1, sampleType: "FLOAT32" },
       { id: "ndre", bands: 1, sampleType: "FLOAT32" },
+      { id: "stressed", bands: 1, sampleType: "FLOAT32" },
       { id: "dataMask", bands: 1 }
     ]
   };
@@ -65,9 +66,15 @@ function evaluatePixel(s) {
                s.SCL != 9 && s.SCL != 10 && s.SCL != 11) ? 1 : 0;
   let ndvi = (s.B08 - s.B04) / (s.B08 + s.B04);
   let ndre = (s.B08 - s.B05) / (s.B08 + s.B05);
-  return { ndvi: [ndvi], ndre: [ndre], dataMask: [clear] };
+  // Umbral inyectado por llamada (baseline -> -999, nunca estresado)
+  let stressed = (clear && ndvi < STRESS_NDVI_THRESHOLD) ? 1.0 : 0.0;
+  return { ndvi: [ndvi], ndre: [ndre], stressed: [stressed], dataMask: [clear] };
 }
 """
+
+
+def _evalscript(stress_threshold: float) -> str:
+    return EVALSCRIPT_NDVI_NDRE.replace("STRESS_NDVI_THRESHOLD", f"{stress_threshold:.4f}")
 
 
 # ═════════════════════════════════════════════════════════════════════
@@ -91,11 +98,15 @@ def request_ndvi_ndre_stats(
     time_range: tuple[str, str],
     width: int = 64,
     height: int = 64,
+    stress_threshold: float = -999.0,
 ) -> dict:
     """
     Stats NDVI+NDRE de una ventana temporal. Devuelve:
-      {"ndvi": mean, "ndre": mean, "n_days": int, "latest_date": str}
+      {"ndvi", "ndre", "stressed_frac", "n_days", "latest_date"}
     o {"error": "..."} si falla o no hay días válidos.
+
+    stressed_frac = fracción de pixels limpios con NDVI < stress_threshold.
+    Medido por pixel — no estimado. Con threshold=-999 siempre es 0.
     """
     request_body = {
         "input": {
@@ -114,7 +125,7 @@ def request_ndvi_ndre_stats(
         "aggregation": {
             "timeRange": {"from": time_range[0], "to": time_range[1]},
             "aggregationInterval": {"of": "P1D"},
-            "evalscript": EVALSCRIPT_NDVI_NDRE,
+            "evalscript": _evalscript(stress_threshold),
             "width": width,
             "height": height,
         },
@@ -133,14 +144,17 @@ def request_ndvi_ndre_stats(
     if resp.status_code != 200:
         return {"error": f"HTTP {resp.status_code}: {resp.text[:300]}"}
 
-    ndvi_means, ndre_means, latest_date = [], [], ""
+    ndvi_means, ndre_means, stressed_means, latest_date = [], [], [], ""
     for interval in resp.json().get("data", []):
         outputs = interval.get("outputs", {})
         ndvi_stats = outputs.get("ndvi", {}).get("bands", {}).get("B0", {}).get("stats", {})
         ndre_stats = outputs.get("ndre", {}).get("bands", {}).get("B0", {}).get("stats", {})
+        stressed_stats = outputs.get("stressed", {}).get("bands", {}).get("B0", {}).get("stats", {})
         if ndvi_stats.get("mean") is not None and ndre_stats.get("mean") is not None:
             ndvi_means.append(float(ndvi_stats["mean"]))
             ndre_means.append(float(ndre_stats["mean"]))
+            if stressed_stats.get("mean") is not None:
+                stressed_means.append(float(stressed_stats["mean"]))
             latest_date = interval.get("interval", {}).get("from", "")[:10]
 
     if not ndvi_means:
@@ -149,6 +163,7 @@ def request_ndvi_ndre_stats(
     return {
         "ndvi": sum(ndvi_means) / len(ndvi_means),
         "ndre": sum(ndre_means) / len(ndre_means),
+        "stressed_frac": (sum(stressed_means) / len(stressed_means)) if stressed_means else 0.0,
         "n_days": len(ndvi_means),
         "latest_date": latest_date,
     }
@@ -264,8 +279,20 @@ def collect_real_zones(zones: list, today: date | None = None, verbose: bool = T
         if verbose:
             print(f"  {z.name}, {z.country} ({z.crop})")
 
-        cur = request_ndvi_ndre_stats(token, bbox, cur_range)
         base = request_ndvi_ndre_stats(token, bbox, base_range)
+
+        # Umbral de pixel estresado: media baseline - 0.05. Se aplica el
+        # MISMO umbral a la ventana baseline y a la actual; el área afectada
+        # es el EXCESO de pixels degradados (cur - base), así se cancela la
+        # dispersión natural de la zona (una zona sana siempre tiene pixels
+        # por debajo de su propia media).
+        if "error" not in base:
+            stress_threshold = base["ndvi"] - 0.05
+            base_stress = request_ndvi_ndre_stats(token, bbox, base_range, stress_threshold=stress_threshold)
+        else:
+            stress_threshold, base_stress = -999.0, {"error": base["error"]}
+
+        cur = request_ndvi_ndre_stats(token, bbox, cur_range, stress_threshold=stress_threshold)
 
         if "error" in cur or "error" in base:
             z.status = "sin_datos"
@@ -288,18 +315,39 @@ def collect_real_zones(zones: list, today: date | None = None, verbose: bool = T
                 z.rainfall_pct = precip["pct"]
 
             classify_zone(z)
+
+            # ── Área afectada medida: exceso de pixels degradados ──
+            # Fracción de pixels con NDVI < umbral en ventana actual MENOS
+            # la misma fracción medida en el baseline. Medido, no estimado.
+            excess_frac = max(0.0, cur["stressed_frac"] - base_stress.get("stressed_frac", 0.0))
+            if z.status in ("critico", "alerta", "vigilancia"):
+                z.affected_area_ha = int(round(z.area_ha * excess_frac, -2))
+                affected_method = "pixel_excess_fraction"
+            else:
+                z.affected_area_ha = 0
+                affected_method = "none"
+
+            # Anticipación no se mide — se reporta la fecha de la última imagen
+            z.days_early_warning = 0
+
             z.data_meta = {
                 "ndvi_base": round(base["ndvi"], 4), "ndvi_cur": round(cur["ndvi"], 4),
                 "ndre_base": round(base["ndre"], 4), "ndre_cur": round(cur["ndre"], 4),
                 "days_base": base["n_days"], "days_cur": cur["n_days"],
                 "latest_image": cur["latest_date"],
+                "stressed_frac_cur": round(cur["stressed_frac"], 4),
+                "stressed_frac_base": round(base_stress.get("stressed_frac", 0.0), 4),
+                "excess_stressed_frac": round(excess_frac, 4),
+                "affected_method": affected_method,
                 "precip": precip,
             }
             if verbose:
                 print(
                     f"    NDVI {base['ndvi']:.3f}->{cur['ndvi']:.3f} (d{z.ndvi_delta:+.3f}) | "
                     f"NDRE d{z.ndre_delta:+.3f} | lluvia {z.rainfall_pct:+.0f}% | "
-                    f"{cur['n_days']}d validos -> {z.status}"
+                    f"pix afectados {excess_frac*100:.0f}% ({cur['stressed_frac']*100:.0f}%"
+                    f"-{base_stress.get('stressed_frac', 0)*100:.0f}%) | "
+                    f"{cur['n_days']}d -> {z.status}"
                 )
 
     dump_zones_json(zones, source="real", today=today,

@@ -1,13 +1,15 @@
-Alerta temprana: sequía y enfermedad amenazan cultivos latinoamericanos  
+Alerta AgroSAT: Sequías y Enfermedades Amenazan 50 000 ha en Latinoamérica  
 
-🛰️ Los análisis de vegetación y temperatura de dosel, basados en imágenes satelitales de agencias reconocidas (NASA, ESA) y datos de precipitación satelital, revelan déficit hídrico crítico y brotes de enfermedad en áreas estratégicas. En los próximos 15 días varios cultivos podrían enfrentar pérdidas si no se adoptan medidas preventivas.  
+Este lunes, el análisis de vegetación y temperatura de dosel basado en imágenes satelitales de agencias reconocidas (NASA, ESA) muestra condiciones críticas en varios países. Sequías intensas y una enfermedad del cafetal ponen en riesgo cerca de 50 000 ha de cultivos, mientras otras áreas requieren vigilancia estrecha. 🛰️🌱  
 
-Zonas en alerta: En café, Caldas (Colombia) y Espírito Santo (Brasil) suman 54 000 ha afectados, combinando déficit hídrico y la enfermedad del cafetal. En cultivos de alto valor en Alta Verapaz (Guatemala) se registra déficit hídrico sobre 14 300 ha, elevando el riesgo de estrés hídrico.  
+En café, la zona de Espírito Santo (Brasil) registra 12 800 ha afectadas por la enfermedad del cafetal, situación calificada como crítica. En cultivos de secano, los déficits hídricos en Alta Verapaz (Guatemala) y Caldas (Colombia) concentran 29 700 ha bajo alerta, con precipitaciones 51 % y 35 % por debajo de lo normal, respectivamente. En la zona central de Chile, 7 100 ha presentan deterioro de cultivos, lo que eleva la alerta regional.  
 
-Zonas bajo vigilancia: En Honduras (El Paraíso) y Nicaragua (Jinotega) se observan 12 000 ha con signos tempranos de deterioro. En Colombia (Quindío) y Chile (Valle Central) la vigilancia cubre 15 450 ha, donde la precipitación está muy por debajo del promedio histórico.  
+Bajo vigilancia, los departamentos de El Paraíso (Honduras) y Jinotega (Nicaragua) suman 6 200 ha con signos tempranos de deterioro, y Quindío (Colombia) añade 4 100 ha en observación. Estas áreas muestran precipitaciones entre 19 % y 60 % por debajo de lo esperado, lo que justifica una monitorización continua.  
 
-Zonas normales: Intibucá (Honduras), Minas Gerais y São Paulo (Brasil), Mato Grosso (Brasil), Córdoba y Mendoza (Argentina) se mantienen sin anomalías detectadas.  
+Regiones como Intibucá (Honduras), Minas Gerais, Mato Grosso y São Paulo (Brasil), Córdoba (Argentina) y otras permanecen dentro de condiciones normales según los últimos datos satelitales.  
 
-¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🌱 ☕  
+Mendoza (Argentina) no pudo evaluarse por nubosidad persistente; se mantiene sin datos.  
 
-#AlertaAgro #SequíaLatam #CaféEnRiesgo
+¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También colaboramos con aseguradoras y agroservicios. Vea el mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com  
+
+#AlertaAgroSAT #SeguridadAlimentaria #DatosSatélite

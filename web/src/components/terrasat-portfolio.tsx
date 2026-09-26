@@ -10,49 +10,29 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 
-import coffeeImg from "@/assets/informe-coffee-opt.jpg"
-import urbanHeatImg from "@/assets/informe-urban-heat-opt.jpg"
-import soybeanImg from "@/assets/informe-soybean-opt.jpg"
-import urbanSprawlImg from "@/assets/informe-urban-sprawl-opt.jpg"
-import coffeeHillImg from "@/assets/informe-coffee-hill-opt.jpg"
-import urbanTreesImg from "@/assets/informe-urban-trees-opt.jpg"
-import agrosatCrisisImg from "@/assets/informe-agrosat-crisis-opt.jpg"
-import forestImg from "@/assets/informe-forest-opt.jpg"
-import agrosatAlertImg from "@/assets/informe-agrosat-alert-opt.jpg"
+// Assets por convención de nombre: informe-*-opt.jpg e informe-*-video-opt.mp4
+// import.meta.glob hace que agregar un informe sea solo dejar archivos en
+// src/assets/ + una entrada en data/informes.json — sin tocar este archivo.
+const imageAssets = import.meta.glob<string>("@/assets/informe-*-opt.jpg", {
+  eager: true,
+  query: "?url",
+  import: "default",
+})
+const videoAssets = import.meta.glob<string>("@/assets/informe-*-video-opt.mp4", {
+  eager: true,
+  query: "?url",
+  import: "default",
+})
 
-import agrosatCrisisVideo from "@/assets/informe-agrosat-crisis-video-opt.mp4"
-import coffeeVideo from "@/assets/informe-coffee-video-opt.mp4"
-import urbanHeatVideo from "@/assets/informe-urban-heat-video-opt.mp4"
-import soybeanVideo from "@/assets/informe-soybean-video-opt.mp4"
-import urbanSprawlVideo from "@/assets/informe-urban-sprawl-video-opt.mp4"
-import coffeeHillVideo from "@/assets/informe-coffee-hill-video-opt.mp4"
-import urbanTreesVideo from "@/assets/informe-urban-trees-video-opt.mp4"
-import forestVideo from "@/assets/informe-forest-video-opt.mp4"
-import agrosatAlertVideo from "@/assets/informe-agrosat-alert-video-opt.mp4"
+const fileKey = (p: string) => p.split("/").pop() ?? p
 
-const imageMap: Record<string, string> = {
-  "informe-coffee-opt.jpg": coffeeImg,
-  "informe-urban-heat-opt.jpg": urbanHeatImg,
-  "informe-soybean-opt.jpg": soybeanImg,
-  "informe-urban-sprawl-opt.jpg": urbanSprawlImg,
-  "informe-coffee-hill-opt.jpg": coffeeHillImg,
-  "informe-urban-trees-opt.jpg": urbanTreesImg,
-  "informe-agrosat-crisis-opt.jpg": agrosatCrisisImg,
-  "informe-forest-opt.jpg": forestImg,
-  "informe-agrosat-alert-opt.jpg": agrosatAlertImg,
-}
-
-const videoMap: Record<string, string> = {
-  "informe-agrosat-crisis-video-opt.mp4": agrosatCrisisVideo,
-  "informe-coffee-video-opt.mp4": coffeeVideo,
-  "informe-urban-heat-video-opt.mp4": urbanHeatVideo,
-  "informe-soybean-video-opt.mp4": soybeanVideo,
-  "informe-urban-sprawl-video-opt.mp4": urbanSprawlVideo,
-  "informe-coffee-hill-video-opt.mp4": coffeeHillVideo,
-  "informe-urban-trees-video-opt.mp4": urbanTreesVideo,
-  "informe-forest-video-opt.mp4": forestVideo,
-  "informe-agrosat-alert-video-opt.mp4": agrosatAlertVideo,
-}
+const imageMap: Record<string, string> = Object.fromEntries(
+  Object.entries(imageAssets).map(([p, url]) => [fileKey(p), url])
+)
+const videoMap: Record<string, string> = Object.fromEntries(
+  Object.entries(videoAssets).map(([p, url]) => [fileKey(p), url])
+)
+const fallbackImage = imageMap["informe-agrosat-alert-opt.jpg"] ?? Object.values(imageMap)[0] ?? ""
 
 interface Informe {
   id: string
@@ -69,7 +49,7 @@ interface Informe {
 const informes: Informe[] = informesData.map((item) => ({
   ...item,
   category: item.category as "agrosat" | "urbansat" | "forestsat",
-  image: imageMap[item.image] ?? coffeeImg,
+  image: imageMap[item.image] ?? fallbackImage,
   video: item.video ? (videoMap[item.video] ?? undefined) : undefined,
 }))
 

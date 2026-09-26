@@ -262,13 +262,18 @@ def generate_bulletin_article(zones: list[AgroZone]) -> str:
     zones_data = []
     for z in zones:
         status_label = "sin datos (nubosidad)" if z.status == "sin_datos" else z.status
+        anticipation = (
+            f" | Última imagen: {z.data_meta.get('latest_image', 'n/d')}"
+            if z.days_early_warning == 0
+            else f" | Anticipación: {z.days_early_warning} días"
+        )
         zones_data.append(
             f"- {z.name}, {z.country}: {z.area_ha:,} ha | "
             f"Estado: {status_label} | "
             f"Causa: {z.alert_cause or 'normal'} | "
             f"Área afectada: {z.affected_area_ha:,} ha | "
-            f"Precipitación: {z.rainfall_pct:+.0f}% vs normal | "
-            f"Anticipación: {z.days_early_warning} días"
+            f"Precipitación: {z.rainfall_pct:+.0f}% vs normal"
+            f"{anticipation}"
         )
 
     prompt = BULLETIN_PROMPT.format(zones_data="\n".join(zones_data))
@@ -305,10 +310,14 @@ def _fallback_article(zones: list[AgroZone]) -> str:
         lines.append("")
         lines.append("⚠️ ZONAS EN ALERTA:")
         for z in alert_zones:
+            detected = (
+                f"Detectado {z.days_early_warning} días antes de síntomas visibles."
+                if z.days_early_warning > 0
+                else f"Última imagen limpia: {z.data_meta.get('latest_image', 'n/d')}."
+            )
             lines.append(
                 f"• {z.name}, {z.country} ({z.crop}): {z.affected_area_ha:,} ha afectadas. "
-                f"Causa probable: {z.alert_cause}. "
-                f"Detectado {z.days_early_warning} días antes de síntomas visibles."
+                f"Causa probable: {z.alert_cause}. {detected}"
             )
 
     if vigilancia:
@@ -397,7 +406,13 @@ def print_bulletin(zones: list[AgroZone], article: str, today: date):
     print()
     print(f"  Superficie en alerta: {affected_ha:,} ha ({affected_ha/total_ha*100:.0f}%)")
     print(f"  Superficie en vigilancia: {vigilancia_ha:,} ha")
-    print(f"  Anticipación promedio: {sum(z.days_early_warning for z in zones if z.days_early_warning > 0) / max(1, by_status['critico'] + by_status['alerta'] + by_status['vigilancia']):.0f} días")
+    warn_days = [z.days_early_warning for z in zones if z.days_early_warning > 0]
+    if warn_days:
+        print(f"  Anticipación promedio: {sum(warn_days) / len(warn_days):.0f} días")
+    else:
+        latest = [z.data_meta.get("latest_image") for z in zones if getattr(z, "data_meta", {}).get("latest_image")]
+        if latest:
+            print(f"  Última imagen utilizada: {max(latest)}")
 
     # ─── Tabla de zonas ─────────────────────────────────────────
     print(f"\n  📋 ESTADO POR ZONA")

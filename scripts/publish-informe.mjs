@@ -1,0 +1,207 @@
+/**
+ * publish-informe.mjs — Publica el boletín AgroSAT de la semana en la SPA.
+ *
+ * Lee scripts/generated-article.txt + scripts/agro-zones.json, genera
+ * título/excerpt con Groq (fallback determinista si falla), descarga
+ * foto+video de Pexels optimizados, y prepende la entrada a
+ * web/src/data/informes.json. Idempotente por período.
+ *
+ * Requiere: PEXELS_API_KEY en .env o entorno; GROQ_API_KEY opcional.
+ * Uso: node scripts/publish-informe.mjs [--dry-run] [--no-video] [--force]
+ */
+
+import { readFileSync, writeFileSync, existsSync, unlinkSync, statSync } from "fs";
+import { resolve, dirname, join } from "path";
+import { fileURLToPath } from "url";
+import sharp from "sharp";
+import ffmpegPath from "ffmpeg-static";
+import ffmpeg from "fluent-ffmpeg";
+import { fetchPexels, searchPexelsVideos, toClipMetadata } from "./pexels-utils.mjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(__dirname, "..");
+const ASSETS = resolve(ROOT, "web", "src", "assets");
+const INFORMES_JSON = resolve(ROOT, "web", "src", "data", "informes.json");
+const ARTICLE_PATH = resolve(ROOT, "scripts", "generated-article.txt");
+const ZONES_PATH = resolve(ROOT, "scripts", "agro-zones.json");
+
+const args = process.argv.slice(2);
+const DRY_RUN = args.includes("--dry-run");
+const NO_VIDEO = args.includes("--no-video");
+const FORCE = args.includes("--force");
+
+ffmpeg.setFfmpegPath(ffmpegPath);
+
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+
+function formatPeriod(isoRange) {
+  const [a, b] = isoRange.map((s) => new Date(s));
+  const sameMonth = a.getUTCMonth() === b.getUTCMonth();
+  if (sameMonth)
+    return `${a.getUTCDate()}–${b.getUTCDate()} ${MESES[a.getUTCMonth()]} ${a.getUTCFullYear()}`;
+  return `${a.getUTCDate()} ${MESES[a.getUTCMonth()]}–${b.getUTCDate()} ${MESES[b.getUTCMonth()]} ${b.getUTCFullYear()}`;
+}
+
+async function generateTitleExcerpt(article) {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return null;
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
+        max_completion_tokens: 2000,
+        response_format: { type: "json_object" },
+        messages: [
+          {
+            role: "user",
+            content:
+              "Del siguiente boletín agro-satelital genera JSON con dos campos: " +
+              '"title" (título periodístico en español, máx 90 caracteres, sin comillas) y ' +
+              '"excerpt" (resumen de 1-2 oraciones con zonas y hectáreas concretas, máx 220 caracteres). ' +
+              "Solo JSON, nada más.\n\nBOLETÍN:\n" + article.slice(0, 6000),
+          },
+        ],
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const content = data.choices?.[0]?.message?.content || "";
+    const parsed = JSON.parse(content.replace(/```json|```/g, "").trim());
+    if (!parsed.title || !parsed.excerpt) return null;
+    const cut = (s, n) => {
+      const t = String(s).slice(0, n);
+      return t.length < String(s).length ? t.slice(0, t.lastIndexOf(" ")) : t;
+    };
+    return { title: cut(parsed.title, 90), excerpt: cut(parsed.excerpt, 220) };
+  } catch {
+    return null;
+  }
+}
+
+function fallbackTitleExcerpt(article, zones) {
+  const title = article.split("\n")[0].trim().slice(0, 90) || "Boletín AgroSAT semanal";
+  const total = zones.reduce((s, z) => s + (z.area_ha || 0), 0);
+  const alert = zones
+    .filter((z) => z.status === "critico" || z.status === "alerta")
+    .reduce((s, z) => s + (z.affected_area_ha || 0), 0);
+  const excerpt =
+    `Sentinel-2 + ERA5: ${alert.toLocaleString("es-ES")} ha en alerta de ` +
+    `${total.toLocaleString("es-ES")} ha monitoreadas en ${zones.length} zonas.`;
+  return { title, excerpt: excerpt.slice(0, 220) };
+}
+
+async function fetchPhoto(query, outPath) {
+  const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=8&orientation=landscape`;
+  const data = await fetchPexels(url);
+  const photos = Array.isArray(data.photos) ? data.photos : [];
+  if (!photos.length) return false;
+  const src = photos[0].src.large2x || photos[0].src.large || photos[0].src.original;
+  const res = await fetch(src);
+  if (!res.ok) return false;
+  await sharp(Buffer.from(await res.arrayBuffer()))
+    .resize(800, 600, { fit: "cover" })
+    .jpeg({ quality: 82 })
+    .toFile(outPath);
+  console.log(`  Foto: ${outPath}`);
+  return true;
+}
+
+function ffmpegRun(input, opts, out) {
+  return new Promise((res, rej) =>
+    ffmpeg(input).outputOptions(opts).output(out).on("end", res).on("error", rej).run()
+  );
+}
+
+async function fetchVideo(query, slug) {
+  const videos = await searchPexelsVideos(query);
+  if (!videos.length) return false;
+  const meta = toClipMetadata(videos[0]);
+  const raw = join(ASSETS, `${slug}-raw.mp4`);
+  const opt = join(ASSETS, `${slug}-video-opt.mp4`);
+  const poster = join(ASSETS, `${slug}-video-poster.jpg`);
+  try {
+    const res = await fetch(meta.downloadUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    writeFileSync(raw, Buffer.from(await res.arrayBuffer()));
+    await ffmpegRun(raw, [
+      "-vf scale=1280:-2", "-r 24", "-c:v libx264", "-preset medium",
+      "-crf 30", "-an", "-movflags +faststart", "-y",
+    ], opt);
+    await ffmpegRun(opt, ["-vf scale=1280:-2", "-frames:v 1", "-q:v 5", "-y"], poster);
+    console.log(`  Video: ${(statSync(opt).size / 1024 / 1024).toFixed(1)} MB + poster`);
+    return true;
+  } catch (err) {
+    console.error(`  Video falló: ${err.message}`);
+    for (const f of [opt, poster]) try { if (existsSync(f)) unlinkSync(f); } catch {}
+    return false;
+  } finally {
+    try { if (existsSync(raw)) unlinkSync(raw); } catch {}
+  }
+}
+
+async function main() {
+  if (!existsSync(ARTICLE_PATH) || !existsSync(ZONES_PATH)) {
+    console.error("Faltan scripts/generated-article.txt o scripts/agro-zones.json — corre el boletín primero");
+    process.exit(1);
+  }
+  const article = readFileSync(ARTICLE_PATH, "utf8").trim();
+  const zonesData = JSON.parse(readFileSync(ZONES_PATH, "utf8"));
+  const zones = zonesData.zones || [];
+  const period = formatPeriod(zonesData.window.current);
+  const endDate = zonesData.window.current[1].slice(0, 10).replace(/-/g, "");
+  const slug = `informe-agrosat-${endDate}`;
+  const imageFile = `${slug}-opt.jpg`;
+  const videoFile = `${slug}-video-opt.mp4`;
+
+  const informes = JSON.parse(readFileSync(INFORMES_JSON, "utf8"));
+  if (!FORCE && informes.some((i) => i.date === period)) {
+    console.log(`Ya existe un informe para "${period}" — nada que hacer (o usa --force)`);
+    return;
+  }
+
+  const countries = new Set(zones.map((z) => z.country)).size;
+  const location = `${zones.length} zonas de ${countries} ${countries === 1 ? "país" : "países"} de LAC`;
+
+  console.log("Generando título y excerpt con Groq...");
+  const { title, excerpt } =
+    (await generateTitleExcerpt(article)) || fallbackTitleExcerpt(article, zones);
+
+  const entry = {
+    id: String(Math.max(...informes.map((i) => parseInt(i.id, 10) || 0)) + 1),
+    title,
+    category: "agrosat",
+    date: period,
+    location,
+    image: imageFile,
+    ...(NO_VIDEO ? {} : { video: videoFile }),
+    excerpt,
+    article,
+  };
+
+  if (DRY_RUN) {
+    console.log("\nDRY-RUN — entrada que se crearía:");
+    console.log(JSON.stringify({ ...entry, article: article.slice(0, 120) + "…" }, null, 2));
+    console.log(`Assets: ${imageFile}, ${NO_VIDEO ? "(sin video)" : videoFile}`);
+    return;
+  }
+
+  console.log(`Descargando assets para ${slug}...`);
+  const okPhoto = await fetchPhoto("agriculture crop field aerial drone", join(ASSETS, imageFile));
+  if (!okPhoto) {
+    console.error("No se pudo descargar foto de Pexels — abortando (el informe requiere imagen)");
+    process.exit(1);
+  }
+  if (!NO_VIDEO) await fetchVideo("drought agriculture field dry aerial", slug);
+
+  informes.unshift(entry);
+  writeFileSync(INFORMES_JSON, JSON.stringify(informes, null, 2) + "\n");
+  console.log(`\nInforme #${entry.id} "${title}" añadido a informes.json`);
+  console.log("Siguiente: npm --prefix web run build  (o el deploy automático del workflow)");
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

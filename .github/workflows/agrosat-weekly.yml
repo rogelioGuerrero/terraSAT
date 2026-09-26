@@ -23,6 +23,8 @@ env:
   FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
   FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
   PUBLISH_WEBHOOK_URL: ${{ secrets.PUBLISH_WEBHOOK_URL }}
+  NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+  NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
 jobs:
   boletin:
@@ -105,6 +107,37 @@ jobs:
               scripts/agrosat-combined_branded.jpg \
               @scripts/generated-article.txt --dry-run
           fi
+
+      # --- Web: informe nuevo en la SPA + deploy a Netlify ---
+      # publish-informe.mjs genera título/excerpt (Groq), foto+video (Pexels)
+      # y prepende la entrada a informes.json. Idempotente por período.
+      - name: Informe para la SPA (entrada + assets)
+        run: node scripts/publish-informe.mjs
+
+      - name: Build web
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+
+      # Commitea los archivos generados para que repo y sitio no diverjan.
+      # Solo rutas de artefactos — nunca toca código ni secretos.
+      - name: Commit de artefactos generados
+        run: |
+          git config user.name "agrosat-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/src/data/informes.json scripts/agro-zones.json
+          git add "web/src/assets/informe-agrosat-*" 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Sin cambios nuevos en informes"
+          else
+            git commit -m "chore: informe AgroSAT semanal auto-generado [skip ci]"
+            git push
+          fi
+
+      - name: Deploy a Netlify
+        if: env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != ''
+        run: npx --yes netlify-cli@23 deploy --dir=web/dist --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN" --prod
 
       - name: Artefactos generados
         if: always()
