@@ -77,23 +77,21 @@ jobs:
           node scripts/add-branding-terrasat.mjs \
             scripts/agrosat-combined.jpg --period "$PERIOD"
 
-      # Publicación: webhook (Make.com/Zapier, app FB ya autorizada) tiene
-      # prioridad; fb-post.mjs queda como alternativa si la app Meta obtiene
-      # permisos pages_* algún día. Sin ninguno configurado, los artefactos
-      # quedan para publicación manual.
-      - name: Publicar vía webhook (Make/Zapier)
+      # Publicación: la app Meta no puede obtener pages_read_engagement sin
+      # App Review, así que la única vía automática es un webhook de
+      # Make.com/Zapier (su app ya está autorizada). Sin secret configurado,
+      # el job genera todo y queda para publicación manual desde artefactos.
+      - name: Publicar en Facebook (webhook)
         if: (github.event_name == 'schedule' || inputs.dry_run != true) && env.PUBLISH_WEBHOOK_URL != ''
         run: |
           node scripts/post-webhook.mjs \
             scripts/agrosat-combined_branded.jpg \
             @scripts/generated-article.txt
 
-      - name: Publicar vía Graph API (si hay permisos)
-        if: (github.event_name == 'schedule' || inputs.dry_run != true) && env.PUBLISH_WEBHOOK_URL == '' && env.FB_PAGE_ACCESS_TOKEN != ''
+      - name: Sin canal de publicación — post manual
+        if: (github.event_name == 'schedule' || inputs.dry_run != true) && env.PUBLISH_WEBHOOK_URL == ''
         run: |
-          node scripts/fb-post.mjs \
-            scripts/agrosat-combined_branded.jpg \
-            @scripts/generated-article.txt
+          echo "::notice::Sin PUBLISH_WEBHOOK_URL — publicar manualmente: bajar el artefacto agrosat-boletin y subir agrosat-combined_branded.jpg + generated-article.txt a la página de Facebook."
 
       - name: Dry-run (dispatch sin publicación)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
