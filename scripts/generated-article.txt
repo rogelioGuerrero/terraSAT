@@ -1,15 +1,56 @@
-Alerta AgroSAT: Sequías y Enfermedades Amenazan 50 000 ha en Latinoamérica  
+🛰️ **LEDE**  
+Café en crisis: 12 800 ha degradados en Espírito Santo y NDVI -0.1204, a pesar de lluvias +79.9 % sobre la climatología. Minas Gerais, sin áreas degradadas, exhibe NDVI +0.1466 y lluvias +691.7 %.
 
-Este lunes, el análisis de vegetación y temperatura de dosel basado en imágenes satelitales de agencias reconocidas (NASA, ESA) muestra condiciones críticas en varios países. Sequías intensas y una enfermedad del cafetal ponen en riesgo cerca de 50 000 ha de cultivos, mientras otras áreas requieren vigilancia estrecha. 🛰️🌱  
+⚠️ **Zonas en alerta – Café**  
+| Zona | Área total | Área degradada | dNDVI | dNDRE | Lluvia | Píxeles degradados |
+|------|------------|----------------|------|------|--------|--------------------|
+| Alta Verapaz (GT) | 52 000 ha | 14 600 ha | -0,1072 | -0,0779 | -51,5 % | 0,2808 |
+| Caldas (CO) | 65 000 ha | 15 100 ha | -0,0961 | -0,0545 | -35,1 % | 0,2323 |
+| Espírito Santo (BR) | 85 000 ha | 12 800 ha | -0,1204 | -0,0823 | +79,9 % | 0,1506 |
 
-En café, la zona de Espírito Santo (Brasil) registra 12 800 ha afectadas por la enfermedad del cafetal, situación calificada como crítica. En cultivos de secano, los déficits hídricos en Alta Verapaz (Guatemala) y Caldas (Colombia) concentran 29 700 ha bajo alerta, con precipitaciones 51 % y 35 % por debajo de lo normal, respectivamente. En la zona central de Chile, 7 100 ha presentan deterioro de cultivos, lo que eleva la alerta regional.  
+*Interpretación*:  
+- **Alta Verapaz y Caldas**: déficit hídrico y alta fracción de píxeles degradados (≈ 28‑23 %). El descenso de NDVI y NDRE indica estrés hídrico.  
+- **Espírito Santo**: exceso de lluvia, pero la mayor caída de NDVI sugiere un factor biológico, probable enfermedad del cafetal. La fracción de píxeles degradados es menor (≈ 15 %) pero la magnitud del índice es más crítica.
 
-Bajo vigilancia, los departamentos de El Paraíso (Honduras) y Jinotega (Nicaragua) suman 6 200 ha con signos tempranos de deterioro, y Quindío (Colombia) añade 4 100 ha en observación. Estas áreas muestran precipitaciones entre 19 % y 60 % por debajo de lo esperado, lo que justifica una monitorización continua.  
+🌱 **Recomendaciones**  
+- **Deficiencia hídrica** (Alta Verapaz, Caldas): aplicar manejo de agua (mulching, riego de precisión) y evaluar variedades tolerantes a sequía.  
+- **Posible enfermedad** (Espírito Santo): inspección de campo inmediata, aplicación de fungicidas según protocolos locales y reforzar higiene en la recolección.
 
-Regiones como Intibucá (Honduras), Minas Gerais, Mato Grosso y São Paulo (Brasil), Córdoba (Argentina) y otras permanecen dentro de condiciones normales según los últimos datos satelitales.  
+⚠️ **Viñas – Chile**  
+| Zona | Área total | Área degradada | dNDVI | dNDRE | Lluvia | Píxeles degradados |
+|------|------------|----------------|------|------|--------|--------------------|
+| Valle Central | 55 000 ha | 7 100 ha | -0,0555 | -0,0312 | -19,5 % | 0,1291 |
 
-Mendoza (Argentina) no pudo evaluarse por nubosidad persistente; se mantiene sin datos.  
+El descenso moderado de NDVI y NDRE, junto a una ligera sequía, indica estrés de vigor. Se sugiere revisar balance hídrico y vigilar plagas.
 
-¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos 15 días antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También colaboramos con aseguradoras y agroservicios. Vea el mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com  
+🔎 **Síntesis de patrones**  
+- **Cafés centroamericanos**: déficit hídrico generalizado, NDVI/NDRE negativos, alta degradación.  
+- **Espírito Santo**: posible enfermedad, estrés no explicado por agua.  
+- **Minas Gerais**: vigor sobresaliente con lluvias extremas.  
+- **Viñas del Valle Central**: deterioro moderado ligado a sequía ligera.
 
-#AlertaAgroSAT #SeguridadAlimentaria #DatosSatélite
+🛰️ **Panorama agroclimático – Septiembre 2026**  
+**Vigilancia – Café**  
+| Región | Área | Degradada | dNDVI | dNDRE | Lluvia |
+|--------|------|-----------|------|------|--------|
+| El Paraíso (HN) | 38 000 ha | 3 700 ha | -0,0317 | -0,0275 | -29,8 % |
+| Jinotega (NI) | 42 000 ha | 2 500 ha | -0,0254 | -0,0167 | -18,5 % |
+| Quindío (CO) | 48 000 ha | 4 100 ha | -0,0387 | -0,0256 | -59,8 % |
+
+**Condición normal**  
+| Región | Cultivo | dNDVI | dNDRE | Lluvia |
+|--------|---------|------|------|--------|
+| Intibucá (HN) | Café | -0,0044 | -0,0006 | -40,9 % |
+| Minas Gerais (BR) | Café | +0,1466 | +0,0875 | +691,7 % |
+| Mato Grosso (BR) | Soja | -0,0002 | -0,0031 | -19,8 % |
+| Córdoba (AR) | Soja | +0,0299 | +0,0235 | -31,0 % |
+| São Paulo (BR) | Caña | +0,1386 | +0,0774 | +910,1 % |
+
+**Sin datos** – Mendoza (AR) carece de imágenes limpias por nubosidad; la monitorización se mantiene vía radar Sentinel‑1 y estaciones meteorológicas.
+
+☕ **Conclusión**  
+Tres cuencas cafetaleras centroamericanas presentan estrés hídrico temprano. Minas Gerais destaca por vigor excepcional gracias a lluvias extraordinarias. Espírito Santo muestra una señal de posible enfermedad que requiere verificación de campo. Los agricultores pueden usar esta información para focalizar riego, manejo fitosanitario y planificación de cosechas en las áreas más vulnerables.
+
+¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos semanas antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🌱☕
+
+#TerraSAT #AgroSAT #AlertaTemprana #Satélite

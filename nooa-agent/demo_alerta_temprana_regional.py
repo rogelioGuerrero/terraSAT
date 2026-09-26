@@ -530,9 +530,24 @@ def main():
             print("  Reintentar con --simulate para datos de demostración.")
             sys.exit(2)
 
-    # ─── Generar artículo con LLM ───────────────────────────────
-    print("\n  Generando boletín con LLM...\n")
-    article = generate_bulletin_article(zones)
+    # ─── Generar artículo ───────────────────────────────────────
+    if args.simulate:
+        print("\n  Generando boletín con LLM...\n")
+        article = generate_bulletin_article(zones)
+    else:
+        # Pipeline por fases: briefing → bloques → edición → QA
+        # Estado persistido en Appwrite (resumible entre corridas)
+        print("\n  Generando boletín por fases (briefing → bloques → edición → QA)...\n")
+        article = None
+        try:
+            zones_doc = json.loads(Path("scripts/agro-zones.json").read_text(encoding="utf-8"))
+            from appwrite_store import save_bulletin_data
+            from article_pipeline import generate
+            run_id = save_bulletin_data("agro", zones_doc)
+            article = generate("agro", zones_doc, run_id)
+        except Exception as e:
+            print(f"  Pipeline por fases falló ({e}) — fallback determinista")
+            article = _fallback_article(zones)
 
     # ─── Imprimir boletín ───────────────────────────────────────
     print_bulletin(zones, article, today)

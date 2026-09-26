@@ -32,3 +32,4 @@ scripts/.cards/
 # Raw video downloads (temp)
 scripts/*-raw.mp4
 scripts/*-pexels-*.mp4
+scripts/article-state-*.json

@@ -31,7 +31,9 @@ Informe mensual con mapa interactivo de nuevas construcciones, islas de calor ur
 análisis → mapa → screenshot → branding → publicación → informe en la SPA → deploy Netlify.
 Secrets requeridos en el repo: `CDSE_USERNAME`, `CDSE_PASSWORD`, `GROQ_API_KEY`,
 `PEXELS_API_KEY`; opcionales: `PUBLISH_WEBHOOK_URL` (publicación FB vía webhook),
-`NETLIFY_AUTH_TOKEN` + `NETLIFY_SITE_ID` (deploy automático del sitio).
+`NETLIFY_AUTH_TOKEN` + `NETLIFY_SITE_ID` (deploy automático del sitio),
+`APPWRITE_ENDPOINT` + `APPWRITE_PROJECT_ID` + `APPWRITE_API_KEY` (+`APPWRITE_DATABASE_ID`,
+default `pricewatch`) para serie histórica y estado de fases.
 `workflow_dispatch` con `dry_run=true` genera todo sin publicar. Si el job falla, el
 mismo pipeline se corre manual:
 
@@ -39,8 +41,10 @@ mismo pipeline se corre manual:
    - AgroSAT usa **datos reales** por defecto: Sentinel-2 L2A (NDVI/NDRE via CDSE Statistical API, máscara de nubes SCL) + precipitación Open-Meteo/ERA5 vs climatología de 5 años. Ventana actual (21 días) vs mismo período del año anterior. Zonas sin imagen limpia salen como "sin datos". Usar `--simulate` para la simulación histórica.
    - Las zonas monitoreadas viven en `nooa-agent/agro_zones_config.json` — editables sin tocar código. El pipeline es agnóstico a la escala: `area_ha` define el bbox consultado; sirve igual para una región de 300k ha o una finca de 50 ha.
    - **Área afectada medida, no estimada**: fracción de pixels con NDVI < (media baseline − 0.05) en la ventana actual menos la misma fracción medida en el baseline (exceso de pixels degradados). Todo queda auditable en `agro-zones.json` → `meta` por zona.
-   - La "anticipación" no se mide: en modo real `days_early_warning` es 0 y el boletín reporta la fecha de la última imagen limpia. El claim "15 días antes" del CTA es copy de marketing, no un dato medido.
+   - La "anticipación" no se mide: en modo real `days_early_warning` es 0 y el boletín reporta la fecha de la última imagen limpia. El claim "semanas antes" del CTA es copy de marketing, no un dato medido.
    - Salidas: `scripts/generated-article.txt`, `scripts/gemini-prompt.txt`, `scripts/agro-zones.json`
+   - **Artículo por fases** (`article_pipeline.py`, domain-agnostic): briefing analítico → redacción por bloques → edición → QA determinista anti-alucinación (`article_qa.py` verifica que cada número del artículo exista en los datos). Estado en Appwrite → cada fase es resumible (`--phase briefing|blocks|edit|qa`) y puede correr en días distintos.
+   - **Serie histórica en Appwrite** (`appwrite_store.py`): cada corrida guarda `terrasat_zone_observations` (1 fila/zona) + `terrasat_bulletin_runs` (estado del pipeline). Base compartida `pricewatch`, colecciones `terrasat_*`. Setup: `python nooa-agent/setup_appwrite_terrasat.py`.
 2. Generar mapa: `python nooa-agent/generate_map.py` (lee `agro-zones.json`; `--simulate` para ignorarlo) o `python nooa-agent/generate_urban_map.py` (UrbanSAT)
 3. Foto de cultivo: `node scripts/fetch-pexels-photo.mjs "<query>"` (o imagen Gemini opcional con `gemini-prompt.txt`)
 4. `node scripts/combine-images.mjs "<foto>" "<mapa>"` — o `split-analysis.mjs` para efecto mitad natural / mitad análisis
