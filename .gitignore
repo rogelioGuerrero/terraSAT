@@ -33,3 +33,4 @@ scripts/.cards/
 scripts/*-raw.mp4
 scripts/*-pexels-*.mp4
 scripts/article-state-*.json
+.netlify/

@@ -1,4 +1,5 @@
 {
+  "product": "agro",
   "generated_at": "2026-09-26",
   "source": "real",
   "window": {
@@ -44,7 +45,16 @@
           "pct": -40.89357741234874,
           "n_days": 22,
           "normal_mm": 193.38
-        }
+        },
+        "nbr_base": 0.4889,
+        "nbr_cur": 0.427,
+        "nbr_delta": -0.0619,
+        "ndbi_base": -0.2384,
+        "ndbi_cur": -0.1774,
+        "ndbi_delta": 0.061,
+        "ndwi_base": -0.5677,
+        "ndwi_cur": -0.585,
+        "ndwi_delta": -0.0173
       }
     },
     {
@@ -79,7 +89,16 @@
           "pct": -29.758308157099705,
           "n_days": 22,
           "normal_mm": 145.64000000000001
-        }
+        },
+        "nbr_base": 0.4427,
+        "nbr_cur": 0.3918,
+        "nbr_delta": -0.0508,
+        "ndbi_base": -0.1765,
+        "ndbi_cur": -0.142,
+        "ndbi_delta": 0.0345,
+        "ndwi_base": -0.5666,
+        "ndwi_cur": -0.5466,
+        "ndwi_delta": 0.02
       }
     },
     {
@@ -114,7 +133,16 @@
           "pct": -51.490728396558,
           "n_days": 22,
           "normal_mm": 330.04
-        }
+        },
+        "nbr_base": 0.5088,
+        "nbr_cur": 0.4555,
+        "nbr_delta": -0.0533,
+        "ndbi_base": -0.2392,
+        "ndbi_cur": -0.2222,
+        "ndbi_delta": 0.017,
+        "ndwi_base": -0.6418,
+        "ndwi_cur": -0.5475,
+        "ndwi_delta": 0.0943
       }
     },
     {
@@ -149,7 +177,16 @@
           "pct": -18.50431447746884,
           "n_days": 22,
           "normal_mm": 125.16
-        }
+        },
+        "nbr_base": 0.4439,
+        "nbr_cur": 0.4143,
+        "nbr_delta": -0.0296,
+        "ndbi_base": -0.208,
+        "ndbi_cur": -0.1838,
+        "ndbi_delta": 0.0243,
+        "ndwi_base": -0.5397,
+        "ndwi_cur": -0.5195,
+        "ndwi_delta": 0.0201
       }
     },
     {
@@ -184,7 +221,16 @@
           "pct": -35.13257575757575,
           "n_days": 22,
           "normal_mm": 337.91999999999996
-        }
+        },
+        "nbr_base": 0.4509,
+        "nbr_cur": 0.4222,
+        "nbr_delta": -0.0287,
+        "ndbi_base": -0.2036,
+        "ndbi_cur": -0.1969,
+        "ndbi_delta": 0.0067,
+        "ndwi_base": -0.5683,
+        "ndwi_cur": -0.4981,
+        "ndwi_delta": 0.0702
       }
     },
     {
@@ -219,7 +265,16 @@
           "pct": -59.75701298340237,
           "n_days": 22,
           "normal_mm": 719.38
-        }
+        },
+        "nbr_base": 0.3974,
+        "nbr_cur": 0.3849,
+        "nbr_delta": -0.0125,
+        "ndbi_base": -0.1878,
+        "ndbi_cur": -0.1735,
+        "ndbi_delta": 0.0143,
+        "ndwi_base": -0.4782,
+        "ndwi_cur": -0.4677,
+        "ndwi_delta": 0.0106
       }
     },
     {
@@ -254,7 +309,16 @@
           "pct": 79.89056087551299,
           "n_days": 22,
           "normal_mm": 29.240000000000002
-        }
+        },
+        "nbr_base": 0.2606,
+        "nbr_cur": 0.316,
+        "nbr_delta": 0.0554,
+        "ndbi_base": -0.0003,
+        "ndbi_cur": -0.084,
+        "ndbi_delta": -0.0837,
+        "ndwi_base": -0.5044,
+        "ndwi_cur": -0.3658,
+        "ndwi_delta": 0.1386
       }
     },
     {
@@ -289,7 +353,16 @@
           "pct": 691.6666666666666,
           "n_days": 22,
           "normal_mm": 4.08
-        }
+        },
+        "nbr_base": 0.1096,
+        "nbr_cur": 0.2251,
+        "nbr_delta": 0.1155,
+        "ndbi_base": 0.111,
+        "ndbi_cur": 0.0209,
+        "ndbi_delta": -0.0901,
+        "ndwi_base": -0.4802,
+        "ndwi_cur": -0.5369,
+        "ndwi_delta": -0.0567
       }
     },
     {
@@ -324,7 +397,16 @@
           "pct": -19.79301423027166,
           "n_days": 22,
           "normal_mm": 15.459999999999999
-        }
+        },
+        "nbr_base": 0.1106,
+        "nbr_cur": 0.0491,
+        "nbr_delta": -0.0614,
+        "ndbi_base": 0.0898,
+        "ndbi_cur": 0.1432,
+        "ndbi_delta": 0.0534,
+        "ndwi_base": -0.4282,
+        "ndwi_cur": -0.4104,
+        "ndwi_delta": 0.0178
       }
     },
     {
@@ -359,7 +441,16 @@
           "pct": -31.005110732538334,
           "n_days": 22,
           "normal_mm": 23.48
-        }
+        },
+        "nbr_base": 0.0046,
+        "nbr_cur": 0.0471,
+        "nbr_delta": 0.0425,
+        "ndbi_base": 0.1164,
+        "ndbi_cur": 0.0833,
+        "ndbi_delta": -0.0331,
+        "ndwi_base": -0.3614,
+        "ndwi_cur": -0.3957,
+        "ndwi_delta": -0.0343
       }
     },
     {
@@ -394,7 +485,16 @@
           "pct": -19.472652770354536,
           "n_days": 22,
           "normal_mm": 112.25999999999999
-        }
+        },
+        "nbr_base": 0.3912,
+        "nbr_cur": 0.3719,
+        "nbr_delta": -0.0192,
+        "ndbi_base": -0.1921,
+        "ndbi_cur": -0.1879,
+        "ndbi_delta": 0.0042,
+        "ndwi_base": -0.5529,
+        "ndwi_cur": -0.5089,
+        "ndwi_delta": 0.044
       }
     },
     {
@@ -404,17 +504,41 @@
       "lat": -32.89,
       "lng": -68.83,
       "area_ha": 95000,
-      "status": "sin_datos",
-      "alert_cause": "Sin imagen limpia (nubosidad)",
+      "status": "normal",
+      "alert_cause": "",
       "affected_area_ha": 0,
       "days_early_warning": 0,
-      "ndvi_delta": 0.0,
-      "ndre_delta": 0.0,
-      "rainfall_mm": 0.0,
-      "rainfall_pct": 0.0,
+      "ndvi_delta": -0.0173,
+      "ndre_delta": -0.0124,
+      "rainfall_mm": 13.2,
+      "rainfall_pct": -40.3,
       "meta": {
-        "error_cur": "HTTP 400: {\"error\":{\"status\":400,\"reason\":\"Bad Request\",\"message\":\"Failed to evaluate script!\\nevalscript.js:24: ReferenceError: nan is not defined\\n  let stressed = (clear && ndvi < nan) ? 1.0 : 0.0;\\n                                  ^\\nReferenceError: nan is not defined\\n    at evaluatePixel (evalscript.js",
-        "error_base": null
+        "ndvi_base": 0.2109,
+        "ndvi_cur": 0.1936,
+        "ndre_base": 0.1312,
+        "ndre_cur": 0.1188,
+        "days_base": 4,
+        "days_cur": 4,
+        "latest_image": "2026-09-21",
+        "stressed_frac_cur": 0.3798,
+        "stressed_frac_base": 0.3201,
+        "excess_stressed_frac": 0.0597,
+        "affected_method": "none",
+        "precip": {
+          "mm": 13.2,
+          "pct": -40.3254972875226,
+          "n_days": 22,
+          "normal_mm": 22.119999999999997
+        },
+        "nbr_base": 0.0324,
+        "nbr_cur": 0.0187,
+        "nbr_delta": -0.0137,
+        "ndbi_base": 0.0449,
+        "ndbi_cur": 0.0536,
+        "ndbi_delta": 0.0088,
+        "ndwi_base": -0.2955,
+        "ndwi_cur": -0.2822,
+        "ndwi_delta": 0.0132
       }
     },
     {
@@ -449,7 +573,16 @@
           "pct": 910.1404056162248,
           "n_days": 22,
           "normal_mm": 12.819999999999999
-        }
+        },
+        "nbr_base": 0.1085,
+        "nbr_cur": 0.2941,
+        "nbr_delta": 0.1856,
+        "ndbi_base": 0.0598,
+        "ndbi_cur": -0.0675,
+        "ndbi_delta": -0.1273,
+        "ndwi_base": -0.4693,
+        "ndwi_cur": -0.5118,
+        "ndwi_delta": -0.0426
       }
     }
   ]

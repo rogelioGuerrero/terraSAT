@@ -1,0 +1,15 @@
+{
+  "_description": "Zonas urbanas monitoreadas por UrbanSAT. Índices: NDBI (área construida), NDVI (pérdida de vegetación). Mínimo por zona: lat+lng. area_ha ~área metropolitana.",
+  "zones": [
+    { "name": "San Pedro Sula", "country": "Honduras", "crop": "Metro", "lat": 15.50, "lng": -88.03, "area_ha": 90000 },
+    { "name": "Tegucigalpa", "country": "Honduras", "crop": "Metro", "lat": 14.08, "lng": -87.20, "area_ha": 80000 },
+    { "name": "Ciudad de Guatemala", "country": "Guatemala", "crop": "Metro", "lat": 14.62, "lng": -90.51, "area_ha": 120000 },
+    { "name": "San Salvador", "country": "El Salvador", "crop": "Metro", "lat": 13.70, "lng": -89.20, "area_ha": 90000 },
+    { "name": "Managua", "country": "Nicaragua", "crop": "Metro", "lat": 12.13, "lng": -86.25, "area_ha": 80000 },
+    { "name": "Bogotá", "country": "Colombia", "crop": "Metro", "lat": 4.71, "lng": -74.07, "area_ha": 160000 },
+    { "name": "Medellín", "country": "Colombia", "crop": "Metro", "lat": 6.25, "lng": -75.57, "area_ha": 110000 },
+    { "name": "Quito", "country": "Ecuador", "crop": "Metro", "lat": -0.18, "lng": -78.47, "area_ha": 100000 },
+    { "name": "Lima", "country": "Perú", "crop": "Metro", "lat": -12.05, "lng": -77.04, "area_ha": 180000 },
+    { "name": "Ciudad de México", "country": "México", "crop": "Metro", "lat": 19.43, "lng": -99.13, "area_ha": 200000 }
+  ]
+}

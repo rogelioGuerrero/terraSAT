@@ -1,0 +1,43 @@
+🛰️ **Crisis en los bosques secos del Chaco**
+Los últimos análisis satelitales (ESA/NASA) indican que las dos zonas en alerta – Chaco Paraguayo y Petén – han perdido **78,300 ha** de cobertura forestal. El Chaco Paraguayo registra la mayor pérdida: **49,800 ha** (≈ 16 % del área total) con un dNDVI de **‑0.0651**.
+
+⚠️ **Zonas en alerta**
+
+**Chaco Paraguayo (Paraguay)**
+- Área total: 300,000 ha
+- Área afectada: 49,800 ha
+- dNDVI: ‑0.0651
+- ΔNBR: ‑0.0917
+- Fracción de píxeles degradados: 0.1659 (≈ 16.6 %)
+
+**Petén (Guatemala)**
+- Área total: 250,000 ha
+- Área afectada: 28,500 ha
+- dNDVI: ‑0.0683
+- ΔNBR: ‑0.0549
+- Fracción de píxeles degradados: 0.114 (≈ 11.4 %)
+
+🌱 **Patrón emergente en los bosques secos**
+Mientras el Chaco Paraguayo sufre una pérdida abrupta, el **Gran Chaco Argentino** muestra una recuperación notable (ΔNDVI + 0.1496, ΔNBR + 0.155) sin áreas afectadas. La **Mata Atlântica** también registra una ligera mejora (ΔNDVI + 0.0372, ΔNBR + 0.0239).
+
+🔎 **Panorama regional**
+
+*Vigilancia* – Darién (Panamá), Madre de Dios (Perú) y La Mosquitia (Honduras)
+- Pérdidas: 20,800 ha, 17,200 ha y 13,300 ha respectivamente.
+- dNDVI negativos (‑0.0246 a ‑0.0323) y ΔNBR también negativos, señalando degradación incipiente.
+- Fracción de píxeles degradados entre 5 % y 8 %.
+
+*Normal* – Leticia, Selva Lacandona, Chocó, Gran Chaco Argentino y Mata Atlântica
+- No se detectaron pérdidas ni píxeles degradados significativos.
+- Los valores positivos de NDVI y NBR en Gran Chaco Argentino y Mata Atlântica indican recuperación de la vegetación.
+
+☕ **Conclusión**
+Los bosques secos del Chaco requieren acciones de conservación urgentes y adaptadas al contexto local: protección de áreas remanentes y restauración en el Chaco Paraguayo. Al mismo tiempo, los indicadores positivos en el Gran Chaco Argentino y la Mata Atlântica muestran que políticas de manejo sostenible pueden revertir tendencias negativas.
+
+📅 Última imagen libre de nubes: 25 sep 2026.
+
+*Los datos provienen de Sentinel‑2 y Landsat 9, procesados bajo los protocolos de ForestSAT.*
+
+¿Su organización gestiona bosques, áreas protegidas o monitorea cambio de uso de suelo? ForestSAT detecta pérdida de cobertura y señales de quema en escala regional con datos satelitales verificables. Reportes personalizados para gobiernos, ONGs y aseguradoras. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🌱☕
+
+#TerraSAT #ForestSAT #AlertaTemprana #Satélite

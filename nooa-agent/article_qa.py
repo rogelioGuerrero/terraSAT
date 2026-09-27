@@ -64,7 +64,10 @@ def allowed_values(zones_doc: dict) -> dict[str, float]:
         put(f"{n}.rain_mm", z.get("rainfall_mm"), 0, 1)
         put(f"{n}.ndvi_delta", z.get("ndvi_delta"), 2, 3)
         put(f"{n}.ndre_delta", z.get("ndre_delta"), 2, 3)
-        for k in ("ndvi_base", "ndvi_cur", "ndre_base", "ndre_cur"):
+        for k in ("ndvi_base", "ndvi_cur", "ndre_base", "ndre_cur",
+                  "nbr_base", "nbr_cur", "nbr_delta",
+                  "ndbi_base", "ndbi_cur", "ndbi_delta",
+                  "ndwi_base", "ndwi_cur", "ndwi_delta"):
             put(f"{n}.{k}", meta.get(k), 2, 3)
         for k in ("stressed_frac_cur", "excess_stressed_frac"):
             f = meta.get(k)

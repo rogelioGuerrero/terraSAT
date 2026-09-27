@@ -1,0 +1,42 @@
+🛰️ **LEDE**  
+Expansión urbana sin precedentes en Quito y presión creciente en capitales centroamericanas. Quito añadió 55 000 ha de área construida y más del 55 % de sus píxeles están degradados (0.5505), la peor cifra entre las 10 metrópolis vigiladas. Managua, Medellín, Tegucigalpa, San Pedro Sula y Ciudad de Guatemala también registran aumentos de área urbana (4 600‑10 500 ha) y creciente degradación. San Salvador muestra una ligera mejora de NDVI y Bogotá se mantiene estable pese a la caída de vegetación. Estas tendencias subrayan la urgencia de planificación urbana sostenible.
+
+⚠️ **ZONAS EN ALERTA**  
+| Ciudad | Tipo de patrón | Cambio clave de índices | Área construida adicional | Fracción de píxeles degradados |
+|---|---|---|---|---|
+| **Quito** (Ecuador) | Expansión explosiva – Andina | NDVI Δ = ‑0.0619, NBR Δ = ‑0.0655, NDBI Δ = +0.0532, NDWI Δ = +0.033 | **55 000 ha** | **0.5505** |
+| **Managua** (Nicaragua) | Crecimiento rápido – Centroamérica | NDVI Δ = ‑0.0032, NBR ↓, NDBI ↑ | **10 500 ha** | **0.1312** |
+| **Medellín** (Colombia) | Expansión moderada – Andina | NDVI Δ = +0.0857, NBR ↓, NDBI ↑ | **7 600 ha** | 0.0692 |
+| **Tegucigalpa** (Honduras) | Crecimiento limitado | NDVI Δ = ‑0.0829, NBR ↓, NDBI ↑ | **7 600 ha** | 0.0949 |
+| **San Pedro Sula** (Honduras) | Crecimiento limitado | NDVI Δ = ‑0.0286, NBR ↓, NDBI ↑ | **4 600 ha** | 0.0508 |
+| **Ciudad de Guatemala** (Guatemala) | Crecimiento moderado | NDVI Δ = ‑0.0267, NBR ↓, NDBI ↑ | **10 300 ha** | 0.0858 |
+| **San Salvador** (El Salvador) | Estatus “normal” | NDVI Δ = +0.0224 | 0 ha | 0.0023 |
+| **Bogotá** (Colombia) | Estatus “normal” | NDVI Δ = ‑0.0765 | 0 ha | 0.0183 |
+
+🌱 **Patrón Andino**  
+- **Quito**: la peor degradación (0.5505) y pérdida de vegetación (‑0.0619) acompañan al fuerte aumento de NDBI (+0.0532). La sustitución de áreas verdes por superficies impermeables eleva el riesgo de inundaciones y deslizamientos.  
+- **Medellín**: a diferencia de Quito, su NDVI mejora (+0.0857) pese a 7 600 ha de expansión urbana, lo que sugiere proyectos de re‑vegetación o recuperación de zonas degradadas, aunque la presión sobre el suelo persiste.
+
+🌱 **Patrón Centroamericano**  
+- **Managua** lidera la degradación del suelo (0.1312) aunque su NDVI apenas cambia (‑0.0032). La expansión se concentra en áreas periurbanas vulnerables, aumentando la susceptibilidad a erosión y escorrentía.  
+- **Tegucigalpa** y **San Pedro Sula** presentan degradaciones menores (0.0949 y 0.0508) pero con NDVI negativo, indicando pérdida de vegetación y crecimiento urbano moderado.
+
+⚠️ **Señales de alerta y recomendaciones**  
+1. Pérdida de vegetación y aumento de superficies impermeables (NDVI ↓, NDBI ↑) → mayor riesgo hidrológico.  
+2. Fracción de píxeles degradados > 0.10 → suelo con menor capacidad de retención de agua y soporte biológico.  
+3. Disminución de NBR → compactación del suelo y pérdida de materia orgánica.
+
+☕ **Conclusión**  
+Los satélites ESA/NASA confirman que la expansión urbana en Quito es la más crítica de la muestra, con más de la mitad de los píxeles degradados y una marcada pérdida de vegetación. En Centroamérica, Managua encabeza la degradación del suelo, aunque con menor pérdida de vegetación. San Salvador y Bogotá permanecen dentro de rangos “normales”. La ausencia de datos para Lima y Ciudad de México se debe exclusivamente a nubosidad y no implica ausencia de crecimiento urbano.
+
+🌱 **Panorama general**  
+- **Zonas bajo vigilancia**: Quito (55 000 ha), Managua (10 500 ha), Medellín (7 600 ha) y otras capitales con aumentos entre 4 600 ha y 10 300 ha.  
+- **Zonas con estatus “normal”**: San Salvador y Bogotá, con mínima o nula expansión urbana.  
+- **Zonas sin datos**: Lima y Ciudad de México, limitadas por nubosidad persistente.
+
+🔍 **Implicaciones**  
+Los hallazgos resaltan la necesidad de planes de ordenamiento territorial que incluyan corredores verdes, control de la expansión informal y estrategias de restauración del suelo. Complementar la vigilancia óptica con sensores de microondas (p.ej., Sentinel‑1) permitirá superar las limitaciones de nubosidad y mantener una monitorización continua.
+
+¿Su municipio, desarrolladora o aseguradora opera en alguna de estas ciudades? UrbanSAT mide la expansión de área construida y la pérdida de vegetación con observación satelital objetiva — catastro, planificación y evaluación de riesgo en escala metropolitana. Reportes personalizados disponibles. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🌱☕
+
+#TerraSAT #UrbanSAT #AlertaTemprana #Satélite

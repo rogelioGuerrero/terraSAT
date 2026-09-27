@@ -39,7 +39,8 @@ mismo pipeline se corre manual:
 
 1. Generar análisis: `python nooa-agent/demo_alerta_temprana_regional.py` (AgroSAT) o `python nooa-agent/demo_urban_sat.py` (UrbanSAT)
    - AgroSAT usa **datos reales** por defecto: Sentinel-2 L2A (NDVI/NDRE via CDSE Statistical API, máscara de nubes SCL) + precipitación Open-Meteo/ERA5 vs climatología de 5 años. Ventana actual (21 días) vs mismo período del año anterior. Zonas sin imagen limpia salen como "sin datos". Usar `--simulate` para la simulación histórica.
-   - Las zonas monitoreadas viven en `nooa-agent/agro_zones_config.json` — editables sin tocar código. El pipeline es agnóstico a la escala: `area_ha` define el bbox consultado; sirve igual para una región de 300k ha o una finca de 50 ha.
+   - **ForestSAT y UrbanSAT también son reales** — el mismo colector multi-producto (`agro_real_data.py --product forest|urban`) mide índices específicos por dominio: NBR (quema) para bosques, NDBI (área construida) para ciudades. Zonas en `nooa-agent/forest_zones_config.json` y `urban_zones_config.json` (10 cada una, solo `lat`/`lng` obligatorios). El artículo y el informe de la SPA salen con `article_pipeline.py --product <p>` y `publish-informe.mjs --product <p>`. El demo `demo_urban_sat.py` viejo sigue siendo simulado — el camino real es el colector.
+   - Las zonas monitoreadas viven en `nooa-agent/*_zones_config.json` — editables sin tocar código. El pipeline es agnóstico a la escala: `area_ha` define el bbox consultado; sirve igual para una región de 300k ha o una finca de 50 ha.
    - **Área afectada medida, no estimada**: fracción de pixels con NDVI < (media baseline − 0.05) en la ventana actual menos la misma fracción medida en el baseline (exceso de pixels degradados). Todo queda auditable en `agro-zones.json` → `meta` por zona.
    - La "anticipación" no se mide: en modo real `days_early_warning` es 0 y el boletín reporta la fecha de la última imagen limpia. El claim "semanas antes" del CTA es copy de marketing, no un dato medido.
    - Salidas: `scripts/generated-article.txt`, `scripts/gemini-prompt.txt`, `scripts/agro-zones.json`
@@ -53,7 +54,7 @@ mismo pipeline se corre manual:
    - **Webhook (recomendado)**: `PUBLISH_WEBHOOK_URL` de un escenario Make.com/Zapier (Custom webhook → Facebook "Create a Post") — `node scripts/post-webhook.mjs "<imagen>" "@articulo.txt"`. Necesario porque la app Meta actual no puede obtener `pages_read_engagement` sin App Review.
    - **Graph API**: `node scripts/fb-post.mjs "<imagen>" "@scripts/generated-article.txt"` (solo si la app tiene permisos pages_*; `--dry-run` para previsualizar)
    - **Manual**: subir imagen + pegar artículo en el compositor de la página (o copiar el texto del informe publicado en https://terrasat.agtisa.com)
-7. Actualizar SPA: `node scripts/publish-informe.mjs` (genera entrada en `informes.json` + foto/video de Pexels en `web/src/assets/`; `--dry-run` para previsualizar, `--force` para recrear)
+7. Actualizar SPA: `node scripts/publish-informe.mjs [--product agro|forest|urban]` (genera entrada en `informes.json` + foto/video de Pexels en `web/src/assets/`; `--dry-run` para previsualizar, `--force` para recrear). Idempotente por período+producto.
 
 ---
 

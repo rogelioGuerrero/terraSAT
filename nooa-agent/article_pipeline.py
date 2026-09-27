@@ -60,6 +60,57 @@ PRODUCTS = {
             "personalizados disponibles. También trabajamos con aseguradoras y agroservicios. "
             "Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
         ),
+        "with_rain": True,
+        "alert_what": "estrés vegetativo medido en los cultivos",
+        "unit_name": "el cultivo",
+    },
+    "forest": {
+        "name": "ForestSAT",
+        "subject": "monitoreo satelital de bosques, deforestación y quemas",
+        "zones_json": "scripts/forest-zones.json",
+        "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus)",
+        "field_glossary": (
+            "area_ha=hectáreas monitoreadas; status=critico/alerta/vigilancia/normal/sin_datos; "
+            "alert_cause; affected_area_ha=ha con pérdida de cobertura medida por pixel (exceso vs baseline); "
+            "ndvi_delta/ndre_delta=cambio vs mismo período año anterior; "
+            "meta.nbr_delta=cambio del índice de quema (NBR) vs año anterior; "
+            "meta.latest_image=fecha última imagen limpia; "
+            "meta.excess_stressed_frac=fracción de pixels degradados nuevos (área afectada)"
+        ),
+        "cta": (
+            "¿Su organización gestiona bosques, áreas protegidas o monitorea cambio de uso de suelo? "
+            "ForestSAT detecta pérdida de cobertura y señales de quema en escala regional con datos "
+            "satelitales verificables. Reportes personalizados para gobiernos, ONGs y aseguradoras. "
+            "Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
+        ),
+        "with_rain": False,
+        "alert_what": "pérdida de cobertura forestal, deforestación y cicatrices de quema",
+        "unit_name": "la cobertura forestal",
+    },
+    "urban": {
+        "name": "UrbanSAT",
+        "subject": "monitoreo satelital de crecimiento urbano y cambio de uso de suelo",
+        "zones_json": "scripts/urban-zones.json",
+        "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus)",
+        "field_glossary": (
+            "area_ha=hectáreas del área metropolitana monitoreada; "
+            "status=critico/alerta/vigilancia/normal/sin_datos; alert_cause; "
+            "affected_area_ha=ha con ganancia de área construida medida por pixel (exceso vs baseline); "
+            "ndvi_delta=cambio de vegetación vs mismo período año anterior; "
+            "meta.ndbi_delta=cambio del índice de área construida (NDBI) vs año anterior; "
+            "meta.latest_image=fecha última imagen limpia; "
+            "meta.excess_stressed_frac=fracción de pixels con ganancia construida nueva"
+        ),
+        "cta": (
+            "¿Su municipio, desarrolladora o aseguradora opera en alguna de estas ciudades? "
+            "UrbanSAT mide la expansión de área construida y la pérdida de vegetación con "
+            "observación satelital objetiva — catastro, planificación y evaluación de riesgo "
+            "en escala metropolitana. Reportes personalizados disponibles. "
+            "Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
+        ),
+        "with_rain": False,
+        "alert_what": "expansión de área construida y pérdida de vegetación urbana y periurbana",
+        "unit_name": "la ciudad",
     },
 }
 
@@ -151,20 +202,29 @@ def _maybe_json(s):
 # Datos compactos para prompts
 # ─────────────────────────────────────────────────────────────────────
 
-def _zone_rows(zones_doc: dict, statuses: tuple[str, ...] | None = None) -> str:
+def _zone_rows(cfg: dict, zones_doc: dict, statuses: tuple[str, ...] | None = None) -> str:
     rows = []
     for z in zones_doc.get("zones", []):
         if statuses and z.get("status") not in statuses:
             continue
         meta = z.get("meta", {})
-        rows.append(
+        row = (
             f"{z.get('name')} ({z.get('country')}, {z.get('crop')}): "
             f"status={z.get('status')} | causa={z.get('alert_cause') or 'normal'} | "
             f"area={z.get('area_ha')} ha | afectada={z.get('affected_area_ha')} ha | "
-            f"dNDVI={z.get('ndvi_delta')} | dNDRE={z.get('ndre_delta')} | "
-            f"lluvia={z.get('rainfall_pct')}% | pix_degradados={meta.get('excess_stressed_frac')} | "
+            f"dNDVI={z.get('ndvi_delta')}"
+        )
+        # Índices extra por producto, solo si están medidos
+        if cfg.get("with_rain", True):
+            row += f" | dNDRE={z.get('ndre_delta')} | lluvia={z.get('rainfall_pct')}%"
+        for extra in ("nbr_delta", "ndbi_delta", "ndwi_delta"):
+            if meta.get(extra) is not None:
+                row += f" | {extra}={meta[extra]}"
+        row += (
+            f" | pix_degradados={meta.get('excess_stressed_frac')} | "
             f"ultima_imagen={meta.get('latest_image')}"
         )
+        rows.append(row)
     return "\n".join(rows) or "(ninguna)"
 
 
@@ -182,7 +242,7 @@ def phase_briefing(cfg: dict, zones_doc: dict) -> dict:
 {cfg['field_glossary']}
 
 TODAS LAS ZONAS:
-{_zone_rows(zones_doc)}
+{_zone_rows(cfg, zones_doc)}
 
 Genera JSON con:
 - "headline": hallazgo principal en 1 oración (con la cifra clave)
@@ -210,19 +270,21 @@ def phase_blocks(cfg: dict, zones_doc: dict, briefing: dict) -> dict:
         "lede": (
             "Escribe el lede del boletín: título en negrita + 2-3 oraciones que enganchen con "
             "el hallazgo principal y la cifra clave. Máx 90 palabras. "
-            f"TODAS las zonas:\n{_zone_rows(zones_doc)}"
+            f"TODAS las zonas:\n{_zone_rows(cfg, zones_doc)}"
         ),
         "alertas": (
-            "Escribe la sección de ZONAS EN ALERTA: para cada zona crítica/alerta explica qué "
-            "detectó el satélite (deltas, % pixels degradados, lluvia vs normal) y qué significa "
-            "para el cultivo. Agrupa por cultivo si hay patrón. Cifras exactas de los datos.\n"
-            f"ZONAS:\n{_zone_rows(zones_doc, ('critico', 'alerta'))}"
+            f"Escribe la sección de ZONAS EN ALERTA: para cada zona crítica/alerta explica qué "
+            f"detectó el satélite (deltas de índices, % pixels afectados"
+            + (", lluvia vs normal" if cfg.get("with_rain") else "") +
+            f") y qué significa para {cfg['unit_name']}. Agrupa por tipo si hay patrón. "
+            "Cifras exactas de los datos.\n"
+            f"ZONAS:\n{_zone_rows(cfg, zones_doc, ('critico', 'alerta'))}"
         ),
         "panorama": (
             "Escribe la sección de PANORAMA: zonas en vigilancia (breve, agrupadas), zonas "
             "normales en contexto (qué significa que no haya señal), y zonas sin datos con "
             "explicación honesta de nubosidad.\n"
-            f"ZONAS:\n{_zone_rows(zones_doc, ('vigilancia', 'normal', 'sin_datos'))}"
+            f"ZONAS:\n{_zone_rows(cfg, zones_doc, ('vigilancia', 'normal', 'sin_datos'))}"
         ),
         "contexto": (
             "Escribe el CIERRE: patrón regional del briefing, contrastes (recuperaciones), "
@@ -377,9 +439,15 @@ def main():
 
     cfg = PRODUCTS[args.product]
     zones_doc = json.loads((ROOT / cfg["zones_json"]).read_text(encoding="utf-8"))
-    article = generate(args.product, zones_doc, only_phase=args.phase)
+    try:
+        from appwrite_store import save_bulletin_data
+        run_id = save_bulletin_data(args.product, zones_doc)
+    except Exception:
+        run_id = None
+    article = generate(args.product, zones_doc, run_id=run_id, only_phase=args.phase)
     if not args.phase or args.phase == "qa":
-        out = ROOT / "scripts" / "generated-article.txt"
+        fname = "generated-article.txt" if args.product == "agro" else f"generated-article-{args.product}.txt"
+        out = ROOT / "scripts" / fname
         out.write_text(article, encoding="utf-8")
         print(f"\nArtículo: {out}")
 

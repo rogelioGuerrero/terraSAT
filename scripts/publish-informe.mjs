@@ -22,13 +22,47 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const ASSETS = resolve(ROOT, "web", "src", "assets");
 const INFORMES_JSON = resolve(ROOT, "web", "src", "data", "informes.json");
-const ARTICLE_PATH = resolve(ROOT, "scripts", "generated-article.txt");
-const ZONES_PATH = resolve(ROOT, "scripts", "agro-zones.json");
+
+const PRODUCT_SPECS = {
+  agro: {
+    name: "AgroSAT",
+    category: "agrosat",
+    zonesPath: resolve(ROOT, "scripts", "agro-zones.json"),
+    articlePath: resolve(ROOT, "scripts", "generated-article.txt"),
+    photoQuery: "agriculture crop field aerial drone",
+    videoQuery: "drought agriculture field dry aerial",
+  },
+  forest: {
+    name: "ForestSAT",
+    category: "forestsat",
+    zonesPath: resolve(ROOT, "scripts", "forest-zones.json"),
+    articlePath: resolve(ROOT, "scripts", "generated-article-forest.txt"),
+    photoQuery: "tropical forest canopy aerial amazon",
+    videoQuery: "forest canopy aerial jungle",
+  },
+  urban: {
+    name: "UrbanSAT",
+    category: "urbansat",
+    zonesPath: resolve(ROOT, "scripts", "urban-zones.json"),
+    articlePath: resolve(ROOT, "scripts", "generated-article-urban.txt"),
+    photoQuery: "city aerial buildings skyline latin america",
+    videoQuery: "city aerial drone buildings construction",
+  },
+};
 
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes("--dry-run");
 const NO_VIDEO = args.includes("--no-video");
 const FORCE = args.includes("--force");
+const prodIdx = args.indexOf("--product");
+const PRODUCT = prodIdx >= 0 ? args[prodIdx + 1] : "agro";
+const SPEC = PRODUCT_SPECS[PRODUCT];
+if (!SPEC) {
+  console.error(`--product debe ser ${Object.keys(PRODUCT_SPECS).join("|")}`);
+  process.exit(1);
+}
+const ARTICLE_PATH = SPEC.articlePath;
+const ZONES_PATH = SPEC.zonesPath;
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -81,13 +115,13 @@ async function generateTitleExcerpt(article) {
 }
 
 function fallbackTitleExcerpt(article, zones) {
-  const title = article.split("\n")[0].trim().slice(0, 90) || "Boletín AgroSAT semanal";
+  const title = article.split("\n")[0].trim().slice(0, 90) || `Boletín ${SPEC.name}`;
   const total = zones.reduce((s, z) => s + (z.area_ha || 0), 0);
   const alert = zones
     .filter((z) => z.status === "critico" || z.status === "alerta")
     .reduce((s, z) => s + (z.affected_area_ha || 0), 0);
   const excerpt =
-    `Sentinel-2 + ERA5: ${alert.toLocaleString("es-ES")} ha en alerta de ` +
+    `Sentinel-2: ${alert.toLocaleString("es-ES")} ha en alerta de ` +
     `${total.toLocaleString("es-ES")} ha monitoreadas en ${zones.length} zonas.`;
   return { title, excerpt: excerpt.slice(0, 220) };
 }
@@ -143,7 +177,7 @@ async function fetchVideo(query, slug) {
 
 async function main() {
   if (!existsSync(ARTICLE_PATH) || !existsSync(ZONES_PATH)) {
-    console.error("Faltan scripts/generated-article.txt o scripts/agro-zones.json — corre el boletín primero");
+    console.error(`Faltan ${ARTICLE_PATH} o ${ZONES_PATH} — corre el boletín ${PRODUCT} primero`);
     process.exit(1);
   }
   const article = readFileSync(ARTICLE_PATH, "utf8").trim();
@@ -151,13 +185,13 @@ async function main() {
   const zones = zonesData.zones || [];
   const period = formatPeriod(zonesData.window.current);
   const endDate = zonesData.window.current[1].slice(0, 10).replace(/-/g, "");
-  const slug = `informe-agrosat-${endDate}`;
+  const slug = `informe-${SPEC.category}-${endDate}`;
   const imageFile = `${slug}-opt.jpg`;
   const videoFile = `${slug}-video-opt.mp4`;
 
   const informes = JSON.parse(readFileSync(INFORMES_JSON, "utf8"));
-  if (!FORCE && informes.some((i) => i.date === period)) {
-    console.log(`Ya existe un informe para "${period}" — nada que hacer (o usa --force)`);
+  if (!FORCE && informes.some((i) => i.date === period && i.category === SPEC.category)) {
+    console.log(`Ya existe un informe ${SPEC.category} para "${period}" — nada que hacer (o usa --force)`);
     return;
   }
 
@@ -171,7 +205,7 @@ async function main() {
   const entry = {
     id: String(Math.max(...informes.map((i) => parseInt(i.id, 10) || 0)) + 1),
     title,
-    category: "agrosat",
+    category: SPEC.category,
     date: period,
     location,
     image: imageFile,
@@ -188,12 +222,12 @@ async function main() {
   }
 
   console.log(`Descargando assets para ${slug}...`);
-  const okPhoto = await fetchPhoto("agriculture crop field aerial drone", join(ASSETS, imageFile));
+  const okPhoto = await fetchPhoto(SPEC.photoQuery, join(ASSETS, imageFile));
   if (!okPhoto) {
     console.error("No se pudo descargar foto de Pexels — abortando (el informe requiere imagen)");
     process.exit(1);
   }
-  if (!NO_VIDEO) await fetchVideo("drought agriculture field dry aerial", slug);
+  if (!NO_VIDEO) await fetchVideo(SPEC.videoQuery, slug);
 
   informes.unshift(entry);
   writeFileSync(INFORMES_JSON, JSON.stringify(informes, null, 2) + "\n");

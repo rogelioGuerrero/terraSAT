@@ -1,0 +1,15 @@
+{
+  "_description": "Zonas forestales monitoreadas por ForestSAT. Índices: NDVI (pérdida de cobertura), NBR (cicatriz de quema). Mínimo por zona: lat+lng. Ventana de 60 días (el cambio forestal es más lento que el agrícola).",
+  "zones": [
+    { "name": "Chaco Paraguayo", "country": "Paraguay", "crop": "Bosque seco", "lat": -21.50, "lng": -60.50, "area_ha": 300000 },
+    { "name": "Darién", "country": "Panamá", "crop": "Selva", "lat": 8.10, "lng": -77.60, "area_ha": 250000 },
+    { "name": "Leticia (Amazonas)", "country": "Colombia", "crop": "Selva amazónica", "lat": -4.20, "lng": -69.95, "area_ha": 300000 },
+    { "name": "Madre de Dios", "country": "Perú", "crop": "Selva amazónica", "lat": -12.60, "lng": -70.10, "area_ha": 300000 },
+    { "name": "Selva Lacandona", "country": "México", "crop": "Selva", "lat": 16.60, "lng": -91.00, "area_ha": 200000 },
+    { "name": "Chocó", "country": "Colombia", "crop": "Selva húmeda", "lat": 5.70, "lng": -76.60, "area_ha": 250000 },
+    { "name": "Gran Chaco Argentino", "country": "Argentina", "crop": "Bosque seco", "lat": -25.50, "lng": -61.50, "area_ha": 300000 },
+    { "name": "Mata Atlântica", "country": "Brasil", "crop": "Bosque atlántico", "lat": -24.50, "lng": -48.50, "area_ha": 250000 },
+    { "name": "Petén", "country": "Guatemala", "crop": "Selva", "lat": 16.90, "lng": -89.90, "area_ha": 250000 },
+    { "name": "La Mosquitia", "country": "Honduras", "crop": "Selva", "lat": 15.00, "lng": -85.00, "area_ha": 250000 }
+  ]
+}
