@@ -1,11 +1,17 @@
 """
-setup_appwrite_terrasat.py — Crea la base `terrasat` en el proyecto Appwrite
-compartido con pricewatch (project 6ab1922d00020f5a2e99) y sus dos
-colecciones: bulletin_runs (1 fila por boletín) y zone_observations
-(1 fila por zona por corrida — la serie histórica).
+setup_appwrite_terrasat.py — Crea las tablas de TerraSAT en Appwrite.
+
+Usa la API nueva de Appwrite (TablesDB: /v1/tablesdb/.../tables/.../columns).
+El plan gratis permite 1 base por proyecto — TerraSAT vive dentro de la DB
+compartida ("pricewatch" por defecto) con tablas namespaced "terrasat_*".
+
+Scopes de API key necesarios:
+  databases.read  tables.read  tables.write  columns.read  columns.write
+  rows.read  rows.write
 
 Requiere en .env o entorno:
   APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID, APPWRITE_API_KEY
+  APPWRITE_DATABASE_ID (opcional, default "pricewatch")
 
 Uso: python nooa-agent/setup_appwrite_terrasat.py
 """
@@ -27,8 +33,6 @@ HEADERS = {
     "X-Appwrite-Key": KEY,
     "Content-Type": "application/json",
 }
-# El plan gratis permite 1 base por proyecto — TerraSAT vive dentro de la
-# base "pricewatch" con colecciones namespaced "terrasat_*".
 DB_ID = os.environ.get("APPWRITE_DATABASE_ID", "pricewatch")
 
 
@@ -38,51 +42,55 @@ def api(method: str, path: str, **kwargs):
     if res.status_code == 409:
         return {"_exists": True}, 409
     if not res.ok:
-        print(f"  !! {method} {path}: {res.status_code} {res.text[:300]}")
+        print(f"  !! {method} {path}: {res.status_code} {res.text[:250]}")
     return (res.json() if res.text else {}), res.status_code
 
 
-def ensure_collection(coll_id: str, name: str, attrs: list[dict]):
-    _, code = api("POST", f"/databases/{DB_ID}/collections", json={
-        "collectionId": coll_id, "name": name, "documentSecurity": False,
+def ensure_table(table_id: str, name: str, columns: list[dict]):
+    _, code = api("POST", f"/tablesdb/{DB_ID}/tables", json={
+        "tableId": table_id, "name": name, "rowSecurity": False,
     })
-    print(f"  colección {coll_id}: {'existente' if code == 409 else 'creada' if code in (200, 201) else 'error'}")
+    print(f"  tabla {table_id}: {'existente' if code == 409 else 'creada' if code in (200, 201) else 'error'}")
 
-    for attr in attrs:
-        kind = attr.pop("type")
-        payload = {"key": attr.pop("key"), "required": attr.pop("required", False), **attr}
+    for col in columns:
+        kind = col.pop("type")
+        payload = {"key": col.pop("key"), "required": col.pop("required", False), **col}
         _, code = api(
             "POST",
-            f"/databases/{DB_ID}/collections/{coll_id}/attributes/{kind}",
+            f"/tablesdb/{DB_ID}/tables/{table_id}/columns/{kind}",
             json=payload,
         )
         if code not in (200, 201, 202, 409):
-            print(f"    attr {payload['key']}: HTTP {code}")
+            print(f"    col {payload['key']}: HTTP {code}")
 
-    # Los atributos se procesan async — esperar a que estén disponibles
+    # Las columnas se procesan async — esperar a que estén disponibles
     for _ in range(30):
-        data, _ = api("GET", f"/databases/{DB_ID}/collections/{coll_id}/attributes")
-        statuses = [a.get("status") for a in data.get("attributes", [])]
+        data, _ = api("GET", f"/tablesdb/{DB_ID}/tables/{table_id}/columns")
+        cols = data.get("columns", data.get("attributes", []))
+        statuses = [c.get("status") for c in cols]
         if statuses and all(s == "available" for s in statuses):
-            print(f"    {len(statuses)} atributos disponibles")
+            print(f"    {len(statuses)} columnas disponibles")
             return
         if any(s in ("failed", "stuck") for s in statuses):
-            print(f"    atributos con estado problemático: {statuses}")
+            print(f"    columnas con estado problemático: {statuses}")
             return
         time.sleep(2)
 
 
 def main():
-    print(f"Proyecto: {PROJECT} @ {ENDPOINT}")
+    print(f"Proyecto: {PROJECT} @ {ENDPOINT}  DB: {DB_ID}")
     _, code = api("GET", f"/databases/{DB_ID}")
-    print(f"database {DB_ID}: {'OK' if code == 200 else f'HTTP {code}'}")
+    if code != 200:
+        print(f"  No se pudo leer la DB {DB_ID} — revisar scopes/nombre")
+        sys.exit(1)
+    print(f"  DB {DB_ID}: OK")
 
-    ensure_collection("terrasat_bulletin_runs", "TerraSAT — Boletines por corrida", [
+    ensure_table("terrasat_bulletin_runs", "TerraSAT — Boletines por corrida", [
         {"type": "string", "key": "product", "size": 32, "required": True},
         {"type": "string", "key": "period_start", "size": 16, "required": True},
         {"type": "string", "key": "period_end", "size": 16, "required": True},
         {"type": "datetime", "key": "run_at", "required": True},
-        {"type": "string", "key": "phase", "size": 16, "required": True, "default": "data"},
+        {"type": "string", "key": "phase", "size": 16, "required": True},
         {"type": "integer", "key": "n_zones", "required": True},
         {"type": "string", "key": "counts_json", "size": 512, "required": True},
         {"type": "string", "key": "title", "size": 256},
@@ -92,7 +100,7 @@ def main():
         {"type": "string", "key": "qa_errors", "size": 8192},
     ])
 
-    ensure_collection("terrasat_zone_observations", "TerraSAT — Serie histórica por zona", [
+    ensure_table("terrasat_zone_observations", "TerraSAT — Serie histórica por zona", [
         {"type": "string", "key": "run_id", "size": 64, "required": True},
         {"type": "datetime", "key": "observed_at", "required": True},
         {"type": "string", "key": "zone", "size": 128, "required": True},
@@ -111,7 +119,7 @@ def main():
         {"type": "string", "key": "latest_image", "size": 16},
     ])
 
-    print("\nListo. El pipeline escribirá en estas colecciones en cada corrida.")
+    print("\nListo. El pipeline escribirá en estas tablas en cada corrida.")
 
 
 if __name__ == "__main__":
