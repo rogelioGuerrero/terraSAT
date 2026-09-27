@@ -32,18 +32,6 @@ def _parse_num(raw: str) -> float | None:
         return float(s2)
     except ValueError:
         return None
-    # Grupos de miles: 14,600 | 14.600 | 50 000
-    if re.fullmatch(r"-?\d{1,3}([.,]\d{3})+", s):
-        try:
-            return float(re.sub(r"[.,]", "", s))
-        except ValueError:
-            return None
-    # Decimal simple: 0.032 | -51,2
-    s2 = s.replace(",", ".")
-    try:
-        return float(s2)
-    except ValueError:
-        return None
 
 
 def extract_numbers(text: str) -> list[float]:
