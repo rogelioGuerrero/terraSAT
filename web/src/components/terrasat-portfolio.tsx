@@ -94,11 +94,12 @@ function sanitizeTitle(s: string): string {
   return stripEmojis(stripMarkdown(s)).replace(/\s{2,}/g, " ").trim()
 }
 
-/** 55 000 / 78,300 / 10.500 → 55.000 / 78.300 / 10.500 (convención es-ES). */
+/** 55 000 / 78,300 / 10.500 → 55.000 / 78.300 / 10.500 (convención es-ES).
+ *  No toca decimales: el separador solo aplica si la parte entera empieza
+ *  en dígito no-cero ("78,300" → miles; "0,065" → decimal intacto). */
 function normalizeNumbers(s: string): string {
-  return s.replace(
-    /(\d)([,\s\u00A0\u202F])(\d{3})(?![\d])/g,
-    (_m, d: string, _sep: string, g3: string) => `${d}.${g3}`
+  return s.replace(/[1-9]\d{0,2}([,\s\u00A0\u202F]\d{3})+(?!\d)/g, (m) =>
+    m.replace(/[,\s\u00A0\u202F]/g, ".")
   )
 }
 

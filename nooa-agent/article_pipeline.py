@@ -318,9 +318,15 @@ def phase_edit(cfg: dict, briefing: dict, blocks: dict) -> dict:
         "de zona. SIN emojis, SIN hashtags, SIN CTA comercial (se agregan aparte). "
         "Números en convención española: punto para miles (55.000 ha) y coma para decimales "
         "(‑0,065). Título periodístico sin markdown ni emojis. "
+        "FUENTES: nunca nombres sensores ni misiones (Sentinel-2, Landsat, MODIS, ERA5…); "
+        "cita solo la agencia — 'satélites de la Agencia Espacial Europea (Copernicus)', 'NASA'. "
         "LEGIBILIDAD (vendemos servicios a público no técnico): oraciones de máx ~30 palabras; "
         "cada párrafo con una idea; para cada cifra decir qué significa para el lector "
         "(riesgo, dinero, acción); sin jerga sin glosa; respuesta a '¿y a mí qué?' al cierre. "
+        "NARRATIVA: el lede ancla siempre el periodo CON AÑO ('entre julio y septiembre de 2026') "
+        "y abre con gancho — el dato más llamativo verificado o un contraste, planteando una "
+        "pregunta que el artículo responde. Sin hipérbole ni adjetivos alarmistas: la intriga "
+        "sale del dato, no de exagerarlo. "
         "Respondes SOLO con JSON válido."
     )
     user = f"""BRIEFING: {json.dumps(briefing, ensure_ascii=False)}

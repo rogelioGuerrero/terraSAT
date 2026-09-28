@@ -149,6 +149,11 @@ _THOUSANDS = {
     "espacio": re.compile(r"[1-9]\d?[ \u00A0\u202F]\d{3}(?!\d)"),
 }
 _INDEX_TERMS = re.compile(r"\b(?:NDVI|NDBI|NBR|NDWI|NDRE|LST)\b")
+# Sensores/misiones: no se publican (no regalar la receta); solo agencias.
+_SENSOR_RE = re.compile(
+    r"\b(?:Sentinel[-\s]?\d|Landsat[-\s]?\d*|MODIS|CHIRPS|ERA5|WorldView|Planet(?:Scope| Labs)?)\b",
+    re.IGNORECASE,
+)
 
 
 def validate_format(article: str, title: str = "") -> list[str]:
@@ -172,19 +177,32 @@ def validate_format(article: str, title: str = "") -> list[str]:
         errors.append("Hashtags en el cuerpo (van solo en la variante social)")
     if "info@agtisa.com" in article:
         errors.append("CTA comercial dentro del artículo (va solo en la variante social)")
+    sensor = _SENSOR_RE.search(article)
+    if sensor:
+        errors.append(
+            f"Nombre de sensor/misión en el artículo ('{sensor.group(0)}') — "
+            "citar solo la agencia: 'Agencia Espacial Europea', 'NASA'"
+        )
 
     used = [name for name, rx in _THOUSANDS.items() if rx.search(article)]
     if len(used) > 1:
         errors.append(f"Separadores de miles mixtos ({' + '.join(used)}) — usar punto: 55.000")
 
     # ─── Legibilidad (público no técnico) ─────────────────────────────
-    for s in re.split(r"[.!?…]+\s", article):
+    # Solo prosa: las tablas markdown y los encabezados no son oraciones.
+    prose = "\n".join(
+        l for l in article.split("\n")
+        if not l.lstrip().startswith(("|", "#"))
+    )
+    for s in re.split(r"[.!?…]+\s", prose):
         wc = len(s.split())
         if wc > 45:
             errors.append(f"Oración demasiado larga ({wc} palabras): '{s.strip()[:60]}…'")
 
+    # Glosa de índices en cualquier dirección: 'NDVI (vigor…)' o 'vegetación (NDVI)'
     if _INDEX_TERMS.search(article) and not re.search(
-        r"(?:NDVI|NDBI|NBR|NDWI|NDRE|LST)\s*\(", article
+        r"(?:NDVI|NDBI|NBR|NDWI|NDRE|LST)\s*\(|[(]\s*(?:NDVI|NDBI|NBR|NDWI|NDRE|LST)\s*[,)]",
+        article,
     ):
         errors.append(
             "Índices técnicos sin glosa entre paréntesis — ej. 'NDVI (vigor de la vegetación)'"
