@@ -256,18 +256,18 @@ REGLAS CRÍTICAS:
 ESTRUCTURA DEL BOLETÍN:
 1. Título impactante (máximo 12 palabras)
 2. Lead: 2-3 líneas resumiendo la situación regional pan-latinoamericana
-3. Zonas en alerta: agrupa por cultivo o región, NO listes zona por zona. Ejemplo: "En café, Intibucá (Honduras) y Caldas (Colombia) suman 39,000 ha con enfermedad. En soja, Mato Grosso pierde 135,000 ha por sequía."
+3. Zonas en alerta: agrupa por cultivo o región, NO listes zona por zona. Ejemplo: "En café, Intibucá (Honduras) y Caldas (Colombia) suman 39.000 ha con enfermedad. En soja, Mato Grosso pierde 135.000 ha por sequía."
 4. Zonas bajo vigilancia: mención breve agrupada
 5. Zonas normales: una sola línea
-6. CTA abierto que menciona audiencias específicas para que el lector se identifique:
-   "¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos semanas antes de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes personalizados disponibles. También trabajamos con aseguradoras y agroservicios. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
-7. 3 hashtags al final
+6. Cierre editorial: qué significa el patrón regional y por qué importa el monitoreo temprano
+   (SIN CTA comercial y SIN hashtags — se agregan aparte en la variante social)
 
-FORMATO:
-- Sin markdown (sin **negritas**, sin ##, sin bullets con -)
+FORMATO EDITORIAL PARA WEB:
+- Markdown limpio: encabezados de sección en línea propia, listas con -, negritas solo para cifras y zonas
+- SIN emojis
 - 250-350 palabras máximo (la región es grande, necesitas espacio)
-- 2-3 emojis profesionales (🛰️ 🌱 ☕ ⚠️ 📡)
 - Cita fuentes como "datos satelitales de NASA" o "Agencia Espacial Europea"
+- Números en convención española: punto para miles (39.000 ha), coma para decimales
 - NO inventes estadísticas que no estén en los datos
 - Agrupa por cultivo o región para que no sea una lista interminable
 
@@ -303,7 +303,7 @@ def generate_bulletin_article(zones: list[AgroZone]) -> str:
     try:
         response = llm_call(
             messages=[
-                {"role": "system", "content": "Eres el editor de AgroSAT, boletín de alerta temprana para la agricultura productiva. Producto de TerraSAT. Respondes en español, formato profesional para redes sociales."},
+                {"role": "system", "content": "Eres el editor de AgroSAT, boletín de alerta temprana para la agricultura productiva. Producto de TerraSAT. Respondes en español, formato editorial profesional para web."},
                 {"role": "user", "content": prompt},
             ],
             temperature=0.6,
@@ -449,9 +449,9 @@ def print_bulletin(zones: list[AgroZone], article: str, today: date):
         cause = z.alert_cause or "Sin alerta"
         print(f"  {icon} {z.name:<17} {z.country:<14} {z.crop:<10} {z.status:<12} {affected:<16} {cause}")
 
-    # ─── Artículo para Facebook ─────────────────────────────────
+    # ─── Artículo editorial (web) ───────────────────────────────
     print(f"\n\n{'═' * 66}")
-    print(f"  📝 ARTÍCULO PARA FACEBOOK")
+    print(f"  📝 ARTÍCULO (WEB — variante social en generated-article-social.txt)")
     print(f"{'═' * 66}")
     print()
     for line in article.split("\n"):
@@ -484,13 +484,26 @@ def print_bulletin(zones: list[AgroZone], article: str, today: date):
 
 
 def save_outputs(article: str, today: date):
-    """Guarda artículo y prompt de imagen para el pipeline de FB."""
+    """Guarda artículo web + variante social para el pipeline de FB."""
     output_dir = Path("scripts")
     output_dir.mkdir(exist_ok=True)
 
     article_path = output_dir / "generated-article.txt"
     article_path.write_text(article, encoding="utf-8")
-    print(f"\n  📄 Artículo guardado: {article_path}")
+    print(f"\n  📄 Artículo (web): {article_path}")
+
+    # Variante social: CTA + hashtags solo aquí, nunca en el artículo web.
+    # El fallback determinista ya trae CTA/hashtags — no duplicar.
+    social = article
+    if "info@agtisa.com" not in article:
+        try:
+            from article_pipeline import social_version
+            social = social_version("agro", article)
+        except Exception:
+            pass
+    social_path = output_dir / "generated-article-social.txt"
+    social_path.write_text(social, encoding="utf-8")
+    print(f"  📄 Artículo (social/FB): {social_path}")
 
     prompt_path = output_dir / "gemini-prompt.txt"
     prompt_path.write_text(GEMINI_IMAGE_PROMPT, encoding="utf-8")
@@ -565,7 +578,7 @@ def main():
     print(f"  2. Generar imagen artística en Gemini con scripts/gemini-prompt.txt")
     print(f"  3. node scripts/combine-images.mjs \"imagen_gemini.png\" \"captura_mapa.png\" --output \"scripts/agrosat-combined.jpg\"")
     print(f"  4. node scripts/add-branding-terrasat.mjs \"scripts/agrosat-combined.jpg\" --period \"{period}\"")
-    print(f"  5. Publicar imagen + scripts/generated-article.txt en Facebook")
+    print(f"  5. Publicar imagen + scripts/generated-article-social.txt en Facebook")
     print(f"  {'─' * 66}")
 
 

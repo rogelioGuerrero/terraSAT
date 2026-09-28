@@ -1,4 +1,8 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import type { ComponentPropsWithoutRef } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import type { Components } from "react-markdown"
 import { MapPin, Calendar, ArrowUpRight, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import informesData from "@/data/informes.json"
@@ -44,6 +48,8 @@ interface Informe {
   video?: string
   excerpt: string
   article?: string
+  cta?: string
+  hashtags?: string[]
 }
 
 const informes: Informe[] = informesData.map((item) => ({
@@ -62,6 +68,142 @@ const filters = [
 
 const PAGE_SIZE = 6
 
+// ─── Limpieza editorial ────────────────────────────────────────────────
+// Los artículos llegan como markdown crudo con restos del formato social
+// (emojis, CTA y hashtags pegados al cuerpo). Aquí se separan para poder
+// darles su propio lugar en la página.
+
+const EMOJI_RE = /[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu
+const HASHTAG_LINE_RE = /^(\s*#[\p{L}\d_]+\s*)+$/u
+
+function stripEmojis(s: string): string {
+  // Colapsa solo espacios horizontales — \n es separador de párrafo markdown
+  return s.replace(EMOJI_RE, "").replace(/[^\S\n]{2,}/g, " ").trim()
+}
+
+function stripMarkdown(s: string): string {
+  return s
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/^#+\s*/g, "")
+    .replace(/[`*_~]/g, "")
+}
+
+/** Título publicable: sin markdown, sin emojis, sin espacios dobles. */
+function sanitizeTitle(s: string): string {
+  return stripEmojis(stripMarkdown(s)).replace(/\s{2,}/g, " ").trim()
+}
+
+/** 55 000 / 78,300 / 10.500 → 55.000 / 78.300 / 10.500 (convención es-ES). */
+function normalizeNumbers(s: string): string {
+  return s.replace(
+    /(\d)([,\s\u00A0\u202F])(\d{3})(?![\d])/g,
+    (_m, d: string, _sep: string, g3: string) => `${d}.${g3}`
+  )
+}
+
+function normalizeText(s: string): string {
+  return normalizeNumbers(stripEmojis(s))
+}
+
+interface SplitArticle {
+  body: string
+  cta: string
+  hashtags: string[]
+}
+
+const isSameText = (a: string, b: string) =>
+  normalizeText(stripMarkdown(a)).toLowerCase() ===
+  normalizeText(stripMarkdown(b)).toLowerCase()
+
+/**
+ * Separa el artículo en cuerpo editorial + CTA + hashtags.
+ * - CTA: párrafo que empieza con "¿Su …" o menciona el contacto comercial.
+ * - Hashtags: líneas de solo #tags (siempre al final).
+ * - Primera línea: se descarta si repite el título o es un marcador interno
+ *   ("LEDE") — el título ya se muestra como heading del diálogo.
+ * - Líneas 100% en negrita se promueven a headings markdown (###).
+ */
+function splitArticle(raw: string, title: string): SplitArticle {
+  const lines = raw.replace(/\r\n?/g, "\n").split("\n")
+
+  // 1) Hashtags del final
+  const hashtags: string[] = []
+  while (lines.length) {
+    const last = lines[lines.length - 1]
+    if (last.trim() === "" && hashtags.length === 0) {
+      lines.pop()
+      continue
+    }
+    if (HASHTAG_LINE_RE.test(last)) {
+      hashtags.unshift(...last.trim().split(/\s+/))
+      lines.pop()
+    } else {
+      break
+    }
+  }
+
+  // 2) CTA comercial (párrafo con el contacto, generalmente el último)
+  let cta = ""
+  const ctaIdx = lines.findIndex(
+    (l) => l.trim().startsWith("¿Su ") || l.includes("Contacto: info@agtisa.com")
+  )
+  if (ctaIdx >= 0) {
+    cta = stripEmojis(lines[ctaIdx])
+    lines.splice(ctaIdx, 1)
+    // Párrafos vacíos que quedaron alrededor del CTA
+    while (lines.length && lines[lines.length - 1].trim() === "") lines.pop()
+  }
+
+  // 3) Primera línea que repite el título o marcador interno
+  const firstIdx = lines.findIndex((l) => l.trim() !== "")
+  if (firstIdx >= 0) {
+    const first = lines[firstIdx]
+    if (/LEDE/i.test(stripMarkdown(first)) || isSameText(first, title)) {
+      lines.splice(firstIdx, 1)
+    }
+  }
+
+  // 4) Líneas fully-bold → headings, y limpieza general
+  const body = lines
+    .map((l) => {
+      const clean = stripEmojis(l.trim())
+      if (clean && /^\*\*.+\*\*$/.test(clean)) {
+        return `### ${clean.replace(/^\*\*|\*\*$/g, "")}`
+      }
+      return l
+    })
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim()
+
+  return {
+    body: normalizeNumbers(stripEmojis(body)),
+    cta: normalizeText(cta).replace(/\s*\n\s*/g, " "),
+    hashtags: hashtags.map((h) => h.replace(/^#/, "")),
+  }
+}
+
+// ─── Render markdown ──────────────────────────────────────────────────
+
+const markdownComponents: Components = {
+  table: ({ children }: ComponentPropsWithoutRef<"table">) => (
+    <div className="informe-table-wrap">
+      <table>{children}</table>
+    </div>
+  ),
+}
+
+function ArticleBody({ markdown }: { markdown: string }) {
+  return (
+    <div className="informe-prose">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+        {markdown}
+      </ReactMarkdown>
+    </div>
+  )
+}
+
 export function TerraSATPortfolio() {
   const [filter, setFilter] = useState<"all" | "agrosat" | "urbansat" | "forestsat">("all")
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
@@ -71,13 +213,20 @@ export function TerraSATPortfolio() {
   const visible = filtered.slice(0, visibleCount)
   const hasMore = visibleCount < filtered.length
 
+  const selectedParts = useMemo(
+    () =>
+      selected
+        ? splitArticle(
+            selected.article ?? selected.excerpt,
+            selected.title
+          )
+        : null,
+    [selected]
+  )
+
   function handleFilterChange(value: "all" | "agrosat" | "urbansat" | "forestsat") {
     setFilter(value)
     setVisibleCount(PAGE_SIZE)
-  }
-
-  function formatArticle(text: string): string[] {
-    return text.split("\n").filter((line) => line.trim().length > 0)
   }
 
   return (
@@ -140,8 +289,10 @@ export function TerraSATPortfolio() {
               </div>
 
               <div className="p-5">
-                <h3 className="font-semibold text-foreground">{boletin.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{boletin.excerpt}</p>
+                <h3 className="font-semibold text-foreground">{sanitizeTitle(boletin.title)}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {normalizeNumbers(boletin.excerpt)}
+                </p>
 
                 <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
@@ -226,7 +377,7 @@ export function TerraSATPortfolio() {
               <div className="p-6 pt-4">
                 <DialogHeader className="gap-1">
                   <DialogTitle className="text-xl font-bold">
-                    {selected.article ? formatArticle(selected.article)[0] : selected.title}
+                    {sanitizeTitle(selected.title)}
                   </DialogTitle>
                   <DialogDescription className="flex items-center gap-4 text-xs">
                     <span className="flex items-center gap-1">
@@ -240,26 +391,38 @@ export function TerraSATPortfolio() {
                   </DialogDescription>
                 </DialogHeader>
 
-                {selected.article && (
-                  <div className="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground">
-                    {formatArticle(selected.article)
-                      .slice(1)
-                      .map((line, i) => {
-                        const isHashtag = line.startsWith("#")
-                        return (
-                          <p
-                            key={i}
-                            className={cn(
-                              isHashtag && "pt-2 text-xs text-primary/70",
-                              !isHashtag && line.length < 60 && "font-medium text-foreground"
-                            )}
-                          >
-                            {line}
-                          </p>
-                        )
-                      })}
+                {selectedParts && selectedParts.body.length > 0 && (
+                  <ArticleBody markdown={selectedParts.body} />
+                )}
+
+                {/* CTA comercial — separado del cuerpo editorial */}
+                {(selected.cta || selectedParts?.cta) && (
+                  <div className="mt-6 rounded-lg border border-border bg-muted/40 p-4">
+                    <p className="text-sm leading-relaxed text-foreground/80">
+                      {selected.cta || selectedParts?.cta}
+                    </p>
+                    <a
+                      href="mailto:info@agtisa.com"
+                      className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                    >
+                      info@agtisa.com
+                    </a>
                   </div>
                 )}
+
+                {/* Temas */}
+                {(selected.hashtags ?? selectedParts?.hashtags)?.length ? (
+                  <div className="mt-4 flex flex-wrap gap-1.5">
+                    {(selected.hashtags ?? selectedParts!.hashtags).map((h) => (
+                      <span
+                        key={h}
+                        className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground"
+                      >
+                        #{h}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </>
           )}

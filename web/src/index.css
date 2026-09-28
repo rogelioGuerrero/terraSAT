@@ -164,3 +164,105 @@ body {
     @apply font-sans;
   }
 }
+
+/* ─── Cuerpo editorial de informes (markdown) ─────────────────────── */
+
+.informe-prose {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--muted-foreground);
+}
+
+.informe-prose > * + * {
+  margin-top: 0.8rem;
+}
+
+.informe-prose h3,
+.informe-prose h4 {
+  font-weight: 600;
+  color: var(--foreground);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  margin-top: 1.6rem;
+  padding-top: 0.2rem;
+}
+
+.informe-prose h3:first-child,
+.informe-prose h4:first-child {
+  margin-top: 0;
+}
+
+.informe-prose strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.informe-prose em {
+  font-style: italic;
+}
+
+.informe-prose ul,
+.informe-prose ol {
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.informe-prose ul {
+  list-style: disc;
+}
+
+.informe-prose ol {
+  list-style: decimal;
+}
+
+.informe-prose li > ul,
+.informe-prose li > ol {
+  margin-top: 0.4rem;
+}
+
+.informe-prose blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 0.9rem;
+  color: var(--muted-foreground);
+}
+
+.informe-prose hr {
+  border-color: var(--border);
+}
+
+/* Tablas markdown (ranking de zonas) — scroll horizontal propio */
+.informe-table-wrap {
+  margin-top: 1rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.informe-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.informe-table-wrap th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--muted);
+  padding: 0.5rem 0.65rem;
+  white-space: nowrap;
+}
+
+.informe-table-wrap td {
+  padding: 0.5rem 0.65rem;
+  border-top: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.informe-table-wrap td strong {
+  color: var(--foreground);
+}

@@ -134,3 +134,60 @@ def validate_article(article: str, zones_doc: dict, tol: float = 0.06) -> list[s
         pass  # demasiado fuzzy — el check de números ya cubre lo material
 
     return errors
+
+
+# ─────────────────────────────────────────────────────────────────────
+# Formato editorial (web) — complementa la verificación de cifras
+# ─────────────────────────────────────────────────────────────────────
+
+_EMOJI_RE = re.compile("[\U0001F000-\U0001FAFF\u2600-\u27BF\uFE0F\u200D]")
+_HASHTAG_RE = re.compile(r"(^|\n)#[\wÁÉÍÓÚáéíóúñÑü]+")
+# Miles: 55.000 / 55,300 / 55 000 — el 0 inicial excluye decimales (0,065)
+_THOUSANDS = {
+    "punto": re.compile(r"[1-9]\d?\.\d{3}(?!\d)"),
+    "coma": re.compile(r"[1-9]\d?,\d{3}(?!\d)"),
+    "espacio": re.compile(r"[1-9]\d?[ \u00A0\u202F]\d{3}(?!\d)"),
+}
+_INDEX_TERMS = re.compile(r"\b(?:NDVI|NDBI|NBR|NDWI|NDRE|LST)\b")
+
+
+def validate_format(article: str, title: str = "") -> list[str]:
+    """Estándar editorial web: sin emojis/hashtags/CTA en el cuerpo, título
+    publicable y una sola convención de separador de miles."""
+    errors = []
+
+    if title:
+        if _EMOJI_RE.search(title):
+            errors.append("Título contiene emojis")
+        if "**" in title or "__" in title or title.lstrip().startswith("#"):
+            errors.append("Título contiene markdown")
+        if len(title) > 90:
+            errors.append(f"Título excede 90 caracteres ({len(title)})")
+
+    if "LEDE" in article:
+        errors.append("Marcador interno 'LEDE' visible en el artículo")
+    if _EMOJI_RE.search(article):
+        errors.append("El artículo contiene emojis (la web los filtra, pero el estándar es sin emojis)")
+    if _HASHTAG_RE.search(article):
+        errors.append("Hashtags en el cuerpo (van solo en la variante social)")
+    if "info@agtisa.com" in article:
+        errors.append("CTA comercial dentro del artículo (va solo en la variante social)")
+
+    used = [name for name, rx in _THOUSANDS.items() if rx.search(article)]
+    if len(used) > 1:
+        errors.append(f"Separadores de miles mixtos ({' + '.join(used)}) — usar punto: 55.000")
+
+    # ─── Legibilidad (público no técnico) ─────────────────────────────
+    for s in re.split(r"[.!?…]+\s", article):
+        wc = len(s.split())
+        if wc > 45:
+            errors.append(f"Oración demasiado larga ({wc} palabras): '{s.strip()[:60]}…'")
+
+    if _INDEX_TERMS.search(article) and not re.search(
+        r"(?:NDVI|NDBI|NBR|NDWI|NDRE|LST)\s*\(", article
+    ):
+        errors.append(
+            "Índices técnicos sin glosa entre paréntesis — ej. 'NDVI (vigor de la vegetación)'"
+        )
+
+    return errors

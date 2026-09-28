@@ -68,6 +68,20 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
+// Estándar editorial: títulos y excerpts publicables — sin markdown ni
+// emojis (el LLM a veces devuelve "🛰️ **Crisis...**").
+const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu;
+
+function sanitizeText(s) {
+  return String(s)
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/__(.+?)__/g, "$1")
+    .replace(/^#+\s*/gm, "")
+    .replace(EMOJI_RE, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function formatPeriod(isoRange) {
   const [a, b] = isoRange.map((s) => new Date(s));
   const sameMonth = a.getUTCMonth() === b.getUTCMonth();
@@ -108,14 +122,18 @@ async function generateTitleExcerpt(article) {
       const t = String(s).slice(0, n);
       return t.length < String(s).length ? t.slice(0, t.lastIndexOf(" ")) : t;
     };
-    return { title: cut(parsed.title, 90), excerpt: cut(parsed.excerpt, 220) };
+    return {
+      title: cut(sanitizeText(parsed.title), 90),
+      excerpt: cut(sanitizeText(parsed.excerpt), 220),
+    };
   } catch {
     return null;
   }
 }
 
 function fallbackTitleExcerpt(article, zones) {
-  const title = article.split("\n")[0].trim().slice(0, 90) || `Boletín ${SPEC.name}`;
+  const title =
+    sanitizeText(article.split("\n")[0]).slice(0, 90) || `Boletín ${SPEC.name}`;
   const total = zones.reduce((s, z) => s + (z.area_ha || 0), 0);
   const alert = zones
     .filter((z) => z.status === "critico" || z.status === "alerta")

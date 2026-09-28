@@ -34,7 +34,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from article_qa import validate_article  # noqa: E402
+from article_qa import validate_article, validate_format  # noqa: E402
 
 log = logging.getLogger("article_pipeline")
 
@@ -268,7 +268,8 @@ def phase_blocks(cfg: dict, zones_doc: dict, briefing: dict) -> dict:
 
     specs = {
         "lede": (
-            "Escribe el lede del boletín: título en negrita + 2-3 oraciones que enganchen con "
+            "Escribe el lede del boletín: el título periodístico en una línea propia "
+            "(sin markdown, sin emojis) seguido de 2-3 oraciones que enganchen con "
             "el hallazgo principal y la cifra clave. Máx 90 palabras. "
             f"TODAS las zonas:\n{_zone_rows(cfg, zones_doc)}"
         ),
@@ -278,6 +279,10 @@ def phase_blocks(cfg: dict, zones_doc: dict, briefing: dict) -> dict:
             + (", lluvia vs normal" if cfg.get("with_rain") else "") +
             f") y qué significa para {cfg['unit_name']}. Agrupa por tipo si hay patrón. "
             "Cifras exactas de los datos.\n"
+            "REGLA EDITORIAL: la primera vez que menciones un índice (NDVI, NBR, NDBI) "
+            "glosalo en lenguaje llano entre paréntesis — ej. 'NDVI (vigor de la vegetación)'. "
+            "Expresa las fracciones de píxeles como porcentajes ('18 % del área monitoreada'), "
+            "nunca como decimal crudo (0.18).\n"
             f"ZONAS:\n{_zone_rows(cfg, zones_doc, ('critico', 'alerta'))}"
         ),
         "panorama": (
@@ -308,7 +313,14 @@ def phase_edit(cfg: dict, briefing: dict, blocks: dict) -> dict:
         f"Eres el editor jefe de {cfg['name']} ({cfg['subject']}). Pulís el borrador: "
         "cohesión entre secciones, tono uniforme, transiciones, eliminación de redundancias. "
         "NO cambies ninguna cifra ni nombre de zona — son datos verificados. "
-        "Formato para Facebook: emojis con moderación (🛰️⚠️🌱☕), líneas cortas. "
+        "FORMATO EDITORIAL PARA WEB: markdown limpio — encabezados de sección en línea propia, "
+        "tablas markdown para datos por zona, listas con -, negritas solo para cifras y nombres "
+        "de zona. SIN emojis, SIN hashtags, SIN CTA comercial (se agregan aparte). "
+        "Números en convención española: punto para miles (55.000 ha) y coma para decimales "
+        "(‑0,065). Título periodístico sin markdown ni emojis. "
+        "LEGIBILIDAD (vendemos servicios a público no técnico): oraciones de máx ~30 palabras; "
+        "cada párrafo con una idea; para cada cifra decir qué significa para el lector "
+        "(riesgo, dinero, acción); sin jerga sin glosa; respuesta a '¿y a mí qué?' al cierre. "
         "Respondes SOLO con JSON válido."
     )
     user = f"""BRIEFING: {json.dumps(briefing, ensure_ascii=False)}
@@ -334,26 +346,30 @@ Devuelve JSON con:
 
 
 def phase_qa(cfg: dict, zones_doc: dict, edited: dict) -> tuple[dict, list[str]]:
-    """QA determinista + un repair pass si hay números no verificables."""
+    """QA determinista (cifras + formato editorial) + un repair pass."""
     errors = validate_article(edited.get("article", ""), zones_doc)
+    errors += validate_format(edited.get("article", ""), edited.get("title", ""))
     if not errors:
         return edited, []
 
-    log.warning(f"QA: {len(errors)} números no verificables — repair pass")
+    log.warning(f"QA: {len(errors)} problemas — repair pass")
     allowed_hint = json.dumps(
         {k: v for k, v in _allowed_summary(zones_doc).items()}, ensure_ascii=False
     )
     try:
         fixed = _llm(
-            f"Editor de {cfg['name']}. Corrige el artículo: reemplaza SOLO las cifras "
-            "no verificables por los valores correctos de los datos. No cambies nada más. "
+            f"Editor de {cfg['name']}. Corrige el artículo según los ERRORES listados "
+            "(cifras no verificables → usa los valores reales; formato → aplica el estándar "
+            "editorial web: sin emojis, sin hashtags, números con punto para miles y coma "
+            "para decimales). No cambies nada más. "
             "Devuelve el artículo completo corregido, solo texto.",
-            f"ERRORES (cifras que no existen en los datos):\n" + "\n".join(errors) +
+            f"ERRORES:\n" + "\n".join(errors) +
             f"\n\nVALORES REALES PERMITIDOS:\n{allowed_hint}\n\nARTÍCULO:\n{edited['article']}",
             4500,
         )
         edited["article"] = fixed
         errors = validate_article(fixed, zones_doc)
+        errors += validate_format(fixed, edited.get("title", ""))
     except Exception as e:
         log.warning(f"Repair pass fallo: {e}")
     return edited, errors
@@ -424,9 +440,22 @@ def generate(product: str, zones_doc: dict | None = None,
         if errors:
             raise RuntimeError(f"QA falló tras repair: {errors[:3]}")
 
-    # Artículo final = texto editado + CTA + hashtags (deterministas)
-    article = state["article"].strip()
-    return f"{article}\n\n{cfg['cta']} 🌱☕\n\n#TerraSAT #{cfg['name']} #AlertaTemprana #Satélite"
+    # Artículo final para la WEB (limpio: sin CTA ni hashtags).
+    # La variante social se compone aparte — ver social_version().
+    return state["article"].strip()
+
+
+def social_version(product: str, article: str) -> str:
+    """Variante para redes sociales: artículo + CTA + hashtags (deterministas).
+
+    El CTA y los hashtags NO van en el artículo web — se inyectan solo aquí,
+    en el archivo *-social.txt que consume el pipeline de Facebook.
+    """
+    cfg = PRODUCTS[product]
+    return (
+        f"{article.strip()}\n\n{cfg['cta']} 🌱☕\n\n"
+        f"#TerraSAT #{cfg['name']} #AlertaTemprana #Satélite"
+    )
 
 
 def main():
@@ -449,7 +478,10 @@ def main():
         fname = "generated-article.txt" if args.product == "agro" else f"generated-article-{args.product}.txt"
         out = ROOT / "scripts" / fname
         out.write_text(article, encoding="utf-8")
-        print(f"\nArtículo: {out}")
+        social_out = ROOT / "scripts" / fname.replace(".txt", "-social.txt")
+        social_out.write_text(social_version(args.product, article), encoding="utf-8")
+        print(f"\nArtículo (web): {out}")
+        print(f"Artículo (social): {social_out}")
 
 
 if __name__ == "__main__":
