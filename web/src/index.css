@@ -229,6 +229,15 @@ body {
   color: var(--muted-foreground);
 }
 
+/* Nota metodológica: último párrafo en cursiva → tipografía de pie */
+.informe-prose > p:last-child:has(> em:only-child) {
+  font-size: 0.78rem;
+  color: var(--muted-foreground);
+  border-top: 1px solid var(--border);
+  padding-top: 0.8rem;
+  margin-top: 1.4rem;
+}
+
 .informe-prose hr {
   border-color: var(--border);
 }

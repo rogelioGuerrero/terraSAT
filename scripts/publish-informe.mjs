@@ -90,6 +90,41 @@ function formatPeriod(isoRange) {
   return `${a.getUTCDate()} ${MESES[a.getUTCMonth()]}–${b.getUTCDate()} ${MESES[b.getUTCMonth()]} ${b.getUTCFullYear()}`;
 }
 
+// Tokens numéricos del artículo normalizados a dígitos puros ("55.000" → "55000").
+// Sirve para verificar que cada cifra de un keyStat exista literalmente en el
+// texto ya validado — si el LLM inventa una cifra, el stat se descarta.
+function articleDigitTokens(article) {
+  const tokens = new Set();
+  for (const m of article.matchAll(/\d[\d.,\s\u00A0\u202F]*/g)) {
+    const d = m[0].replace(/\D/g, "");
+    if (d) tokens.add(d);
+  }
+  return tokens;
+}
+
+function statDigits(stat) {
+  const out = [];
+  for (const m of `${stat.value} ${stat.label}`.matchAll(/\d[\d.,\s\u00A0\u202F]*/g)) {
+    const d = m[0].replace(/\D/g, "");
+    if (d) out.push(d);
+  }
+  return out;
+}
+
+function sanitizeStats(raw, article) {
+  if (!Array.isArray(raw)) return undefined;
+  const tokens = articleDigitTokens(article);
+  const stats = raw
+    .filter((s) => s && s.value && s.label)
+    .map((s) => ({
+      value: sanitizeText(String(s.value)).slice(0, 24),
+      label: sanitizeText(String(s.label)).slice(0, 60),
+    }))
+    .filter((s) => statDigits(s).every((d) => tokens.has(d)))
+    .slice(0, 4);
+  return stats.length ? stats : undefined;
+}
+
 async function generateTitleExcerpt(article) {
   const key = process.env.GROQ_API_KEY;
   if (!key) return null;
@@ -105,9 +140,11 @@ async function generateTitleExcerpt(article) {
           {
             role: "user",
             content:
-              "Del siguiente boletín agro-satelital genera JSON con dos campos: " +
-              '"title" (título periodístico en español, máx 90 caracteres, sin comillas) y ' +
-              '"excerpt" (resumen de 1-2 oraciones con zonas y hectáreas concretas, máx 220 caracteres). ' +
+              "Del siguiente boletín agro-satelital genera JSON con tres campos: " +
+              '"title" (título periodístico en español, máx 90 caracteres, sin comillas), ' +
+              '"excerpt" (resumen de 1-2 oraciones con zonas y hectáreas concretas, máx 220 caracteres) y ' +
+              '"keyStats" (array de 3-4 objetos {"value","label"} con las cifras clave del informe: ' +
+              'value = la cifra tal como aparece en el texto, ej. "55.000 ha"; label = qué mide en 3-6 palabras). ' +
               "Solo JSON, nada más.\n\nBOLETÍN:\n" + article.slice(0, 6000),
           },
         ],
@@ -125,6 +162,7 @@ async function generateTitleExcerpt(article) {
     return {
       title: cut(sanitizeText(parsed.title), 90),
       excerpt: cut(sanitizeText(parsed.excerpt), 220),
+      keyStats: sanitizeStats(parsed.keyStats, article),
     };
   } catch {
     return null;
@@ -216,9 +254,9 @@ async function main() {
   const countries = new Set(zones.map((z) => z.country)).size;
   const location = `${zones.length} zonas de ${countries} ${countries === 1 ? "país" : "países"} de LAC`;
 
-  console.log("Generando título y excerpt con Groq...");
-  const { title, excerpt } =
-    (await generateTitleExcerpt(article)) || fallbackTitleExcerpt(article, zones);
+  console.log("Generando título, excerpt y cifras clave con Groq...");
+  const meta = (await generateTitleExcerpt(article)) || fallbackTitleExcerpt(article, zones);
+  const { title, excerpt } = meta;
 
   const entry = {
     id: String(Math.max(...informes.map((i) => parseInt(i.id, 10) || 0)) + 1),
@@ -230,6 +268,7 @@ async function main() {
     ...(NO_VIDEO ? {} : { video: videoFile }),
     excerpt,
     article,
+    ...(meta.keyStats ? { keyStats: meta.keyStats } : {}),
   };
 
   if (DRY_RUN) {

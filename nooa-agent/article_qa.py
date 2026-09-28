@@ -154,6 +154,14 @@ _SENSOR_RE = re.compile(
     r"\b(?:Sentinel[-\s]?\d|Landsat[-\s]?\d*|MODIS|CHIRPS|ERA5|WorldView|Planet(?:Scope| Labs)?)\b",
     re.IGNORECASE,
 )
+# Subheads funcionales prohibidos — la estructura es de revista: los
+# encabezados deben ser evocativos y propios de cada historia.
+_FUNC_HEAD_RE = re.compile(
+    r"^#{1,6}\s*(?:\*\*)?\s*(?:por qu[eé] importa|conclusi[oó]n|panorama|"
+    r"introducci[oó]n|resumen|cierre|qu[eé] significa|zonas? en alerta|"
+    r"en vigilancia|sin anomal[ií]as|metodolog[ií]a|contexto)\b",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 def validate_format(article: str, title: str = "") -> list[str]:
@@ -182,6 +190,12 @@ def validate_format(article: str, title: str = "") -> list[str]:
         errors.append(
             f"Nombre de sensor/misión en el artículo ('{sensor.group(0)}') — "
             "citar solo la agencia: 'Agencia Espacial Europea', 'NASA'"
+        )
+    head = _FUNC_HEAD_RE.search(article)
+    if head:
+        errors.append(
+            f"Encabezado funcional '{head.group(0).lstrip('#* ').strip()}' — "
+            "los subheads deben ser evocativos y propios de la historia"
         )
 
     used = [name for name, rx in _THOUSANDS.items() if rx.search(article)]

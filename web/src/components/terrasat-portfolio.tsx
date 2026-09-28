@@ -38,6 +38,11 @@ const videoMap: Record<string, string> = Object.fromEntries(
 )
 const fallbackImage = imageMap["informe-agrosat-alert-opt.jpg"] ?? Object.values(imageMap)[0] ?? ""
 
+interface KeyStat {
+  value: string
+  label: string
+}
+
 interface Informe {
   id: string
   title: string
@@ -50,6 +55,7 @@ interface Informe {
   article?: string
   cta?: string
   hashtags?: string[]
+  keyStats?: KeyStat[]
 }
 
 const informes: Informe[] = informesData.map((item) => ({
@@ -391,6 +397,30 @@ export function TerraSATPortfolio() {
                     </span>
                   </DialogDescription>
                 </DialogHeader>
+
+                {/* Bajada (standfirst): resume el hallazgo antes del cuerpo */}
+                <p className="mt-3 border-l-2 border-primary/60 pl-3 text-[15px] italic leading-relaxed text-foreground/85">
+                  {normalizeNumbers(selected.excerpt)}
+                </p>
+
+                {/* Franja de cifras clave */}
+                {selected.keyStats && selected.keyStats.length > 0 && (
+                  <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {selected.keyStats.map((s) => (
+                      <div
+                        key={s.label}
+                        className="flex flex-col rounded-lg border border-border bg-muted/30 px-3 py-2.5"
+                      >
+                        <dt className="order-2 mt-0.5 text-[11px] leading-tight text-muted-foreground">
+                          {s.label}
+                        </dt>
+                        <dd className="order-first text-lg font-bold leading-tight text-foreground">
+                          {normalizeNumbers(s.value)}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
 
                 {selectedParts && selectedParts.body.length > 0 && (
                   <ArticleBody markdown={selectedParts.body} />

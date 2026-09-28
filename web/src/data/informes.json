@@ -7,14 +7,32 @@
     "location": "10 zonas de 8 países de LAC",
     "image": "informe-urbansat-20260926-opt.jpg",
     "video": "informe-urbansat-20260926-video-opt.mp4",
-    "excerpt": "Quito lidera la expansión con 55.000 ha nuevas y 55 % de suelo degradado; Managua 10.500 ha, Ciudad de Guatemala 10.300 ha, Tegucigalpa, Medellín y San Pedro Sula entre 4.600‑7.600 ha, mientras San Salvador y Bogotá se mantienen estables.",
-    "article": "En solo dos meses, Quito añadió **55.000 hectáreas de superficie construida** — el ritmo más\nrápido de las diez metrópolis que monitoreamos en Latinoamérica. Y detrás de ese ritmo hay una señal\nmás delicada: más de la mitad de su área urbana (55,1 %) muestra **suelo degradado** —terreno que el\nsatélite detecta compactado, impermeabilizado o sin vegetación— justo cuando la ciudad sigue creciendo.\n\n¿Se repite el patrón en el resto de la región? Entre julio y septiembre de 2026 analizamos diez\ncapitales de ocho países. La respuesta corta: sí en Centroamérica, no en todas partes. Managua,\nCiudad de Guatemala, Tegucigalpa y San Pedro Sula suman entre 4.600 y 10.500 hectáreas de construcción\nnueva cada una, mientras San Salvador apenas mueve sus indicadores y Bogotá se mantiene estable pese\na una caída moderada de vegetación.\n\n### Zonas en alerta\n\n| Ciudad | Patrón | Señal del satélite | Área construida nueva | Suelo degradado |\n|---|---|---|---|---|\n| **Quito** (Ecuador) | Expansión explosiva | Vegetación -0,062 · Suelo -0,066 · Construido +0,053 · Humedad +0,033 | **55.000 ha** | **55,1 %** |\n| **Managua** (Nicaragua) | Crecimiento rápido | Vegetación -0,003 · Suelo ↓ · Construido ↑ | **10.500 ha** | **13,1 %** |\n| **Ciudad de Guatemala** (Guatemala) | Crecimiento moderado | Vegetación -0,027 · Suelo ↓ · Construido ↑ | **10.300 ha** | 8,6 % |\n| **Tegucigalpa** (Honduras) | Crecimiento limitado | Vegetación -0,083 · Suelo ↓ · Construido ↑ | 7.600 ha | 9,5 % |\n| **Medellín** (Colombia) | Expansión moderada | Vegetación +0,086 · Suelo ↓ · Construido ↑ | 7.600 ha | 6,9 % |\n| **San Pedro Sula** (Honduras) | Crecimiento limitado | Vegetación -0,029 · Suelo ↓ · Construido ↑ | 4.600 ha | 5,1 % |\n\n*La \"señal del satélite\" resume los cambios que miden los satélites de la Agencia Espacial Europea\n(programa Copernicus) con cuatro índices: vegetación (NDVI), daño del suelo (NBR), superficie\nconstruida (NDBI) y humedad (NDWI). Valores negativos indican pérdida; una flecha marca la dirección\ncuando el cambio exacto es marginal.*\n\n### El patrón andino\n\n- **Quito** combina la mayor expansión con la peor degradación: vegetación y suelo caen mientras el área\n  construida crece. Sustituir verde por cemento aumenta el riesgo de inundaciones y deslizamientos, un\n  problema serio para una ciudad andina de topografía compleja.\n- **Medellín** es el contraejemplo: añadió 7.600 ha construidas y aun así su índice de vegetación mejoró\n  (+0,086). Los datos sugieren proyectos de revegetación o recuperación de zonas degradadas, aunque la\n  presión sobre el suelo continúa.\n\n### El patrón centroamericano\n\n- **Managua** lidera la degradación del suelo del istmo (13,1 %) aunque su vegetación apenas cambió.\n  La expansión se concentra en áreas periurbanas vulnerables a la erosión y las escorrentías.\n- **Tegucigalpa** y **San Pedro Sula** registran degradaciones menores (9,5 % y 5,1 %) con pérdida de\n  vegetación: crecimiento urbano moderado pero real. **Ciudad de Guatemala** añadió 10.300 ha con una\n  señal similar.\n\n### Panorama\n\n- **En vigilancia**: las seis ciudades anteriores, todas con construcción nueva medida por el satélite.\n- **Sin cambio significativo**: San Salvador (leve mejora de vegetación) y Bogotá (estable aunque con\n  una caída puntual de verde).\n- **Sin datos**: Lima y Ciudad de México. La nubosidad persistente impidió imágenes limpias — no\n  significa ausencia de crecimiento.\n\n### Por qué importa\n\n1. Menos vegetación y más cemento significan mayor riesgo hidrológico: inundaciones, deslizamientos\n   y calor extremo en las zonas de expansión.\n2. Cuando más del 10 % del suelo aparece degradado, el terreno pierde capacidad de retener agua y\n   de sostener vida.\n3. Medir cada mes permite ordenar el crecimiento antes de que la expansión informal lo decida.\n\nComplementar la vigilancia óptica con radar satelital eliminaría el apagón por nubosidad en la\npróxima temporada de lluvias y permitiría monitorear Lima y Ciudad de México.\n\n### Conclusión\n\nQuito es el caso más crítico de la muestra — no por alarmismo, sino porque más de la mitad de su\nsuperficie urbana muestra degradación mientras la ciudad sigue expandiéndose. Centroamérica crece\ndetrás con señales menores pero consistentes. Y Medellín demuestra que expandirse sin destruir\nvegetación es posible: el dato más útil de este informe para los planificadores.\n",
+    "excerpt": "Quito ganó 55.000 hectáreas de cemento en dos meses y el 55,1 % de su suelo aparece degradado. La excepción: Medellín, que creció sin sacrificar su vegetación.",
+    "article": "En solo dos meses, Quito añadió **55.000 hectáreas de superficie construida** — el ritmo más rápido de las 10 metrópolis que monitoreamos en Latinoamérica. Pero el número que incomoda no es el del cemento: es que **más de la mitad de su área urbana (55,1 %) ya aparece degradada** —terreno compactado, impermeabilizado o sin vegetación— justo cuando la ciudad sigue creciendo.\n\n¿Se repite el patrón? Entre julio y septiembre de 2026 analizamos 10 capitales de 8 países. La respuesta corta: sí en Centroamérica, no en todas partes.\n\n### El cemento no espera\n\nManagua suma **10.500 hectáreas** nuevas con el 13,1 % de su suelo degradado — la mayor fracción del istmo. Ciudad de Guatemala agrega 10.300, y Tegucigalpa junto a San Pedro Sula avanzan más despacio pero con la misma firma: cae la vegetación, cae el suelo sano, sube lo construido.\n\n| Ciudad | Patrón | Señal del satélite | Construcción nueva | Suelo degradado |\n|---|---|---|---|---|\n| **Quito** (Ecuador) | Expansión explosiva | Vegetación -0,062 · Suelo -0,066 · Construido +0,053 · Humedad +0,033 | **55.000 ha** | **55,1 %** |\n| **Managua** (Nicaragua) | Crecimiento rápido | Vegetación -0,003 · Suelo ↓ · Construido ↑ | **10.500 ha** | **13,1 %** |\n| **Ciudad de Guatemala** (Guatemala) | Crecimiento moderado | Vegetación -0,027 · Suelo ↓ · Construido ↑ | **10.300 ha** | 8,6 % |\n| **Tegucigalpa** (Honduras) | Crecimiento limitado | Vegetación -0,083 · Suelo ↓ · Construido ↑ | 7.600 ha | 9,5 % |\n| **Medellín** (Colombia) | Expansión moderada | Vegetación +0,086 · Suelo ↓ · Construido ↑ | 7.600 ha | 6,9 % |\n| **San Pedro Sula** (Honduras) | Crecimiento limitado | Vegetación -0,029 · Suelo ↓ · Construido ↑ | 4.600 ha | 5,1 % |\n\nEl suelo impermeabilizado no absorbe lluvia: menos verde y más cemento se traducen en inundaciones, deslizamientos y calor extremo en las zonas de expansión. Para una ciudad andina de topografía compleja como Quito, ese riesgo no es teórico — y medirlo cada mes permite ordenar el crecimiento antes de que la expansión informal lo decida.\n\n### La excepción que interesa a los planificadores\n\nMedellín es el contraejemplo del informe: añadió **7.600 hectáreas** construidas y su índice de vegetación *mejoró* (+0,086), señal de revegetación o recuperación en curso. Expandirse sin destruir el verde es posible — y es el dato más útil del mapa para quien planifica.\n\nSan Salvador apenas movió sus indicadores y Bogotá se mantiene estable pese a una caída moderada de vegetación. Lima y Ciudad de México —2 capitales— quedaron fuera del análisis: la nubosidad persistente impidió imágenes limpias, lo que no significa ausencia de crecimiento. Complementar la vigilancia óptica con radar satelital eliminaría ese apagón en la próxima temporada de lluvias.\n\n*Metodología: imágenes de la Agencia Espacial Europea (programa Copernicus), julio–septiembre 2026. Índices: vegetación (NDVI), estado del suelo (NBR), superficie construida (NDBI) y humedad (NDWI); valores negativos indican pérdida.*",
     "cta": "¿Su municipio, desarrolladora o aseguradora opera en alguna de estas ciudades? UrbanSAT mide la expansión de área construida y la pérdida de vegetación con observación satelital objetiva: catastro, planificación y evaluación de riesgo en escala metropolitana. Reportes personalizados disponibles.",
     "hashtags": [
       "TerraSAT",
       "UrbanSAT",
       "AlertaTemprana",
       "Satélite"
+    ],
+    "keyStats": [
+      {
+        "value": "55.000 ha",
+        "label": "de construcción nueva en Quito"
+      },
+      {
+        "value": "55,1 %",
+        "label": "del suelo urbano de Quito, degradado"
+      },
+      {
+        "value": "10",
+        "label": "metrópolis monitoreadas en 8 países"
+      },
+      {
+        "value": "2",
+        "label": "capitales sin datos por nubosidad"
+      }
     ]
   },
   {
@@ -26,13 +44,31 @@
     "image": "informe-forestsat-20260926-opt.jpg",
     "video": "informe-forestsat-20260926-video-opt.mp4",
     "excerpt": "El Chaco paraguayo perdió 49.800 ha de bosque en dos meses —16,6 % de su área degradada— y Petén suma 28.500 ha. Otras tres zonas en vigilancia; el Gran Chaco argentino se recupera.",
-    "article": "El bosque seco del Chaco está perdiendo cobertura al ritmo más alto de la región. Entre julio y septiembre de 2026, el Chaco paraguayo perdió **49.800 hectáreas** de bosque. El 16,6 % de su área muestra degradación nueva respecto al año pasado: la peor señal entre las diez zonas forestales que monitoreamos en nueve países (2.650.000 hectáreas en total).\n\n¿Está igual el resto del mapa? No. El Petén guatemalteco suma otras **28.500 hectáreas** perdidas y tres zonas de la Amazonía y Centroamérica empiezan a degradarse. Y en el sur del continente el bosque hace algo inesperado: se recupera.\n\n### Zonas en alerta\n\n| Zona | País | Área monitoreada | Bosque perdido | Señal del satélite | Degradación nueva |\n|---|---|---|---|---|---|\n| **Chaco Paraguayo** | Paraguay | 300.000 ha | **49.800 ha** | Vegetación -0,065 · Suelo -0,092 | **16,6 %** |\n| **Petén** | Guatemala | 250.000 ha | **28.500 ha** | Vegetación -0,068 · Suelo -0,055 | **11,4 %** |\n\n*La \"señal del satélite\" compara dos índices frente al mismo periodo de 2025: vegetación (NDVI) y estado del suelo (NBR). Valores negativos indican pérdida.*\n\n### En vigilancia: degradación incipiente\n\nTres zonas muestran pérdida real aunque menor — el patrón que precede a una alerta:\n\n- **Darién** (Panamá): 20.800 hectáreas afectadas; 8,3 % del área con degradación nueva.\n- **Madre de Dios** (Perú): 17.200 hectáreas; 5,7 %.\n- **La Mosquitia** (Honduras): 13.300 hectáreas; 5,3 %.\n\n### La otra cara: bosques que se recuperan\n\n- **Gran Chaco Argentino**: la mejora más fuerte de la muestra (vegetación +0,150, suelo +0,155).\n- **Mata Atlântica** (Brasil): recuperación moderada (vegetación +0,037, suelo +0,024).\n- **Sin pérdida detectada**: Leticia (Colombia), Selva Lacandona (México) y Chocó (Colombia).\n\n### Por qué importa\n\n- El bosque seco del Chaco es uno de los ecosistemas bajo mayor presión agrícola de Sudamérica: cada hectárea perdida almacena menos carbono, retiene menos agua y fragmenta hábitats.\n- Detectar degradación al 5,3 % del área —como en La Mosquitia— permite intervenir antes de que la zona pase a alerta.\n- Las recuperaciones en Argentina y Brasil muestran que la tendencia se revierte donde hay manejo activo del territorio.\n\n### Conclusión\n\nLa pérdida no está repartida parejo: dos zonas concentran **78.300 hectáreas** y requieren acción inmediata, tres más muestran los primeros signos de deterioro, y el resto del mapa demuestra que la recuperación es posible. Vigilar cada mes convierte este patrón en decisiones, no en sorpresas.\n\n*Análisis con imágenes de la Agencia Espacial Europea (programa Copernicus) y NASA. Última imagen libre de nubes: 25 de septiembre de 2026.*",
+    "article": "Entre julio y septiembre de 2026, dos bosques latinoamericanos perdieron juntos **78.300 hectáreas de cobertura**. El Chaco paraguayo concentra la pérdida más severa —49.800 hectáreas, con el 16,6 % de su área recién degradada— y el Petén guatemalteco lo sigue con 28.500.\n\n¿Está igual el resto del mapa? No. 3 zonas de la Amazonía y Centroamérica empiezan a degradarse, y en el sur del continente el bosque hace algo inesperado: se recupera.\n\n### La firma del desmonte\n\nEl Chaco cae en los dos índices a la vez —vegetación -0,065, suelo -0,092—: menos verde y suelo dañado. Es el patrón de limpieza de terreno para uso agropecuario, y casi una sexta parte de la zona ya muestra degradación nueva.\n\nPetén repite la firma con menor intensidad (11,4 % del área degradada): dos puntos distantes, el mismo mecanismo. Detrás vienen tres zonas con deterioro incipiente —pérdida real pero menor—: Darién (Panamá) con 20.800 hectáreas afectadas, Madre de Dios (Perú) con 17.200 y La Mosquitia (Honduras) con 13.300.\n\n### La otra cara del mapa\n\nEl **Gran Chaco argentino** muestra la recuperación más fuerte de la muestra (vegetación +0,150, suelo +0,155) y la Mata Atlântica brasileña mejora de forma moderada. Leticia, la Selva Lacandona y el Chocó no muestran pérdida.\n\nAhí está el dato que convierte un informe en decisión: detectar degradación cuando afecta al 5,3 % de una zona —como en La Mosquitia— permite intervenir antes de que pase a alerta. Y las recuperaciones del sur demuestran que la tendencia se revierte donde hay manejo activo del territorio.\n\n*Metodología: imágenes de la Agencia Espacial Europea (programa Copernicus) y NASA, julio–septiembre 2026. Índices: vegetación (NDVI) y estado del suelo (NBR) frente al mismo periodo de 2025. Última imagen libre de nubes: 25 de septiembre.*",
     "cta": "¿Su organización gestiona bosques, áreas protegidas o monitorea cambio de uso de suelo? ForestSAT detecta pérdida de cobertura y señales de degradación en escala regional con observación satelital verificable. Reportes personalizados para gobiernos, ONGs y aseguradoras.",
     "hashtags": [
       "TerraSAT",
       "ForestSAT",
       "AlertaTemprana",
       "BosquesNativos"
+    ],
+    "keyStats": [
+      {
+        "value": "78.300 ha",
+        "label": "de bosque perdido en las zonas en alerta"
+      },
+      {
+        "value": "16,6 %",
+        "label": "del Chaco paraguayo recién degradado"
+      },
+      {
+        "value": "3",
+        "label": "zonas más en vigilancia (Amazonía y Centroamérica)"
+      },
+      {
+        "value": "+0,150",
+        "label": "rebote de vegetación en el Chaco argentino"
+      }
     ]
   },
   {
@@ -44,13 +80,31 @@
     "image": "informe-agrosat-alert-opt.jpg",
     "video": "informe-agrosat-alert-video-opt.mp4",
     "excerpt": "Espírito Santo registra deterioro crítico del cafetal; déficit hídrico golpea Caldas, Alta Verapaz y las viñas de Valle Central. 49.600 ha en alerta y 10.300 ha en vigilancia de 1.355.000 ha monitoreadas.",
-    "article": "La última semana de septiembre de 2026 dejó una señal clara en los cultivos latinoamericanos: **49.600 hectáreas en alerta** —entre sequía y enfermedad— de las 1.355.000 hectáreas que monitoreamos en trece zonas de siete países.\n\n¿Dónde está el problema? En el café. Tres de las cuatro zonas marcadas son cafetales, y el mecanismo cambia según el mapa: falta agua en los Andes, mientras en Brasil sobra humedad y avanza la enfermedad.\n\n### Zonas en alerta\n\n| Zona | Cultivo | Causa | Área afectada | Lluvia vs. promedio |\n|---|---|---|---|---|\n| **Espírito Santo** (Brasil) — *estado crítico* | Café | Enfermedad del cafetal | **12.800 ha** | +79,9 % |\n| **Caldas** (Colombia) | Café | Déficit hídrico | **15.100 ha** | -35,1 % |\n| **Alta Verapaz** (Guatemala) | Café | Déficit hídrico | **14.600 ha** | -51,5 % |\n| **Valle Central** (Chile) | Viñas | Deterioro del cultivo | **7.100 ha** | -19,5 % |\n\n*La lluvia compara la precipitación de la semana con su promedio histórico. El deterioro lo miden el índice de vegetación (NDVI) y la temperatura del dosel en imágenes de la Agencia Espacial Europea (programa Copernicus) y NASA.*\n\n### Dos mecanismos, un mismo riesgo\n\n- **Déficit hídrico**: Caldas y Alta Verapaz recibieron entre un tercio y la mitad de su lluvia normal. El café bajo estrés hídrico llena peor el grano — la pérdida se gesta antes de ser visible.\n- **Enfermedad**: Espírito Santo tuvo 79,9 % más lluvia de lo habitual. El exceso de humedad favorece los hongos del cafetal, y el deterioro detectado ya es el más severo de la muestra.\n- **Valle Central**: las viñas se deterioran con lluvia apenas por debajo del promedio — aquí el agua no es la explicación y conviene inspección en campo.\n\n### En vigilancia\n\nTres zonas cafetaleras muestran signos tempranos de deterioro, 10.300 hectáreas en total:\n\n- **Quindío** (Colombia): 4.100 ha, con lluvia 59,8 % por debajo del promedio.\n- **El Paraíso** (Honduras): 3.700 ha.\n- **Jinotega** (Nicaragua): 2.500 ha.\n\n### Sin anomalías\n\nIntibucá (Honduras), Minas Gerais, São Paulo y Mato Grosso (Brasil), Córdoba y Mendoza (Argentina) operan dentro del rango normal.\n\n### Por qué importa\n\n- El estrés hídrico en café reduce el llenado del grano semanas antes de que la planta lo muestre.\n- La enfermedad con humedad alta se propaga rápido: Espírito Santo requiere respuesta inmediata.\n- Las zonas en vigilancia son donde una acción temprana cuesta menos que una pérdida.\n\n### Conclusión\n\nEl café concentra el riesgo de la semana: tres de las cuatro zonas marcadas son cafetales, más tres cafetaleras en vigilancia. En los Andes falta agua; en Brasil sobra humedad. Actuar ahora —riego, tratamiento, inspección— es la diferencia entre estrés manejable y cosecha perdida.\n\n*Ventana de análisis: 19–25 de septiembre de 2026.*",
+    "article": "La última semana de septiembre de 2026 dejó una señal clara en el agro latinoamericano: **49.600 hectáreas en alerta** entre sequía y enfermedad, de las 1.355.000 que monitoreamos en trece zonas de siete países.\n\n¿Dónde está el problema? En el café. De las 4 zonas marcadas, 3 son cafetales — y el mecanismo cambia según el mapa: en los Andes falta agua; en Brasil sobra humedad y avanza la enfermedad.\n\n### El café bajo fuego y bajo agua\n\n| Zona | Cultivo | Causa | Área afectada | Lluvia vs. promedio |\n|---|---|---|---|---|\n| **Espírito Santo** (Brasil) — *crítico* | Café | Enfermedad del cafetal | **12.800 ha** | +79,9 % |\n| **Caldas** (Colombia) | Café | Déficit hídrico | **15.100 ha** | -35,1 % |\n| **Alta Verapaz** (Guatemala) | Café | Déficit hídrico | **14.600 ha** | -51,5 % |\n| **Valle Central** (Chile) | Viñas | Deterioro del cultivo | **7.100 ha** | -19,5 % |\n\nCaldas y Alta Verapaz recibieron entre un tercio y la mitad de su lluvia normal — y un cafetal con sed llena peor el grano mucho antes de mostrarlo. Espírito Santo es el espejo opuesto: 79,9 % más lluvia de lo habitual, el exceso de humedad que favorece los hongos del cafetal, con el deterioro ya más severo de la muestra. Valle Central se deteriora con lluvia apenas bajo el promedio: ahí el agua no explica nada y conviene inspección en campo.\n\nTres cafetaleras más quedan en vigilancia —signos tempranos, sin pérdida confirmada, 10.300 hectáreas en total—: Quindío (Colombia) con 4.100 y lluvia 59,8 % bajo el promedio, El Paraíso (Honduras) con 3.700 y Jinotega (Nicaragua) con 2.500.\n\nEl resto del mapa respira: Intibucá, Minas Gerais, São Paulo, Mato Grosso, Córdoba y Mendoza operan en rango normal.\n\n*Metodología: índice de vegetación (NDVI) y temperatura del dosel en imágenes de la Agencia Espacial Europea (programa Copernicus) y NASA, más precipitación satelital. Semana del 19 al 25 de septiembre de 2026.*",
     "cta": "¿Su plantación, cooperativa o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta estrés hídrico y deterioro del cultivo antes de que los síntomas sean visibles, dándole tiempo para actuar. Reportes personalizados para productores, aseguradoras y agroservicios.",
     "hashtags": [
       "TerraSAT",
       "AgroSAT",
       "AlertaTemprana",
       "Café"
+    ],
+    "keyStats": [
+      {
+        "value": "49.600 ha",
+        "label": "de cultivos en alerta esta semana"
+      },
+      {
+        "value": "3 de 4",
+        "label": "zonas marcadas son cafetales"
+      },
+      {
+        "value": "-51,5 %",
+        "label": "de lluvia en Alta Verapaz vs. promedio"
+      },
+      {
+        "value": "+79,9 %",
+        "label": "de lluvia en Espírito Santo — hongos"
+      }
     ]
   },
   {
@@ -61,14 +115,32 @@
     "location": "10 zonas de 8 países de LAC",
     "image": "informe-forest-opt.jpg",
     "video": "informe-forest-video-opt.mp4",
-    "excerpt": "Análisis satelital detecta deforestación y quema simultánea en el Chaco, la Amazonía y el Darién: seis de diez zonas forestales muestran estrés. También hay recuperación medible en Brasil y Bolivia.",
-    "article": "Cuando un bosque desaparece, el satélite no ve un evento: ve una firma. Entre junio y agosto de 2026 comparamos imágenes de diez zonas forestales de ocho países con el mismo periodo de 2025, midiendo dos índices: el vigor de la vegetación (NDVI) y el daño del suelo por quema o desmonte (NBR).\n\nLo que encontramos es una señal que solo aparece cuando el bosque está siendo eliminado activamente: tres zonas muestran deforestación y quema al mismo tiempo.\n\n### La señal más severa: el Chaco paraguayo\n\nEl Chaco registró la caída más profunda de la muestra: el índice de vegetación cayó 0,394 y el de suelo se desplomó 0,297. Cuando el índice de suelo baja de 0,10, el bosque que existía en 2025 ya no está.\n\nLa combinación —menos vegetación y suelo dañado— corresponde a tala seguida de quema, el patrón clásico de expansión ganadera en el Chaco.\n\n### El mismo patrón en dos fronteras\n\n**Leticia**, en la Amazonía colombiana, muestra la misma firma doble: vegetación -0,362 y suelo -0,305. La coincidencia es relevante porque el Instituto de Hidrología de Colombia (Ideam) reportó que la deforestación nacional subió 5,2 % en 2025, con 72.409 hectáreas perdidas en la Amazonía. El satélite confirma desde el espacio lo que el Ideam midió desde el suelo.\n\n**Darién** (Panamá) presenta la tercera señal doble: vegetación -0,313 y suelo -0,264. Pero aquí la historia es más compleja: Global Forest Watch documentó que la pérdida de bosque dentro del Parque Nacional Darién se redujo 88 % entre 2022 y 2025 gracias a guardaparques con alertas satelitales. Nuestra detección apunta a la zona de amortiguamiento — la presión se desplazó fuera del parque.\n\n### Degradación sin quema\n\n- **Chocó** (Colombia): daño forestal moderado — vegetación -0,108, suelo -0,143.\n- **Selva Lacandona** (México): pérdida de vegetación (-0,134) sin quema asociada, un patrón de degradación progresiva más que de incendio.\n- **Madre de Dios** (Perú): estrés leve, consistente con la presión minera y agrícola que MAAP documenta como la tercera mayor de la Amazonía.\n\n### La otra cara: recuperación medible\n\n**Manaus**, en el corazón del Amazonas brasileño, muestra recuperación: vegetación +0,202 y suelo +0,157. MapBiomas confirmó que Brasil redujo su deforestación 20 % en 2025, hasta 298.000 hectáreas en la Amazonía — el satélite ve la misma recuperación que se mide desde el suelo.\n\nLas **Yungas bolivianas** registran la mejora más fuerte (vegetación +0,486), aunque parte puede reflejar diferencias estacionales entre la temporada seca y la de transición.\n\n### El contexto regional\n\nEl Observatorio Regional Amazónico (OTCA) reportó que la deforestación amazónica cayó 68 % en 2025 respecto al pico de 2024, y el World Resources Institute confirmó una reducción global del 36 % en pérdida de bosque tropical. Aun así, MAAP estima que se deforestaron 736.484 hectáreas de Amazonía en 2025 — 132.000 de ellas dentro de áreas protegidas y territorios indígenas.\n\nLa reducción es real; el problema estructural persiste. La OTCA advirtió que 2024 fue un año pico por sequía e incendios, y el WRI proyecta que El Niño en 2026 podría intensificar el riesgo.\n\n### Conclusión\n\nSeis de las diez zonas monitoreadas ya muestran estrés forestal. El dato alienta y preocupa a la vez: la deforestación baja donde hay vigilancia activa —Darién, Brasil— y avanza donde la presión se desplaza a zonas sin protección.\n\nEl satélite no espera a que el bosque arda para avisar.\n\n*Análisis con imágenes de la Agencia Espacial Europea (programa Copernicus) y NASA, junio–agosto 2026.*",
+    "excerpt": "Tres zonas muestran la firma doble de deforestación y quema simultánea — Chaco, Amazonía y Darién. Seis de diez zonas con estrés; Brasil y Bolivia también muestran recuperación.",
+    "article": "Cuando un bosque desaparece, el satélite no ve un evento: ve una firma. Entre junio y agosto de 2026 comparamos imágenes de diez zonas forestales de ocho países con el mismo periodo de 2025, midiendo el vigor de la vegetación (NDVI) y el daño del suelo por quema o desmonte (NBR).\n\nLo que encontramos es una señal que solo aparece cuando el bosque está siendo eliminado activamente: tres zonas muestran deforestación y quema al mismo tiempo.\n\n### La señal más severa: el Chaco\n\nEl Chaco paraguayo registró la caída más profunda de la muestra: vegetación -0,394 y suelo -0,297. Cuando el índice de suelo baja de 0,10, el bosque que existía en 2025 ya no está — y esa combinación corresponde a tala seguida de quema, el patrón clásico de expansión ganadera.\n\n### El mismo patrón en dos fronteras\n\n**Leticia**, en la Amazonía colombiana, muestra la misma firma doble: -0,362 y -0,305. El dato cuadra con lo que reportó desde el suelo el Instituto de Hidrología de Colombia (Ideam): la deforestación nacional subió 5,2 % en 2025, con 72.409 hectáreas perdidas en la Amazonía.\n\n**Darién** (Panamá) presenta la tercera señal doble (-0,313 y -0,264), pero con una historia más compleja: Global Forest Watch documentó que la pérdida dentro del Parque Nacional se redujo 88 % entre 2022 y 2025 gracias a guardaparques con alertas satelitales. La degradación que detectamos apunta a la zona de amortiguamiento — la presión se desplazó fuera del parque.\n\nSin quema asociada el deterioro es más silencioso: el Chocó muestra daño moderado (-0,108 y -0,143) y la Selva Lacandona pierde vegetación (-0,134) en un patrón de degradación progresiva. Madre de Dios registra estrés leve consistente con la presión minera y agrícola que MAAP documenta como la tercera mayor de la Amazonía.\n\n### La recuperación también aparece\n\nManaus, en el corazón del Amazonas brasileño, mejora: vegetación +0,202 y suelo +0,157. MapBiomas confirmó que Brasil redujo su deforestación 20 % en 2025, hasta 298.000 hectáreas — el satélite ve la misma recuperación que se mide desde el suelo. Las Yungas bolivianas registran el rebote más fuerte (+0,486), aunque parte puede reflejar diferencias estacionales.\n\nEl contexto ayuda a leer el mapa: el Observatorio Regional Amazónico (OTCA) reportó una caída del 68 % en la deforestación de 2025 respecto al pico de 2024, y el World Resources Institute confirmó una reducción global del 36 %. Aun así, MAAP estima 736.484 hectáreas deforestadas en la Amazonía solo en 2025 —132.000 dentro de áreas protegidas y territorios indígenas— y el WRI proyecta que El Niño en 2026 podría intensificar el riesgo de incendios.\n\n6 de las 10 zonas ya muestran estrés. El dato alienta y preocupa a la vez: la deforestación baja donde hay vigilancia activa y avanza donde la presión se desplaza a zonas sin protección.\n\nEl satélite no espera a que el bosque arda para avisar.\n\n*Metodología: imágenes de la Agencia Espacial Europea (programa Copernicus) y NASA, junio–agosto 2026 frente a agosto–octubre 2025.*",
     "cta": "¿Su organización trabaja en conservación, silvicultura, carbono o REDD+? ForestSAT detecta pérdida de cobertura, áreas quemadas y degradación forestal con observación satelital verificable. Reportes personalizados por zona y monitoreo continuo.",
     "hashtags": [
       "TerraSAT",
       "ForestSAT",
       "Conservación",
       "Bosques"
+    ],
+    "keyStats": [
+      {
+        "value": "-0,394",
+        "label": "caída de vegetación en el Chaco paraguayo"
+      },
+      {
+        "value": "6 de 10",
+        "label": "zonas forestales con estrés"
+      },
+      {
+        "value": "72.409 ha",
+        "label": "deforestadas en la Amazonía (Ideam, 2025)"
+      },
+      {
+        "value": "+0,486",
+        "label": "rebote de vegetación en las Yungas"
+      }
     ]
   },
   {
@@ -80,121 +152,31 @@
     "image": "informe-agrosat-crisis-opt.jpg",
     "video": "informe-agrosat-crisis-video-opt.mp4",
     "excerpt": "Análisis satelital 2024 vs 2026: 514.000 ha —31 % de lo monitoreado— con deterioro en café, soja, maíz, arroz y caña. En Loja (Ecuador) el café migra de altitud: una zona en transición.",
-    "article": "Antes de que una planta muestre síntomas, el satélite ya registró el estrés. Comparamos imágenes de NASA y la Agencia Espacial Europea entre 2024 y 2026 en dieciocho zonas agrícolas de diez países, midiendo el vigor de la vegetación (NDVI) y la temperatura del dosel en café, soja, maíz, arroz y caña de azúcar.\n\nEl hallazgo: **514.000 hectáreas —31 % de la superficie monitoreada— muestran deterioro**, con impactos de rendimiento de hasta -26 %.\n\n### Café: estrés en floración y una zona en transición\n\nIntibucá (Honduras) perdió vegetación en **20.000 hectáreas**, con la temperatura del dosel 3,4 °C por encima de lo normal. Caldas (Colombia) y Minas Gerais (Brasil) muestran el mismo patrón de estrés justo en floración — el momento en que el cultivo define su cosecha.\n\nEl hallazgo más llamativo está en **Loja (Ecuador)**: el café está migrando hacia altitudes mayores por el calentamiento. Clasificamos la zona como *en transición* — el cultivo podría dejar de ser viable donde está hoy. No es una alerta pasajera: es un cambio estructural.\n\n### Soja y maíz: déficit hídrico regional\n\n- **Soja**: Mato Grosso (Brasil) y Córdoba (Argentina) encabezan la alerta con **200.000 hectáreas** combinadas y déficit hídrico del suelo superior al 25 %. Alto Paraná (Paraguay) y Buenos Aires (Argentina) registran pérdidas de rendimiento de -14 % a -15 %.\n- **Maíz**: Chiapas (México) y León (Nicaragua) suman **45.000 hectáreas** afectadas por el Corredor Seco, con dosel hasta 4 °C sobre lo normal.\n\n### El contexto\n\nLa NOAA elevó al 95 % la probabilidad de un Super El Niño para octubre–diciembre de 2026 — y nuestros datos satelitales ya mostraban la tendencia antes del pronóstico.\n\nLa FAO reporta 33 millones de personas con hambre en Latinoamérica. El mapa satelital muestra dónde empieza el problema, hectárea por hectárea.\n\n### Conclusión\n\nEl deterioro que hoy parece invisible será la cosecha de mañana. Quien mide primero —riego, tratamiento, cobertura— decide antes de que el mercado lo haga.\n\n*Análisis con imágenes de NASA y la Agencia Espacial Europea (programa Copernicus), comparación 2024–2026.*",
+    "article": "Antes de que una planta muestre síntomas, el satélite ya registró el estrés. Comparamos imágenes de NASA y la Agencia Espacial Europea entre 2024 y 2026 en 18 zonas agrícolas de 10 países, midiendo el vigor de la vegetación (NDVI) y la temperatura del dosel en café, soja, maíz, arroz y caña de azúcar.\n\nEl hallazgo: **514.000 hectáreas —31 % de la superficie monitoreada— muestran deterioro**, con pérdidas de rendimiento de hasta -26 %.\n\n### El café migra hacia arriba\n\nIntibucá (Honduras) perdió vegetación en **20.000 hectáreas**, con el dosel 3,4 °C por encima de lo normal. Caldas (Colombia) y Minas Gerais (Brasil) muestran el mismo patrón justo en floración — el momento en que el cultivo define su cosecha.\n\nEl hallazgo más llamativo está en **Loja (Ecuador)**: el café está migrando hacia altitudes mayores por el calentamiento. La zona queda clasificada como *en transición* — el cultivo podría dejar de ser viable donde está hoy. No es una alerta pasajera: es un cambio estructural.\n\n### El corredor del déficit\n\nEn soja, Mato Grosso y Córdoba encabezan la alerta con **200.000 hectáreas** combinadas y déficit hídrico del suelo superior al 25 %. Alto Paraná (Paraguay) y Buenos Aires (Argentina) registran pérdidas de -14 % a -15 %. En maíz, Chiapas y León suman **45.000 hectáreas** bajo el Corredor Seco, con dosel hasta 4 °C sobre lo normal.\n\n### La tormenta que se anuncia\n\nLa NOAA elevó al 95 % la probabilidad de un Super El Niño para octubre–diciembre de 2026 — y los datos satelitales ya mostraban la tendencia antes del pronóstico. La FAO reporta 33 millones de personas con hambre en Latinoamérica; este mapa muestra dónde empieza el problema, hectárea por hectárea.\n\nEl deterioro que hoy parece invisible será la cosecha de mañana. Quien mide primero —riego, tratamiento, cobertura— decide antes de que el mercado lo haga.\n\n*Metodología: imágenes de NASA y la Agencia Espacial Europea (programa Copernicus), comparación 2024–2026.*",
     "cta": "¿Su plantación, cooperativa o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta estrés hídrico y deterioro del cultivo antes de que los síntomas sean visibles, dándole tiempo para actuar. Reportes personalizados para productores, aseguradoras y agroservicios.",
     "hashtags": [
       "TerraSAT",
       "AgroSAT",
       "SeguridadAlimentaria",
       "Latinoamérica"
-    ]
-  },
-  {
-    "id": "1",
-    "title": "Enfermedad en el café y sequía en la soja: la semana del agro latinoamericano",
-    "category": "agrosat",
-    "date": "05–11 ago 2026",
-    "location": "Centroamérica + Suramérica",
-    "image": "informe-coffee-opt.jpg",
-    "video": "informe-coffee-video-opt.mp4",
-    "excerpt": "Estrés en café, soja y viñas: 514.000 ha monitoreadas en 13 zonas de 6 países. Intibucá y Caldas suman 39.000 ha con enfermedad; Mato Grosso pierde 135.000 ha por sequía.",
-    "article": "La primera semana de agosto de 2026 dejó un panorama tenso para el agro latinoamericano: enfermedad en los cafetales del norte andino y sequía severa en la soja brasileña. Del monitoreo de **514.000 hectáreas** en trece zonas de seis países, el estrés se concentra en dos cultivos.\n\n### En alerta\n\n- **Café**: Intibucá (Honduras) y Caldas (Colombia) suman **39.000 hectáreas** con enfermedad del cafetal. Hay déficit hídrico además en Espírito Santo (Brasil) y El Paraíso (Honduras).\n- **Soja**: Mato Grosso (Brasil) pierde **135.000 hectáreas** por sequía severa — la pérdida individual más grande de la semana.\n\n### En vigilancia\n\nJinotega (Nicaragua) y Valle Central (Chile) muestran signos tempranos de deterioro: aún no hay pérdida confirmada, pero la tendencia exige seguimiento.\n\n### Sin anomalías\n\nCórdoba y Mendoza (Argentina), Minas Gerais y São Paulo (Brasil) operan en rango normal.\n\n### Por qué importa\n\nLa enfermedad en el café y la sequía en la soja avanzan antes de ser visibles desde el suelo. Detectarlas a tiempo es la diferencia entre un tratamiento preventivo y una cosecha perdida.\n\n*Análisis con imágenes de NASA y la Agencia Espacial Europea (programa Copernicus). Semana del 5 al 11 de agosto de 2026.*",
-    "cta": "¿Su plantación, cooperativa o empresa agroindustrial opera en alguna de estas zonas? AgroSAT detecta estrés hídrico y deterioro del cultivo antes de que los síntomas sean visibles, dándole tiempo para actuar. Reportes personalizados para productores, aseguradoras y agroservicios.",
-    "hashtags": [
-      "TerraSAT",
-      "AgroSAT",
-      "AlertaTemprana",
-      "AgriculturaSostenible"
-    ]
-  },
-  {
-    "id": "2",
-    "title": "El asfalto se come a Latinoamérica",
-    "category": "urbansat",
-    "date": "Jul 2026",
-    "location": "12 ciudades de LAC",
-    "image": "informe-urban-heat-opt.jpg",
-    "video": "informe-urban-heat-video-opt.mp4",
-    "excerpt": "Santiago dispara su superficie construida +31,2 %; Buenos Aires tiene 93 % de paisaje urbano y solo 3,85 % de árboles. Doce ciudades analizadas entre enero 2024 y junio 2026.",
-    "article": "¿Cuánto cemento gana una ciudad por cada árbol que pierde? Comparamos imágenes de la Agencia Espacial Europea entre enero de 2024 y junio de 2026 en doce ciudades latinoamericanas, midiendo dos índices: vegetación urbana (NDVI) y superficie construida (NDBI).\n\nLa respuesta: la vegetación se recupera en varias capitales, pero el cemento avanza mucho más rápido.\n\n### Las cifras del crecimiento\n\n| Ciudad | Vegetación | Superficie construida |\n|---|---|---|\n| **Santiago de Chile** | +10,0 % | **+31,2 %** |\n| **Buenos Aires** | +3,2 % | **+28,0 %** |\n| **Quito** | — | **+17,7 %** |\n| **Barranquilla** | +15,7 % | +8,8 % |\n| **Bogotá** | +13,7 % | +6,2 % |\n| **Ciudad de Panamá** | +9,0 % | +5,6 % |\n| **Medellín** | +9,3 % | +2,9 % |\n| **Cali** | +8,6 % | estable |\n| **Caracas** | +7,5 % | +5,2 % |\n| **Asunción** | +3,5 % | +1,9 % |\n| **Montevideo** | — | **-1,5 %** — la única estable |\n\n*Cambio porcentual entre enero 2024 y junio 2026.*\n\n### El Cono Sur, el caso extremo\n\nSantiago lidera la expansión de cemento de la muestra. Corporación Ciudades documenta la contracara: la cobertura vegetal del Gran Santiago cayó de 44 % a 30 % entre 2000 y 2015. Se recuperó a 38 % en 2025, pero comunas como Pudahuel pasaron de 40 % a 20 % de vegetación — con temperaturas superficiales de 43 °C en enero de 2024.\n\nBuenos Aires muestra el mismo patrón: el IberAtlas (UCCI e ICLEI, junio 2026) confirma que la ciudad tiene 93 % de su territorio como paisaje urbano y apenas 3,85 % de cobertura arbórea — la más cementada del atlas iberoamericano.\n\n### El resto del mapa\n\n- **Quito** ocupa el segundo lugar en expansión (+17,7 %). En Quevedo, la Revista Cartográfica (2026) midió temperaturas superficiales de 48 a 61 °C por islas de calor urbano.\n- **Ciudad de Panamá**: un estudio de Esri Panamá y FSU confirmó que sus islas de calor se expandieron visiblemente entre 2000–2006 y 2019–2025.\n- **Asunción**: Global Forest Watch reporta 190 hectáreas de árboles perdidas en dos décadas, 96 % por expansión urbana.\n- **Montevideo** es la única ciudad donde la superficie construida no creció.\n\n### El costo del calor\n\nEl Banco Mundial advierte que la mortalidad asociada al calor creció 140 % en dos décadas; solo en 2023 murieron prematuramente 48.000 adultos mayores en la región. MapBiomas Venezuela confirmó que las ciudades del país se expandieron 72 % entre 1985 y 2024: casi 160.000 hectáreas nuevas de asfalto.\n\n### Conclusión\n\nEl patrón es claro: la vegetación se recupera donde hay gestión, pero el cemento avanza más rápido. Medir el cambio cada mes es la única forma de ordenar el crecimiento antes de que la isla de calor lo defina.\n\n*Análisis con imágenes de la Agencia Espacial Europea (programa Copernicus), enero 2024 – junio 2026.*",
-    "cta": "¿Su municipio, desarrolladora o aseguradora opera en alguna de estas ciudades? UrbanSAT mide la expansión de área construida y la pérdida de vegetación con observación satelital objetiva: catastro, planificación y evaluación de riesgo en escala metropolitana. Reportes personalizados disponibles.",
-    "hashtags": [
-      "TerraSAT",
-      "UrbanSAT",
-      "IslaDeCalor",
-      "CiudadesInteligentes"
-    ]
-  },
-  {
-    "id": "3",
-    "title": "El amarillamiento de la soya que el satélite vio 15 días antes",
-    "category": "agrosat",
-    "date": "29 jul–04 ago 2026",
-    "location": "Santa Cruz, Bolivia",
-    "image": "informe-soybean-opt.jpg",
-    "video": "informe-soybean-video-opt.mp4",
-    "excerpt": "1.800 ha de soya en Santa Cruz (Bolivia) con estrés hídrico: vegetación -0,06, dosel +1,8 °C y lluvia -18 %. La alerta llegó 15 días antes del amarillamiento visible.",
-    "article": "La soya de Santa Cruz ya estaba bajo estrés hídrico cuando las plantas aún se veían verdes desde el camino. En la semana del 29 de julio al 4 de agosto de 2026, el análisis satelital detectó parches de amarillamiento incipiente en **1.800 hectáreas** — el 12 % del área monitoreada.\n\nLa alerta llegó **15 días antes** de que el amarillamiento fuera visible en campo.\n\n### Las señales\n\n- Índice de vegetación (NDVI): hasta -0,06 respecto al año anterior.\n- Temperatura del dosel: +1,8 °C sobre el promedio histórico.\n- Precipitación: 18 % por debajo de lo normal para la zona.\n\n### Qué significó para el productor\n\nLos productores que recibieron el reporte ajustaron su calendario de riego y minimizaron pérdidas — la diferencia entre actuar sobre una firma espectral y actuar sobre una cosecha ya comprometida.\n\n*Análisis con imágenes de NASA y la Agencia Espacial Europea (programa Copernicus). Santa Cruz, Bolivia.*",
-    "cta": "¿Su plantación opera en Santa Cruz u otra zona sojera? AgroSAT ofrece reportes personalizados a nivel finca con diagnóstico por sector y alertas tempranas de estrés hídrico.",
-    "hashtags": [
-      "TerraSAT",
-      "AgroSAT",
-      "Soja",
-      "Bolivia"
-    ]
-  },
-  {
-    "id": "4",
-    "title": "Santiago: la expansión de cemento más rápida de Latinoamérica",
-    "category": "urbansat",
-    "date": "Jun 2026",
-    "location": "Santiago, Chile",
-    "image": "informe-urban-sprawl-opt.jpg",
-    "video": "informe-urban-sprawl-video-opt.mp4",
-    "excerpt": "La superficie construida de Santiago creció +31,2 %, la mayor de 12 ciudades monitoreadas. La cobertura vegetal cayó de 44 % a 30 % (2000–2015); isla de calor proyectada: 10,4 °C.",
-    "article": "De doce ciudades latinoamericanas monitoreadas, ninguna expande su superficie construida tan rápido como Santiago: **+31,2 %** entre enero de 2024 y junio de 2026.\n\nEl costo verde viene de antes: la cobertura vegetal del Gran Santiago cayó de 44 % a 30 % entre 2000 y 2015, y la recuperación parcial a 38 % en 2025 no alcanza a compensarla.\n\n### Lo que se siente en la calle\n\n- Comunas como Pudahuel pasaron de 40 % a 20 % de vegetación.\n- Las temperaturas superficiales llegaron a 43 °C en enero de 2024.\n- La isla de calor urbano proyectada es de 10,4 °C.\n\n### Por qué importa\n\nCada punto de vegetación perdida se traduce en más calor, lluvia que el suelo no absorbe y aire más pesado en las comunas de expansión. Medir el cambio mes a mes permite ordenar el crecimiento antes de que la isla de calor lo defina.\n\n*Monitoreo con imágenes de la Agencia Espacial Europea (programa Copernicus). Santiago, Chile.*",
-    "cta": "¿Su municipio, desarrolladora o aseguradora opera en alguna de estas ciudades? UrbanSAT mide la expansión de área construida y la pérdida de vegetación con observación satelital objetiva: catastro, planificación y evaluación de riesgo en escala metropolitana. Reportes personalizados disponibles.",
-    "hashtags": [
-      "TerraSAT",
-      "UrbanSAT",
-      "IslaDeCalor",
-      "Chile"
-    ]
-  },
-  {
-    "id": "5",
-    "title": "Roya en Cuenca: la alerta que llegó 15 días antes que el síntoma",
-    "category": "agrosat",
-    "date": "22–28 jul 2026",
-    "location": "Cuenca, Ecuador",
-    "image": "informe-coffee-hill-opt.jpg",
-    "video": "informe-coffee-hill-video-opt.mp4",
-    "excerpt": "AgroSAT detectó condiciones favorables para la roya del cafeto (Hemileia vastatrix) en Cuenca, Ecuador: la alerta llegó 15 días antes del amarillamiento visible.",
-    "article": "La roya del cafeto (Hemileia vastatrix) no anuncia su llegada: cuando la hoja amarillea, el hongo ya está instalado. En los cafetales de Cuenca (Ecuador), el sistema de alerta temprana detectó la firma antes que el síntoma — en la semana del 22 al 28 de julio de 2026.\n\n### Qué vio el satélite\n\nUna combinación de aumento en la temperatura del dosel y reducción de la vegetación — el patrón consistente con los primeros estadios de la enfermedad, detectado en imágenes de NASA y la Agencia Espacial Europea (programa Copernicus).\n\n### Qué significó para el productor\n\nLa alerta se emitió **15 días antes** de que las hojas mostraran amarillamiento. Los caficultores que la recibieron aplicaron fungicidas preventivos y redujeron el impacto en producción: ventaja medida en cosecha, no en teoría.\n\n### Por qué importa\n\nLa roya es la enfermedad más costosa del café latinoamericano. Quince días de anticipación convierten una emergencia en una tarea de manejo.\n\n*Cuenca, Ecuador. Semana del 22 al 28 de julio de 2026.*",
-    "cta": "¿Sus cafetales están en zona de riesgo? AgroSAT monitorea continuamente y emite alertas tempranas de enfermedad y estrés hídrico a nivel finca.",
-    "hashtags": [
-      "TerraSAT",
-      "AgroSAT",
-      "Café",
-      "Ecuador"
-    ]
-  },
-  {
-    "id": "6",
-    "title": "Montevideo: la única ciudad que no ganó cemento",
-    "category": "urbansat",
-    "date": "May 2026",
-    "location": "Montevideo, Uruguay",
-    "image": "informe-urban-trees-opt.jpg",
-    "video": "informe-urban-trees-video-opt.mp4",
-    "excerpt": "De 12 ciudades analizadas, Montevideo fue la única con superficie construida estable (-1,5 %). Mapeo de cobertura arbórea con imágenes de la Agencia Espacial Europea.",
-    "article": "De doce ciudades latinoamericanas monitoreadas entre enero de 2024 y junio de 2026, Montevideo es la única que no ganó cemento: su superficie construida se mantuvo estable (**-1,5 %**), la señal plana del mapa.\n\n### Qué hace distinta a Montevideo\n\nEl mapeo de su cobertura arbórea urbana —con imágenes de alta resolución de la Agencia Espacial Europea (programa Copernicus)— muestra una ciudad que creció sin comerse su verde: la excepción que permite medir qué tan rápido avanza el resto.\n\n### Por qué importa\n\nUna ciudad estable también es un dato: es la línea base contra la que se mide la expansión desmedida de Santiago (+31,2 %) o Buenos Aires (+28,0 %), y el caso de estudio de qué políticas la hicieron posible.\n\n*Monitoreo UrbanSAT. Montevideo, Uruguay.*",
-    "cta": "¿Su municipio, desarrolladora o aseguradora opera en alguna de estas ciudades? UrbanSAT mide la expansión de área construida y la pérdida de vegetación con observación satelital objetiva: catastro, planificación y evaluación de riesgo en escala metropolitana. Reportes personalizados disponibles.",
-    "hashtags": [
-      "TerraSAT",
-      "UrbanSAT",
-      "ÁreasVerdes",
-      "Uruguay"
+    ],
+    "keyStats": [
+      {
+        "value": "514.000 ha",
+        "label": "con deterioro — 31 % de lo monitoreado"
+      },
+      {
+        "value": "-26 %",
+        "label": "impacto máximo en rendimiento"
+      },
+      {
+        "value": "95 %",
+        "label": "probabilidad de Super El Niño (NOAA)"
+      },
+      {
+        "value": "18 zonas",
+        "label": "agrícolas en 10 países"
+      }
     ]
   }
 ]

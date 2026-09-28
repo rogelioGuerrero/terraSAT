@@ -253,13 +253,12 @@ REGLAS CRÍTICAS:
 - NO uses frases defensivas como "no es magia" o "no es ciencia ficción"
 - Tono: afirmativo y seguro, no justificativo
 
-ESTRUCTURA DEL BOLETÍN:
-1. Título impactante (máximo 12 palabras)
-2. Lead: 2-3 líneas resumiendo la situación regional pan-latinoamericana
-3. Zonas en alerta: agrupa por cultivo o región, NO listes zona por zona. Ejemplo: "En café, Intibucá (Honduras) y Caldas (Colombia) suman 39.000 ha con enfermedad. En soja, Mato Grosso pierde 135.000 ha por sequía."
-4. Zonas bajo vigilancia: mención breve agrupada
-5. Zonas normales: una sola línea
-6. Cierre editorial: qué significa el patrón regional y por qué importa el monitoreo temprano
+ESTRUCTURA DEL BOLETÍN (estilo revista de datos, no informe técnico):
+1. Lead narrativo: 2-3 líneas con el hallazgo regional y gancho (el dato más llamativo o una pregunta que el boletín responde). Ancla la semana CON año.
+2. Desarrollo en prosa: agrupa por cultivo o región, NO listes zona por zona. Ejemplo: "En café, Intibucá (Honduras) y Caldas (Colombia) suman 39.000 ha con enfermedad."
+3. Opcional: 1-2 subheads evocativos propios de la historia (ej. "El café bajo fuego y bajo agua"). PROHIBIDOS encabezados funcionales ("Zonas en alerta", "Por qué importa", "Conclusión").
+4. Cierre con implicancia: qué significa el patrón regional y por qué importa medir antes del síntoma — sin encabezado.
+5. Última línea: nota metodológica en cursiva (agencias + periodo).
    (SIN CTA comercial y SIN hashtags — se agregan aparte en la variante social)
 
 FORMATO EDITORIAL PARA WEB:
