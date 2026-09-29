@@ -29,6 +29,7 @@ const PRODUCT_SPECS = {
     category: "agrosat",
     zonesPath: resolve(ROOT, "scripts", "agro-zones.json"),
     articlePath: resolve(ROOT, "scripts", "generated-article.txt"),
+    socialPath: resolve(ROOT, "scripts", "generated-article-social.txt"),
     photoQuery: "agriculture crop field aerial drone",
     videoQuery: "drought agriculture field dry aerial",
   },
@@ -37,6 +38,7 @@ const PRODUCT_SPECS = {
     category: "forestsat",
     zonesPath: resolve(ROOT, "scripts", "forest-zones.json"),
     articlePath: resolve(ROOT, "scripts", "generated-article-forest.txt"),
+    socialPath: resolve(ROOT, "scripts", "generated-article-forest-social.txt"),
     photoQuery: "tropical forest canopy aerial amazon",
     videoQuery: "forest canopy aerial jungle",
   },
@@ -45,6 +47,7 @@ const PRODUCT_SPECS = {
     category: "urbansat",
     zonesPath: resolve(ROOT, "scripts", "urban-zones.json"),
     articlePath: resolve(ROOT, "scripts", "generated-article-urban.txt"),
+    socialPath: resolve(ROOT, "scripts", "generated-article-urban-social.txt"),
     photoQuery: "city aerial buildings skyline latin america",
     videoQuery: "city aerial drone buildings construction",
   },
@@ -80,6 +83,30 @@ function sanitizeText(s) {
     .replace(EMOJI_RE, "")
     .replace(/\s{2,}/g, " ")
     .trim();
+}
+
+// El artículo web va limpio (sin CTA ni hashtags), pero la SPA renderiza
+// ambos aparte — los extrae de la variante social generada por
+// article_pipeline.social_version(): "<artículo>\n\n<cta> 🌱☕\n\n#tags".
+function extractSocialExtras() {
+  if (!existsSync(SPEC.socialPath)) return {};
+  const lines = readFileSync(SPEC.socialPath, "utf8")
+    .replace(/\r\n?/g, "\n")
+    .split("\n");
+  const hashtags = [];
+  while (lines.length) {
+    const last = lines[lines.length - 1].trim();
+    if (!last) { lines.pop(); continue; }
+    if (/^#[\p{L}\d_]+(\s+#[\p{L}\d_]+)*$/u.test(last)) {
+      hashtags.unshift(...last.split(/\s+/).map((t) => t.replace(/^#/, "")));
+      lines.pop();
+    } else break;
+  }
+  const idx = lines.findIndex(
+    (l) => l.includes("info@agtisa.com") || l.trim().startsWith("¿Su ")
+  );
+  const cta = idx >= 0 ? sanitizeText(lines[idx]) : "";
+  return { ...(cta ? { cta } : {}), ...(hashtags.length ? { hashtags } : {}) };
 }
 
 function formatPeriod(isoRange) {
@@ -268,6 +295,7 @@ async function main() {
     ...(NO_VIDEO ? {} : { video: videoFile }),
     excerpt,
     article,
+    ...extractSocialExtras(),
     ...(meta.keyStats ? { keyStats: meta.keyStats } : {}),
   };
 

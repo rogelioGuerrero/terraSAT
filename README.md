@@ -55,6 +55,12 @@ estado de fases. El pipeline completo es:
    - **Graph API**: `node scripts/fb-post.mjs "<imagen>" "@scripts/generated-article.txt"` (solo si la app tiene permisos pages_*; `--dry-run` para previsualizar)
    - **Manual**: subir imagen + pegar artículo en el compositor de la página (o copiar el texto del informe publicado en https://terrasat.agtisa.com)
 7. Actualizar SPA: `node scripts/publish-informe.mjs [--product agro|forest|urban]` (genera entrada en `informes.json` + foto/video de Pexels en `web/src/assets/`; `--dry-run` para previsualizar, `--force` para recrear). Idempotente por período+producto.
+8. Deploy del sitio: `cd web && npm run build` y luego
+   `npx netlify-cli deploy --dir=dist --prod` — el sitio Netlify
+   (`terrasat`, site id `4a7c0880-c95c-414f-b5c0-d6a7385d67eb`,
+   https://terrasat.agtisa.com) NO está conectado al repo: no hay
+   auto-deploy por push. Requiere `NETLIFY_AUTH_TOKEN` en `.env`,
+   o deploy manual desde el dashboard (drag & drop de `web/dist`).
 
 ---
 
