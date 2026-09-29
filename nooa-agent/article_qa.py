@@ -203,12 +203,15 @@ def validate_format(article: str, title: str = "") -> list[str]:
         errors.append(f"Separadores de miles mixtos ({' + '.join(used)}) — usar punto: 55.000")
 
     # ─── Legibilidad (público no técnico) ─────────────────────────────
-    # Solo prosa: las tablas markdown y los encabezados no son oraciones.
+    # Solo prosa: las tablas markdown, los encabezados y las reglas
+    # horizontales (---) no son oraciones. Un lead-in terminado en ':' que
+    # precede una tabla/lista tampoco se pega a la oración siguiente.
     prose = "\n".join(
         l for l in article.split("\n")
         if not l.lstrip().startswith(("|", "#"))
+        and not re.fullmatch(r"\s*([-*_])(?:\s*\1){2,}\s*", l)
     )
-    for s in re.split(r"[.!?…]+\s", prose):
+    for s in re.split(r"[.!?…]+\s|:\s*(?=\n)", prose):
         wc = len(s.split())
         if wc > 45:
             errors.append(f"Oración demasiado larga ({wc} palabras): '{s.strip()[:60]}…'")

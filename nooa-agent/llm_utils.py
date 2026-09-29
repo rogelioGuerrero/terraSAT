@@ -45,6 +45,7 @@ def llm_call(
     model: str | None = None,
     max_retries: int = DEFAULT_MAX_RETRIES,
     timeout: int = DEFAULT_TIMEOUT,
+    **completion_kwargs: Any,
 ) -> Any:
     """
     Llama al LLM con retry exponencial, timeout y rate limit handling.
@@ -88,6 +89,7 @@ def llm_call(
                 "max_tokens": max_tokens,
                 "timeout": timeout,
             }
+            kwargs.update(completion_kwargs)
             if tools:
                 kwargs["tools"] = tools
 

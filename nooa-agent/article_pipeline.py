@@ -126,6 +126,10 @@ def _llm(system: str, user: str, max_tokens: int = 4000) -> str:
     resp = llm_call(
         messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
         temperature=0.6, max_tokens=max_tokens,
+        # gpt-oss razona en completion_tokens: con "medium/high" agota el
+        # budget y devuelve content vacío (finish_reason=length). "low" basta
+        # para copy editorial y deja margen para la respuesta.
+        reasoning_effort="low",
     )
     content = (resp.choices[0].message.content or "").strip()
     if not content:
@@ -384,6 +388,22 @@ def phase_qa(cfg: dict, zones_doc: dict, edited: dict) -> tuple[dict, list[str]]
         errors += validate_format(fixed, edited.get("title", ""))
     except Exception as e:
         log.warning(f"Repair pass fallo: {e}")
+
+    # El repair anterior solo toca el artículo; un título >90 chars quedaba
+    # en deadlock (QA siempre fallaba igual). Acortarlo con un pass aparte.
+    if any("Título" in e for e in errors):
+        try:
+            edited["title"] = _llm(
+                f"Editor de {cfg['name']}. Reescribe el título en máximo 90 "
+                "caracteres conservando la cifra clave. Devuelve solo el título, "
+                "sin comillas ni markdown.",
+                f"TÍTULO:\n{edited['title']}",
+                300,
+            ).strip().strip('"').strip("'")
+            errors = validate_article(edited["article"], zones_doc)
+            errors += validate_format(edited["article"], edited.get("title", ""))
+        except Exception as e:
+            log.warning(f"Repair de título falló: {e}")
     return edited, errors
 
 
@@ -454,7 +474,8 @@ def generate(product: str, zones_doc: dict | None = None,
 
     # Artículo final para la WEB (limpio: sin CTA ni hashtags).
     # La variante social se compone aparte — ver social_version().
-    return state["article"].strip()
+    # En corridas por fases (--phase) el artículo puede no existir aún.
+    return (state.get("article") or "").strip()
 
 
 def social_version(product: str, article: str) -> str:
