@@ -27,15 +27,15 @@ Informe mensual con mapa interactivo de nuevas construcciones, islas de calor ur
 
 ## Pipeline de publicación
 
-**Automatizado** (`.github/workflows/agrosat-weekly.yml`): cada lunes 12:00 UTC corre
-análisis → mapa → screenshot → branding → publicación → informe en la SPA → deploy Netlify.
-Secrets requeridos en el repo: `CDSE_USERNAME`, `CDSE_PASSWORD`, `GROQ_API_KEY`,
-`PEXELS_API_KEY`; opcionales: `PUBLISH_WEBHOOK_URL` (publicación FB vía webhook),
-`NETLIFY_AUTH_TOKEN` + `NETLIFY_SITE_ID` (deploy automático del sitio),
-`APPWRITE_ENDPOINT` + `APPWRITE_PROJECT_ID` + `APPWRITE_API_KEY` (+`APPWRITE_DATABASE_ID`,
-default `pricewatch`) para serie histórica y estado de fases.
-`workflow_dispatch` con `dry_run=true` genera todo sin publicar. Si el job falla, el
-mismo pipeline se corre manual:
+**Manual** (desde el repo, con `.env` local): el pipeline semanal corre a mano —
+antes hubo una GH Action (`agrosat-weekly.yml`) pero se retiró: demasiados
+secrets que mantener en CI para el valor que daba. Variables en `.env`:
+`CDSE_USERNAME`, `CDSE_PASSWORD`, `GROQ_API_KEY`, `PEXELS_API_KEY`;
+opcionales: `PUBLISH_WEBHOOK_URL` (publicación FB vía webhook),
+`NETLIFY_AUTH_TOKEN` + `NETLIFY_SITE_ID` (deploy del sitio),
+`APPWRITE_ENDPOINT` + `APPWRITE_PROJECT_ID` + `APPWRITE_API_KEY`
+(+`APPWRITE_DATABASE_ID`, default `pricewatch`) para serie histórica y
+estado de fases. El pipeline completo es:
 
 1. Generar análisis: `python nooa-agent/demo_alerta_temprana_regional.py` (AgroSAT) o `python nooa-agent/demo_urban_sat.py` (UrbanSAT)
    - AgroSAT usa **datos reales** por defecto: Sentinel-2 L2A (NDVI/NDRE via CDSE Statistical API, máscara de nubes SCL) + precipitación Open-Meteo/ERA5 vs climatología de 5 años. Ventana actual (21 días) vs mismo período del año anterior. Zonas sin imagen limpia salen como "sin datos". Usar `--simulate` para la simulación histórica.
