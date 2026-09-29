@@ -23,3 +23,7 @@ Contrasta con el **Gran Chaco Argentino**, donde el dNDVI (**+0,1496**) y el NBR
 **Implicancia**: la combinación de índices (NDVI, NBR, NDBI y NDWI) no solo cuantifica la superficie perdida, sino que identifica la **naturaleza del proceso** (tala, quemas, expansión urbana). Esta información es clave para orientar políticas de conservación específicas a cada zona.
 
 *Datos de satélites de la Agencia Espacial Europea y NASA, procesados por ForestSAT, periodo julio‑septiembre 2026.*
+
+¿Su organización gestiona bosques, áreas protegidas o monitorea cambio de uso de suelo? ForestSAT detecta pérdida de cobertura y señales de quema en escala regional con datos satelitales verificables. Reportes personalizados para gobiernos, ONGs y aseguradoras. Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com 🌱☕
+
+#TerraSAT #ForestSAT #AlertaTemprana #Satélite

@@ -1,5 +1,88 @@
 [
   {
+    "id": "14",
+    "title": "Quito lidera expansión urbana con 14.700 ha nuevos en los Andes",
+    "category": "urbansat",
+    "date": "30 jul–28 sep 2026",
+    "location": "10 zonas de 8 países de LAC",
+    "image": "informe-urbansat-20260928-opt.jpg",
+    "video": "informe-urbansat-20260928-video-opt.mp4",
+    "excerpt": "Entre julio y septiembre de 2026 Quito añadió 14.700 ha de superficie construida, representando el 14,7 % del área monitoreada de 100.000 ha. En contraste, Managua registró 11.200 ha de expansión, mientras que otras",
+    "article": "# Quito lidera la expansión urbana en los Andes con 14.700 ha nuevos\r\n\r\n**Entre julio y septiembre de 2026** la zona andina mostró la mayor presión territorial: la capital ecuatoriana sumó **14.700 ha** de nueva superficie construida, más que cualquier otra metrópolis del estudio. ¿Qué implica este ritmo de urbanización para los habitantes y el medio ambiente?\r\n\r\n---\r\n\r\n## El cemento no espera\r\n\r\n- **Área total monitoreada en Quito:** 100.000 ha  \r\n- **Superficie afectada:** **14.700 ha** (14,7 % del área observada)  \r\n- **Δ NDBI:** +0,053 → fuerte aumento de superficies impermeables.  \r\n- **Δ NDVI (índice de vigor de la vegetación):** –0,0667 → pérdida de vigor vegetal.  \r\n- **Δ NBR (índice de quemado):** –0,0654 → deterioro de la calidad de la cubierta vegetal.  \r\n- **Δ NDWI (índice de humedad del suelo):** +0,0376 → ligera reducción de la humedad del suelo.  \r\n- **Píxeles degradados:** 14,7 % del área monitoreada.  \r\n\r\n**Qué significa para la ciudad:** la expansión está acompañada de una degradación visible de la vegetación y una disminución de la capacidad de retención de agua del suelo. Esto eleva el riesgo de inundaciones y deslizamientos en una zona ya propensa a eventos extremos. Además, la pérdida de áreas verdes reduce los servicios ecosistémicos que benefician a la población, como la regulación del clima y la calidad del aire.\r\n\r\n---\r\n\r\n## Riesgos en la cordillera\r\n\r\nEl corredor centroamericano también muestra crecimiento, aunque menos intenso:\r\n\r\n| Ciudad | Área afectada (ha) | % Área afectada | Δ NDBI | Δ NDVI (índice de vigor de la vegetación) | % Píxeles degradados |\r\n|--------|-------------------|----------------|--------|-------------------------------------------|----------------------|\r\n| Managua (Nicaragua) | 11.200 | 14,0 % | +0,048 | +0,0029 | 14,0 % |\r\n| Tegucigalpa (Honduras) | 8.600 | 10,8 % | +0,042 | –0,015 | 12,5 % |\r\n| San Pedro Sula (Honduras) | 4.300 | 4,8 % | +0,030 | –0,008 | 9,8 % |\r\n| Ciudad de Guatemala (Guatemala) | 10.300 | 8,6 % | +0,035 | –0,013 | 13,2 % |\r\n| San Salvador (El Salvador) | 0 | 0,0 % | +0,031 | +0,022 | 0,0 % |\r\n\r\nEn estas ciudades el **Δ NDBI positivo** indica expansión de áreas construidas, mientras que el **Δ NDVI ligeramente negativo o casi neutro** sugiere que la vegetación perdida es moderada o que la expansión ocurre sobre suelos ya poco vegetados. La fracción de píxeles degradados (entre 0 % y 14 %) señala una presión creciente sobre cuencas y biodiversidad local, aunque menos aguda que en Quito.\r\n\r\n---\r\n\r\n## Contrastes que alertan\r\n\r\n- **Bogotá** registra la mayor pérdida de vegetación (**Δ NDVI –0,102**) sin ninguna ganancia de superficie construida, lo que apunta a procesos de degradación urbana no vinculados a expansión física.  \r\n- **Lima** y **Ciudad de México** aparecen sin áreas afectadas ni píxeles degradados; la tendencia positiva del NDWI en Lima (+0,081) indica una mejora de la humedad del suelo, reflejo de políticas de control territorial más restrictivas.  \r\n- **Managua**, a pesar de un **Δ NDVI casi neutro (+0,0029)**, muestra la mayor fracción de píxeles degradados (14,0 %) y la segunda mayor superficie nueva (11.200 ha), señal de una expansión rápida sobre terrenos ya escasamente vegetados.\r\n\r\n---\r\n\r\n**En síntesis**, la región andina está experimentando una urbanización acelerada que supera al resto de la zona, mientras que algunas megaciudades costeras mantienen una estabilidad aparente. La evidencia satelital obliga a revisar los planes de ordenamiento territorial y a implementar medidas de mitigación de riesgos, especialmente en cuencas vulnerables.\r\n\r\n*Datos de satélites de la Agencia Espacial Europea y NASA, periodo julio‑septiembre 2026, índices NDBI, NDVI, NBR y NDWI.*",
+    "keyStats": [
+      {
+        "value": "14.700 ha",
+        "label": "Superficie nueva en Quito"
+      },
+      {
+        "value": "100.000 ha",
+        "label": "Área total monitoreada en Quito"
+      },
+      {
+        "value": "14,7 %",
+        "label": "Porcentaje de píxeles degradados en Quito"
+      },
+      {
+        "value": "11.200 ha",
+        "label": "Superficie nueva en Managua"
+      }
+    ]
+  },
+  {
+    "id": "13",
+    "title": "Alerta de degradación: Chaco Paraguayo y Petén pierden miles de hectáreas",
+    "category": "forestsat",
+    "date": "30 jul–28 sep 2026",
+    "location": "10 zonas de 9 países de LAC",
+    "image": "informe-forestsat-20260928-opt.jpg",
+    "video": "informe-forestsat-20260928-video-opt.mp4",
+    "excerpt": "Entre julio y septiembre de 2026 los satélites detectaron una pérdida de 49.800 ha en el Chaco Paraguayo y 28.500 ha en el Petén, mientras La Mosquitia perdió 21.800 ha, evidenciando una fuerte degradación regional.",
+    "article": "# Alerta de degradación: Chaco Paraguayo pierde 49.800 ha y Petén 28.500 ha\r\n\r\nEntre julio y septiembre de 2026 los datos satelitales de la Agencia Espacial Europea y NASA mostraron que **49.800 ha** desaparecieron del **Chaco Paraguayo** y **28.500 ha** del **Petén**. ¿Qué implica esta pérdida para la región y por qué algunas áreas parecen recuperarse? El análisis de los índices de vegetación y humedad revela patrones contrastantes que demandan respuestas distintas.\r\n\r\n## Bosques secos bajo presión\r\n\r\nEn el **Chaco Paraguayo** (300.000 ha) la pérdida representa más del **16 %** del territorio monitoreado. El descenso del NDVI (**‑0,0651**) indica una merma del vigor fotosintético, mientras que el NBR (**‑0,092**) sugiere mayor estrés hídrico o quemas recientes. El aumento del NDBI (**+0,075**) apunta a una expansión de suelos desnudos o áreas urbanizadas, y el NDWI (**+0,051**) refleja una mayor exposición de suelos secos. En conjunto, estos indicadores confirman una **deforestación y degradación estructural** que favorece la conversión a usos agrícolas o ganaderos. La magnitud del cambio obliga a medidas de protección inmediata.\r\n\r\n## Selvas húmedas en degradación silenciosa\r\n\r\nEn la selva del **Petén** (250.000 ha) la pérdida de **28.500 ha** equivale al **11 %** del área. El NDVI (**‑0,0683**) y el NBR (**‑0,055**) disminuyen, señalando una vegetación menos densa y posible quemado de bajo nivel. El leve aumento del NDBI (**+0,050**) sugiere la aparición de claros agrícolas dentro del bosque, y el NDWI (**+0,057**) indica cambios en la humedad del suelo tras la tala. Aunque la superficie perdida es menor que en el Chaco, la **degradación estructural** reduce la resiliencia del ecosistema y favorece la fragmentación.\r\n\r\nEn la **La Mosquitia** (250.000 ha) la pérdida de **21.800 ha** (≈ 9 %) muestra una caída del NDVI (**‑0,0469**) y un NBR apenas negativo (**‑0,010**). La estabilidad del NDBI (**0,000**) sugiere que la presión agrícola aún es incipiente, ofreciendo una ventana para intervenciones preventivas antes de que la degradación se acelere.\r\n\r\n## Recuperación inesperada en bosques secos\r\n\r\nContrasta con el **Gran Chaco Argentino**, donde el dNDVI (**+0,1496**) y el NBR (**+0,155**) indican un notable aumento del vigor vegetal y reducción del estrés. Aunque clasificado como normal, este crecimiento sugiere una **recuperación** que podría deberse a políticas de reforestación o a ciclos climáticos favorables. No obstante, la zona sigue bajo vigilancia para detectar posibles degradaciones latentes.\r\n\r\n## Oportunidades de intervención temprana\r\n\r\nÁreas bajo vigilancia como **Darién** y **Madre de Dios** presentan degradación incipiente (pix_degradados **0,0956** y **0,0569**, respectivamente) sin pérdida de superficie clara. Estos patrones revelan **fragmentación y disminución de biomasa** que, de no abordarse, podrían escalar rápidamente. La detección temprana permite diseñar acciones de restauración antes de que la pérdida sea irreversible.\r\n\r\n**Implicancia**: la combinación de índices (NDVI, NBR, NDBI y NDWI) no solo cuantifica la superficie perdida, sino que identifica la **naturaleza del proceso** (tala, quemas, expansión urbana). Esta información es clave para orientar políticas de conservación específicas a cada zona.\r\n\r\n*Datos de satélites de la Agencia Espacial Europea y NASA, procesados por ForestSAT, periodo julio‑septiembre 2026.*",
+    "keyStats": [
+      {
+        "value": "49.800 ha",
+        "label": "pérdida en Chaco Paraguayo"
+      },
+      {
+        "value": "28.500 ha",
+        "label": "pérdida en Petén"
+      },
+      {
+        "value": "21.800 ha",
+        "label": "pérdida en La Mosquitia"
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "title": "Déficit hídrico amenaza cafés de Alta Verapaz y otras regiones",
+    "category": "agrosat",
+    "date": "7–28 sep 2026",
+    "location": "13 zonas de 7 países de LAC",
+    "image": "informe-agrosat-20260928-opt.jpg",
+    "video": "informe-agrosat-20260928-video-opt.mp4",
+    "excerpt": "Entre julio y septiembre de 2026, Alta Verapaz (Guatemala) reportó 13.800 ha degradadas, mientras que Mendoza (Argentina) sufrió deterioro en 7.100 ha de viñedos.",
+    "article": "Entre julio y septiembre de 2026, el déficit hídrico pone en jaque la producción de café en Centroamérica. **Alta Verapaz (Guatemala)** encabeza la lista con **13.800 ha** degradadas y la mayor caída de **NDVI (‑0,1033)**, lo que implica una pérdida de vigor foliar que puede traducirse en rendimientos hasta un 20 % inferiores.\r\n\r\n**El café bajo presión**\r\n\r\nEn **Alta Verapaz**, más del 26 % de los píxeles monitoreados presentan degradación y la precipitación se sitúa **‑51,6 %** por debajo de lo esperado, una combinación que eleva el riesgo de pérdidas económicas para los productores. **Caldas (Colombia)** y **Quindío (Colombia)** siguen la tendencia, con caídas de NDVI de **‑0,1007** y **‑0,0468** respectivamente, aunque la proporción de áreas degradadas es menor en Quindío, indicando una respuesta algo más resiliente.\r\n\r\n**Contrastes que hablan**\r\n\r\nA diferencia de la situación centroamericana, **Minas Gerais (Brasil)** registra un **NDVI positivo (+0,1473)** y lluvias **1.536,4 %** superiores a la media, lo que se traduce en un vigor vegetal notable y ausencia de áreas degradadas. De forma similar, **São Paulo (Brasil)** muestra un incremento de NDVI de **+0,1368** con precipitaciones **471,5 %** por encima de lo normal, confirmando que la abundancia de agua puede revertir tendencias negativas.\r\n\r\nSin embargo, el exceso hídrico no garantiza resultados uniformes: **Mendoza (Argentina)**, a pesar de lluvias **+63,4 %**, presenta un deterioro temprano en **7.100 ha** de viñedos, evidenciando que factores como la temperatura y la gestión agronómica también influyen.\r\n\r\n**Implicancias para los productores**\r\n\r\nLos caficultores de **Alta Verapaz**, **Caldas** y **Quindío** deben priorizar medidas de manejo de agua, como sistemas de riego de precisión y cobertura del suelo. Además, es necesario reforzar la vigilancia fitopatológica para mitigar el impacto de enfermedades que pueden agravar el estrés hídrico. En regiones con lluvias abundantes, la atención debe centrarse en prevenir problemas asociados al exceso de humedad, como enfermedades fúngicas.\r\n\r\n*Satélites de la Agencia Espacial Europea (Copernicus) – periodo julio‑septiembre 2026 – índices NDVI, NDRE, NBR, NDBI y NDWI.*",
+    "keyStats": [
+      {
+        "value": "13.800 ha",
+        "label": "hectáreas degradadas en Alta Verapaz"
+      },
+      {
+        "value": "‑0,1033",
+        "label": "caída NDVI en Alta Verapaz"
+      },
+      {
+        "value": "‑51,6 %",
+        "label": "deficit de precipitación en Alta Verapaz"
+      },
+      {
+        "value": "7.100 ha",
+        "label": "viñedos afectados en Mendoza"
+      }
+    ]
+  },
+  {
     "id": "11",
     "title": "Expansión urbana sin precedentes en Quito y presión creciente en capitales",
     "category": "urbansat",
