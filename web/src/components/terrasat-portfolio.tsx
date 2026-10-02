@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import type { Components } from "react-markdown"
-import { MapPin, Calendar, ArrowUpRight, ChevronDown } from "lucide-react"
+import { MapPin, Calendar, ArrowUpRight, ChevronDown, Copy, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import informesData from "@/data/informes.json"
 import {
@@ -114,6 +114,42 @@ function normalizeText(s: string): string {
   return normalizeNumbers(stripEmojis(s))
 }
 
+/** Markdown → texto plano listo para pegar en Facebook.
+ *  Quita figuras (![] + caption "*Figura N —") y sintaxis md;
+ *  conserva saltos de párrafo, listas "- " y emojis (válidos en FB). */
+function toPlainText(md: string): string {
+  return md
+    .split("\n")
+    .filter((l) => !l.trim().startsWith("!["))
+    .filter((l) => !/^\s*\*Figura\s/.test(l))
+    .join("\n")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\*\*(.+?)\*\*/gs, "$1")
+    .replace(/(^|\n|[ (])\*([^*\n]+)\*/g, "$1$2")
+    .replace(/^_+|_+$/gm, "")
+    .replace(/[`*_~]/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/[^\S\n]{2,}/g, " ")
+    .trim()
+}
+
+/** Post de FB listo: título + cuerpo plano + CTA + hashtags. */
+function buildFbText(informe: Informe, parts: SplitArticle): string {
+  const cta = informe.cta || parts.cta
+  const tags = (informe.hashtags ?? parts.hashtags).map((h) => `#${h}`)
+  const body = toPlainText(parts.body)
+  return [
+    sanitizeTitle(informe.title),
+    body,
+    cta,
+    tags.join(" "),
+  ]
+    .filter(Boolean)
+    .join("\n\n")
+}
+
 interface SplitArticle {
   body: string
   cta: string
@@ -216,6 +252,29 @@ export function TerraSATPortfolio() {
   const [filter, setFilter] = useState<"all" | "agrosat" | "urbansat" | "forestsat">("all")
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const [selected, setSelected] = useState<Informe | null>(null)
+  const [copyMenu, setCopyMenu] = useState(false)
+  const [copied, setCopied] = useState<"fb" | "md" | null>(null)
+
+  async function copyInforme(kind: "fb" | "md") {
+    if (!selected || !selectedParts) return
+    const text =
+      kind === "fb"
+        ? buildFbText(selected, selectedParts)
+        : `${selected.title}\n\n${selected.article ?? selected.excerpt}`
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      const ta = document.createElement("textarea")
+      ta.value = text
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand("copy")
+      ta.remove()
+    }
+    setCopied(kind)
+    setCopyMenu(false)
+    setTimeout(() => setCopied(null), 2000)
+  }
 
   const filtered = filter === "all" ? informes : informes.filter((b) => b.category === filter)
   const visible = filtered.slice(0, visibleCount)
@@ -478,6 +537,51 @@ export function TerraSATPortfolio() {
                     ))}
                   </div>
                 ) : null}
+
+                {/* Copiar artículo — texto plano para FB o markdown */}
+                <div className="relative mt-5 flex justify-end border-t border-border pt-4">
+                  {copyMenu && (
+                    <div className="absolute bottom-full right-0 mb-2 w-52 overflow-hidden rounded-lg border border-border bg-background shadow-lg">
+                      <button
+                        type="button"
+                        onClick={() => copyInforme("fb")}
+                        className="block w-full px-3.5 py-2.5 text-left text-sm hover:bg-muted"
+                      >
+                        Texto plano
+                        <span className="block text-xs text-muted-foreground">
+                          Listo para Facebook — sin figuras ni markdown
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => copyInforme("md")}
+                        className="block w-full border-t border-border px-3.5 py-2.5 text-left text-sm hover:bg-muted"
+                      >
+                        Markdown
+                        <span className="block text-xs text-muted-foreground">
+                          Artículo crudo con sintaxis y figuras
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setCopyMenu((v) => !v)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 text-green-600" />
+                        Copiado
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5" />
+                        Copiar artículo
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </>
           )}
