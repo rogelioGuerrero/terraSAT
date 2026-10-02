@@ -10,7 +10,8 @@
  * Uso: node scripts/publish-informe.mjs [--dry-run] [--no-video] [--force]
  */
 
-import { readFileSync, writeFileSync, existsSync, unlinkSync, statSync } from "fs";
+import { readFileSync, writeFileSync, existsSync, unlinkSync, statSync, mkdirSync } from "fs";
+import { execFileSync } from "child_process";
 import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
@@ -21,7 +22,11 @@ import { fetchPexels, searchPexelsVideos, toClipMetadata } from "./pexels-utils.
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const ASSETS = resolve(ROOT, "web", "src", "assets");
+const FIGS_DIR = resolve(ROOT, "web", "public", "figs");
 const INFORMES_JSON = resolve(ROOT, "web", "src", "data", "informes.json");
+const PYTHON = existsSync(resolve(ROOT, ".venv", "Scripts", "python.exe"))
+  ? resolve(ROOT, ".venv", "Scripts", "python.exe")
+  : "python";
 
 const PRODUCT_SPECS = {
   agro: {
@@ -32,6 +37,7 @@ const PRODUCT_SPECS = {
     socialPath: resolve(ROOT, "scripts", "generated-article-social.txt"),
     photoQuery: "agriculture crop field aerial drone",
     videoQuery: "drought agriculture field dry aerial",
+    mapTitle: "Estrés vegetativo en cultivos de Latinoamérica",
   },
   forest: {
     name: "ForestSAT",
@@ -41,6 +47,7 @@ const PRODUCT_SPECS = {
     socialPath: resolve(ROOT, "scripts", "generated-article-forest-social.txt"),
     photoQuery: "tropical forest canopy aerial amazon",
     videoQuery: "forest canopy aerial jungle",
+    mapTitle: "Estado de la cobertura forestal en Latinoamérica",
   },
   urban: {
     name: "UrbanSAT",
@@ -50,6 +57,7 @@ const PRODUCT_SPECS = {
     socialPath: resolve(ROOT, "scripts", "generated-article-urban-social.txt"),
     photoQuery: "city aerial buildings skyline latin america",
     videoQuery: "city aerial drone buildings construction",
+    mapTitle: "Cambio urbano detectado en ciudades de Latinoamérica",
   },
 };
 
@@ -209,6 +217,51 @@ function fallbackTitleExcerpt(article, zones) {
   return { title, excerpt: excerpt.slice(0, 220) };
 }
 
+// Figuras editoriales (estilo JRC): coropleta admin-1 (ECharts SSR) +
+// barras matplotlib. Los nombres coinciden con los que article_pipeline
+// inyecta en el markdown: /figs/<category>-<yyyymmdd>-<key>.png
+function genFigures(figPrefix) {
+  mkdirSync(FIGS_DIR, { recursive: true });
+  const failed = [];
+  try {
+    execFileSync("node", [
+      resolve(ROOT, "scripts", "gen-choropleth-echarts.mjs"),
+      "--zones", ZONES_PATH,
+      "--out", join(FIGS_DIR, `${figPrefix}-mapa.png`),
+      "--title", SPEC.mapTitle,
+      "--subtitle", "Unidad admin-1 coloreada por estado de la zona monitoreada",
+    ], { stdio: "inherit", cwd: ROOT });
+  } catch {
+    failed.push("mapa");
+  }
+  try {
+    execFileSync(PYTHON, [
+      resolve(ROOT, "nooa-agent", "gen_fig_editorial.py"),
+      "--zones", ZONES_PATH,
+      "--out-dir", FIGS_DIR,
+      "--prefix", figPrefix,
+    ], { stdio: "inherit", cwd: ROOT });
+  } catch {
+    failed.push("ndvi", "ha");
+  }
+  return failed;
+}
+
+// Si una figura no se pudo generar, se quita su bloque (img + caption)
+// y se renumeran las restantes — el informe queda publicable igual.
+function stripFailedFigs(article, failedKeys) {
+  let out = article;
+  for (const k of failedKeys) {
+    out = out.replace(
+      new RegExp(`\\n?!\\[[^\\]]*\\]\\([^)]*-${k}\\.png\\)\\s*\\n?\\s*\\*Figura[^*]*\\*`, "g"),
+      "\n\n"
+    );
+  }
+  let n = 0;
+  out = out.replace(/\*Figura \d+ —/g, () => `*Figura ${++n} —`);
+  return out.replace(/\n{3,}/g, "\n\n").trim();
+}
+
 async function fetchPhoto(query, outPath) {
   const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=8&orientation=landscape`;
   const data = await fetchPexels(url);
@@ -304,6 +357,18 @@ async function main() {
     console.log(JSON.stringify({ ...entry, article: article.slice(0, 120) + "…" }, null, 2));
     console.log(`Assets: ${imageFile}, ${NO_VIDEO ? "(sin video)" : videoFile}`);
     return;
+  }
+
+  // Figuras editoriales: solo si el artículo referencia /figs/ (las
+  // inyecta article_pipeline.inject_figures). Si alguna falla se quita
+  // su bloque del artículo — el informe queda publicable igual.
+  if (article.includes("/figs/")) {
+    console.log("Generando figuras editoriales (coropleta + barras)...");
+    const failed = genFigures(`${SPEC.category}-${endDate}`);
+    if (failed.length) {
+      console.warn(`  Figuras no generadas: ${failed.join(", ")} — se quitan del artículo`);
+      entry.article = stripFailedFigs(article, failed);
+    }
   }
 
   console.log(`Descargando assets para ${slug}...`);

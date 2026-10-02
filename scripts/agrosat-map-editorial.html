@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Estrés vegetativo en cultivos de Latinoamérica — 7–28 sep 2026 vs mismo período 2025</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #fff; }
+  #map { width: 100%; height: 100vh; }
+  .zone-label {
+    font-size: 12px; font-weight: 700; color: #0f172a;
+    text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 0 5px #fff;
+    white-space: nowrap; transform: translate(-50%, -50%); text-align: center;
+  }
+  .leaflet-popup-content { font-size: 13px; line-height: 1.5; }
+  #titlebox {
+    position: absolute; top: 14px; left: 14px; z-index: 1000;
+    background: rgba(255,255,255,0.95); padding: 10px 14px;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); max-width: 460px;
+  }
+  #titlebox h1 { font-size: 15px; font-weight: 700; color: #0f172a; }
+  #titlebox p { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+  #legend {
+    position: absolute; bottom: 18px; right: 14px; z-index: 1000;
+    background: rgba(255,255,255,0.95); padding: 10px 14px;
+    border: 1px solid #e2e8f0; border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-size: 12px; color: #334155;
+  }
+  #legend .lg-title { font-size: 11px; font-weight: 700; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .lg-item { display: flex; align-items: center; gap: 7px; margin: 3px 0; }
+  .lg-swatch { width: 14px; height: 10px; border-radius: 2px; opacity: 0.8;
+    border: 1px solid rgba(0,0,0,0.15); }
+  .lg-n { color: #94a3b8; }
+  #legend .lg-stats { margin-top: 7px; padding-top: 7px;
+    border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; }
+  #attrib {
+    position: absolute; bottom: 4px; left: 8px; z-index: 1000;
+    font-size: 10px; color: #94a3b8;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="titlebox">
+  <h1>Estrés vegetativo en cultivos de Latinoamérica</h1>
+  <p>Cambio en vigor de la vegetación y área degradada por zona · 7–28 sep 2026 vs mismo período 2025</p>
+</div>
+<div id="legend">
+  <div class="lg-title">Estado del cultivo</div>
+  <div class="lg-item"><span class="lg-swatch" style="background:#d95f0e"></span>Alerta <span class="lg-n">(5)</span></div><div class="lg-item"><span class="lg-swatch" style="background:#eab308"></span>Vigilancia <span class="lg-n">(3)</span></div><div class="lg-item"><span class="lg-swatch" style="background:#15803d"></span>Normal <span class="lg-n">(5)</span></div>
+  <div class="lg-stats">13 zonas · 1,355,000 ha · 63,200 ha afectadas</div>
+</div>
+<div id="attrib">Esri, OpenStreetMap contributors · Datos: Copernicus Sentinel-2, ERA5</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  var map = L.map('map', {
+    zoomControl: false, attributionControl: false,
+    scrollWheelZoom: false, dragging: false, doubleClickZoom: false,
+    boxZoom: false, keyboard: false, touchZoom: false
+  });
+
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16
+  }).addTo(map);
+
+  // Capa de referencia: topónimos y límites por encima de las zonas
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16, opacity: 0.85
+  }).addTo(map);
+
+    L.circle([14.35, -88.2], {radius: 36000, fillColor: "#15803d", color: "#15803d",  weight: 1.6, fillOpacity: 0.32, opacity: 0.85}).addTo(map).bindPopup("<b>Intibucá, Honduras</b><br>Cultivo: Café · Estado: Normal<br>Área monitoreada: 45,000 ha");
+    L.circle([14.15, -86.55], {radius: 36000, fillColor: "#eab308", color: "#eab308",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>El Paraíso, Honduras</b><br>Cultivo: Café · Estado: Vigilancia<br>Área monitoreada: 38,000 ha<br>Área afectada: 3,300 ha");
+    L.marker([14.15, -86.55], {interactive: false, icon: L.divIcon({className: "zone-label", html: "El Paraíso", iconSize: [0, 0], iconAnchor: [-10, -20]})}).addTo(map);
+    L.circle([15.58, -90.3], {radius: 38597, fillColor: "#d95f0e", color: "#d95f0e",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>Alta Verapaz, Guatemala</b><br>Cultivo: Café · Estado: Alerta<br>Área monitoreada: 52,000 ha<br>Área afectada: 13,800 ha");
+    L.marker([15.58, -90.3], {interactive: false, icon: L.divIcon({className: "zone-label", html: "Alta Verapaz", iconSize: [0, 0], iconAnchor: [-34, 14]})}).addTo(map);
+    L.circle([13.1, -86.0], {radius: 36000, fillColor: "#eab308", color: "#eab308",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>Jinotega, Nicaragua</b><br>Cultivo: Café · Estado: Vigilancia<br>Área monitoreada: 42,000 ha<br>Área afectada: 3,100 ha");
+    L.marker([13.1, -86.0], {interactive: false, icon: L.divIcon({className: "zone-label", html: "Jinotega", iconSize: [0, 0], iconAnchor: [0, -22]})}).addTo(map);
+    L.circle([5.07, -75.5], {radius: 43152, fillColor: "#d95f0e", color: "#d95f0e",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>Caldas, Colombia</b><br>Cultivo: Café · Estado: Alerta<br>Área monitoreada: 65,000 ha<br>Área afectada: 15,300 ha");
+    L.marker([5.07, -75.5], {interactive: false, icon: L.divIcon({className: "zone-label", html: "Caldas", iconSize: [0, 0], iconAnchor: [18, 20]})}).addTo(map);
+    L.circle([4.46, -75.67], {radius: 37082, fillColor: "#d95f0e", color: "#d95f0e",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>Quindío, Colombia</b><br>Cultivo: Café · Estado: Alerta<br>Área monitoreada: 48,000 ha<br>Área afectada: 4,700 ha");
+    L.marker([4.46, -75.67], {interactive: false, icon: L.divIcon({className: "zone-label", html: "Quindío", iconSize: [0, 0], iconAnchor: [6, -24]})}).addTo(map);
+    L.circle([-19.19, -40.34], {radius: 49346, fillColor: "#d95f0e", color: "#d95f0e",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>Espírito Santo, Brasil</b><br>Cultivo: Café · Estado: Alerta<br>Área monitoreada: 85,000 ha<br>Área afectada: 7,100 ha");
+    L.marker([-19.19, -40.34], {interactive: false, icon: L.divIcon({className: "zone-label", html: "Espírito Santo", iconSize: [0, 0], iconAnchor: [-40, -4]})}).addTo(map);
+    L.circle([-18.7, -44.5], {radius: 58632, fillColor: "#15803d", color: "#15803d",  weight: 1.6, fillOpacity: 0.32, opacity: 0.85}).addTo(map).bindPopup("<b>Minas Gerais, Brasil</b><br>Cultivo: Café · Estado: Normal<br>Área monitoreada: 120,000 ha");
+    L.circle([-12.5, -55.7], {radius: 95746, fillColor: "#15803d", color: "#15803d",  weight: 1.6, fillOpacity: 0.32, opacity: 0.85}).addTo(map).bindPopup("<b>Mato Grosso, Brasil</b><br>Cultivo: Soja · Estado: Normal<br>Área monitoreada: 320,000 ha");
+    L.circle([-31.42, -64.18], {radius: 71810, fillColor: "#15803d", color: "#15803d",  weight: 1.6, fillOpacity: 0.32, opacity: 0.85}).addTo(map).bindPopup("<b>Córdoba, Argentina</b><br>Cultivo: Soja · Estado: Normal<br>Área monitoreada: 180,000 ha");
+    L.circle([-35.0, -71.0], {radius: 39694, fillColor: "#d95f0e", color: "#d95f0e",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>Valle Central, Chile</b><br>Cultivo: Viñas · Estado: Alerta<br>Área monitoreada: 55,000 ha<br>Área afectada: 8,800 ha");
+    L.marker([-35.0, -71.0], {interactive: false, icon: L.divIcon({className: "zone-label", html: "Valle Central", iconSize: [0, 0], iconAnchor: [14, -22]})}).addTo(map);
+    L.circle([-32.89, -68.83], {radius: 52168, fillColor: "#eab308", color: "#eab308",  weight: 2.2, fillOpacity: 0.5, opacity: 0.85}).addTo(map).bindPopup("<b>Mendoza, Argentina</b><br>Cultivo: Viñas · Estado: Vigilancia<br>Área monitoreada: 95,000 ha<br>Área afectada: 7,100 ha");
+    L.marker([-32.89, -68.83], {interactive: false, icon: L.divIcon({className: "zone-label", html: "Mendoza", iconSize: [0, 0], iconAnchor: [-26, 0]})}).addTo(map);
+    L.circle([-22.0, -48.0], {radius: 77563, fillColor: "#15803d", color: "#15803d",  weight: 1.6, fillOpacity: 0.32, opacity: 0.85}).addTo(map).bindPopup("<b>São Paulo, Brasil</b><br>Cultivo: Caña · Estado: Normal<br>Área monitoreada: 210,000 ha");
+
+  map.fitBounds([[-39.0, -97.3], [19.58, -33.34]]);
+</script>
+</body>
+</html>

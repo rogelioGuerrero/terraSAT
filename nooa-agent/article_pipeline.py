@@ -43,6 +43,7 @@ ROOT = Path(__file__).parent.parent
 PRODUCTS = {
     "agro": {
         "name": "AgroSAT",
+        "category": "agrosat",
         "subject": "alerta temprana agroclimática para agricultura productiva",
         "zones_json": "scripts/agro-zones.json",
         "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus) y precipitación ERA5",
@@ -63,9 +64,11 @@ PRODUCTS = {
         "with_rain": True,
         "alert_what": "estrés vegetativo medido en los cultivos",
         "unit_name": "el cultivo",
+        "figures": ("mapa", "ha", "ndvi"),
     },
     "forest": {
         "name": "ForestSAT",
+        "category": "forestsat",
         "subject": "monitoreo satelital de bosques, deforestación y quemas",
         "zones_json": "scripts/forest-zones.json",
         "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus)",
@@ -86,9 +89,11 @@ PRODUCTS = {
         "with_rain": False,
         "alert_what": "pérdida de cobertura forestal, deforestación y cicatrices de quema",
         "unit_name": "la cobertura forestal",
+        "figures": ("mapa", "ha", "ndvi"),
     },
     "urban": {
         "name": "UrbanSAT",
+        "category": "urbansat",
         "subject": "monitoreo satelital de crecimiento urbano y cambio de uso de suelo",
         "zones_json": "scripts/urban-zones.json",
         "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus)",
@@ -111,6 +116,7 @@ PRODUCTS = {
         "with_rain": False,
         "alert_what": "expansión de área construida y pérdida de vegetación urbana y periurbana",
         "unit_name": "la ciudad",
+        "figures": ("mapa", "ha", "ndvi"),
     },
 }
 
@@ -233,6 +239,107 @@ def _zone_rows(cfg: dict, zones_doc: dict, statuses: tuple[str, ...] | None = No
 
 
 # ─────────────────────────────────────────────────────────────────────
+# Figuras editoriales (estilo JRC): slots {{FIG_*}} que el editor ubica
+# en la narrativa; inject_figures() los convierte en markdown real con
+# captions deterministas — verificables por article_qa como el resto.
+# publish-informe.mjs genera los PNG en web/public/figs/ con estos
+# mismos nombres de archivo.
+# ─────────────────────────────────────────────────────────────────────
+
+_MESES = ["ene", "feb", "mar", "abr", "may", "jun",
+          "jul", "ago", "sep", "oct", "nov", "dic"]
+
+
+def _fmt_period(zones_doc: dict) -> str:
+    w = zones_doc.get("window", {}).get("current", [])
+    if len(w) != 2:
+        return ""
+    a, b = w[0][:10], w[1][:10]
+    ya, ma, da = int(a[:4]), int(a[5:7]), int(a[8:10])
+    yb, mb, db = int(b[:4]), int(b[5:7]), int(b[8:10])
+    if ma == mb and ya == yb:
+        return f"{da}–{db} {_MESES[ma - 1]} {ya}"
+    return f"{da} {_MESES[ma - 1]}–{db} {_MESES[mb - 1]} {yb}"
+
+
+def _figure_specs(cfg: dict, zones_doc: dict) -> dict[str, tuple[str, str]]:
+    """key -> (ruta web, caption). Captions sin nombres de sensores
+    (el estándar editorial cita solo agencias — ver article_qa)."""
+    if not cfg.get("figures"):
+        return {}
+    w = zones_doc.get("window", {}).get("current", ["", ""])
+    end = (w[1] if len(w) > 1 else "").replace("-", "")[:8] or "00000000"
+    period = _fmt_period(zones_doc)
+    src = "satélites de la Agencia Espacial Europea (Copernicus)"
+    base = f"/figs/{cfg['category']}-{end}"
+    return {
+        "mapa": (
+            f"{base}-mapa.png",
+            f"Estado por unidad administrativa, {period}. La región se colorea "
+            f"según el estado de la zona monitoreada que contiene; el círculo "
+            f"marca el área efectivamente observada. Fuente: {src}, Natural Earth.",
+        ),
+        "ha": (
+            f"{base}-ha.png",
+            f"Hectáreas con {cfg['alert_what']}, por zona — exceso de píxeles "
+            f"degradados respecto al período base. Fuente: {src}.",
+        ),
+        "ndvi": (
+            f"{base}-ndvi.png",
+            f"Cambio del NDVI (vigor de la vegetación) por zona, {period} vs "
+            f"período base. Barras verdes: recuperación; naranjas: pérdida de "
+            f"vigor. Fuente: {src}.",
+        ),
+    }
+
+
+def inject_figures(cfg: dict, zones_doc: dict, article: str) -> str:
+    """Reemplaza los slots {{FIG_*}} por imagen + caption. Los slots que el
+    editor no ubicó se insertan antes de sucesivos encabezados '## '
+    (o al final). Las figuras se renumeran en orden de aparición."""
+    specs = _figure_specs(cfg, zones_doc)
+    if not specs:
+        return article
+
+    blocks = []
+    missing = []
+    for key in cfg["figures"]:
+        token = "{{FIG_" + key.upper() + "}}"
+        path, caption = specs[key]
+        alt = caption.split(".")[0]
+        block = f"![{alt}]({path})\n\n*Figura {{N}} — {caption}*"
+        if token in article:
+            article = article.replace(token, block)
+        else:
+            missing.append(block)
+
+    if missing:
+        # Fallback posicional: antes de cada '## ' desde el segundo en
+        # adelante (una figura por sección); si no alcanzan, al final.
+        import re
+        positions = [m.start() for m in re.finditer(r"\n## ", article)][1:]
+        for i, block in enumerate(missing):
+            if i < len(positions):
+                pos = positions[i]
+                insert = "\n\n" + block + "\n"
+                article = article[:pos] + insert + article[pos:]
+                shift = len(insert)
+                positions = [p + shift if p >= pos else p for p in positions]
+            else:
+                article = article.rstrip() + "\n\n" + block
+
+    # Renumerar "Figura N" en orden de aparición
+    n = 0
+    def _renum(m):
+        nonlocal n
+        n += 1
+        return f"*Figura {n} —"
+    import re
+    article = re.sub(r"\*Figura \{N\} —", _renum, article)
+    return article
+
+
+# ─────────────────────────────────────────────────────────────────────
 # Fases
 # ─────────────────────────────────────────────────────────────────────
 
@@ -330,7 +437,17 @@ def phase_edit(cfg: dict, briefing: dict, blocks: dict) -> dict:
         "el 'qué significa' se teje dentro de la prosa tras cada cifra, no en sección aparte; "
         "cierre con una línea de implicancia sin encabezado; última línea = nota metodológica "
         "en cursiva (agencia + periodo + glosa de índices). "
-        "LEGIBILIDAD (vendemos servicios a público no técnico): oraciones de máx ~30 palabras; "
+        + (
+            "FIGURAS: el artículo debe incluir estos slots, cada uno en su propia "
+            "línea en blanco, donde la narrativa lo amerite — el mapa tras la "
+            "primera sección, los gráficos cerca de donde citás sus cifras. "
+            "Nunca dos slots juntos ni dentro de listas/tablas. No escribas "
+            "captions: se generan solas. Slots: "
+            + ", ".join("{{FIG_" + f.upper() + "}}" for f in cfg.get("figures", ()))
+            + ". "
+            if cfg.get("figures") else ""
+        )
+        + "LEGIBILIDAD (vendemos servicios a público no técnico): oraciones de máx ~30 palabras; "
         "cada párrafo con una idea; para cada cifra decir qué significa para el lector "
         "(riesgo, dinero, acción); sin jerga sin glosa; respuesta a '¿y a mí qué?' al cierre. "
         "NARRATIVA: el lede ancla siempre el periodo CON AÑO ('entre julio y septiembre de 2026') "
@@ -377,7 +494,8 @@ def phase_qa(cfg: dict, zones_doc: dict, edited: dict) -> tuple[dict, list[str]]
             f"Editor de {cfg['name']}. Corrige el artículo según los ERRORES listados "
             "(cifras no verificables → usa los valores reales; formato → aplica el estándar "
             "editorial web: sin emojis, sin hashtags, números con punto para miles y coma "
-            "para decimales). No cambies nada más. "
+            "para decimales). No cambies nada más y NO toques las líneas de figura: "
+            "conservá intactas las líneas ![...](...) y *Figura N — ...*. "
             "Devuelve el artículo completo corregido, solo texto.",
             f"ERRORES:\n" + "\n".join(errors) +
             f"\n\nVALORES REALES PERMITIDOS:\n{allowed_hint}\n\nARTÍCULO:\n{edited['article']}",
@@ -455,7 +573,7 @@ def generate(product: str, zones_doc: dict | None = None,
         print("  Fase edit (edición)...")
         edited = phase_edit(cfg, state["briefing"], state["blocks"])
         state["title"] = edited.get("title", "")
-        state["article"] = edited.get("article", "")
+        state["article"] = inject_figures(cfg, zones_doc, edited.get("article", ""))
         state["_excerpt"] = edited.get("excerpt", "")
         state["phase"] = "edit"
         _save_state(product, period, run_id, state)
@@ -483,10 +601,17 @@ def social_version(product: str, article: str) -> str:
 
     El CTA y los hashtags NO van en el artículo web — se inyectan solo aquí,
     en el archivo *-social.txt que consume el pipeline de Facebook.
+    Las figuras (![] + caption "*Figura N —*") no aplican a redes: se quitan.
     """
     cfg = PRODUCTS[product]
+    body = "\n".join(
+        l for l in article.strip().split("\n")
+        if not l.lstrip().startswith(("![", "*Figura "))
+    )
+    import re
+    body = re.sub(r"\n{3,}", "\n\n", body)
     return (
-        f"{article.strip()}\n\n{cfg['cta']} 🌱☕\n\n"
+        f"{body}\n\n{cfg['cta']} 🌱☕\n\n"
         f"#TerraSAT #{cfg['name']} #AlertaTemprana #Satélite"
     )
 

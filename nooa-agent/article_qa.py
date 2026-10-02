@@ -179,6 +179,8 @@ def validate_format(article: str, title: str = "") -> list[str]:
 
     if "LEDE" in article:
         errors.append("Marcador interno 'LEDE' visible en el artículo")
+    if "{{FIG" in article:
+        errors.append("Slot de figura sin resolver ({{FIG_*}}) — debe ser imagen + caption")
     if _EMOJI_RE.search(article):
         errors.append("El artículo contiene emojis (la web los filtra, pero el estándar es sin emojis)")
     if _HASHTAG_RE.search(article):
