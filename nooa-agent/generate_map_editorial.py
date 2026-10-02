@@ -64,7 +64,7 @@ LABEL_OFFSET = {
 }
 
 
-def _circle_js(z) -> str:
+def _circle_js(z, interactive: bool = False) -> str:
     """Círculo proporcional al área (amplificado para legibilidad continental)."""
     color = STATUS_COLOR.get(z.status, "#666")
     radius_m = math.sqrt(z.area_ha * 10_000 / math.pi)
@@ -77,9 +77,12 @@ def _circle_js(z) -> str:
     else:
         fill_opacity, weight, dash = 0.50, 2.2, ""
 
-    popup = (
-        f"<b>{z.name}, {z.country}</b><br>"
-        f"Cultivo: {z.crop} · Estado: {STATUS_LABEL.get(z.status, z.status)}<br>"
+    crop = getattr(z, "crop", None)
+    popup = f"<b>{z.name}, {z.country}</b><br>"
+    if crop:
+        popup += f"Cultivo: {crop} · "
+    popup += (
+        f"Estado: {STATUS_LABEL.get(z.status, z.status)}<br>"
         f"Área monitoreada: {z.area_ha:,} ha"
     )
     if z.affected_area_ha > 0:
@@ -90,12 +93,12 @@ def _circle_js(z) -> str:
         f'    L.circle([{z.lat}, {z.lng}], {{'
         f'radius: {radius_m:.0f}, fillColor: "{color}", color: "{color}", '
         f'{dash} weight: {weight}, fillOpacity: {fill_opacity}, opacity: 0.85'
-        f'}}).addTo(map).bindPopup("{popup}");'
+        f'}}).addTo(map).bindPopup("{popup}")'
+        f'.bindTooltip("{z.name}", {{direction: "top", offset: [0, -8]}});'
     )
-    # Etiquetas solo donde hay señal (alerta/vigilancia/critico): las zonas
-    # normales no necesitan nombre en la figura — evita saturar el cluster
-    # centroamericano.
-    if z.status not in ("normal", "sin_datos"):
+    # Etiquetas permanentes solo en la figura estática, donde no hay hover,
+    # y solo en zonas con señal — evita saturar el cluster centroamericano.
+    if not interactive and z.status not in ("normal", "sin_datos"):
         dx, dy = LABEL_OFFSET.get(z.name, (0, 0))
         out += (
             f'\n    L.marker([{z.lat}, {z.lng}], {{interactive: false, icon: L.divIcon({{'
@@ -106,8 +109,9 @@ def _circle_js(z) -> str:
     return out
 
 
-def generate_html(zones, period_str: str, title: str, subtitle: str) -> str:
-    zones_js = "\n".join(_circle_js(z) for z in zones)
+def generate_html(zones, period_str: str, title: str, subtitle: str,
+                  interactive: bool = False) -> str:
+    zones_js = "\n".join(_circle_js(z, interactive) for z in zones)
 
     legend_items = []
     for status, color in STATUS_COLOR.items():
@@ -122,8 +126,10 @@ def generate_html(zones, period_str: str, title: str, subtitle: str) -> str:
     affected_ha = sum(z.affected_area_ha for z in zones)
     lats = [z.lat for z in zones]
     lngs = [z.lng for z in zones]
+    pad = 1.5 if interactive else 4
     bounds = (
-        f"[[{min(lats) - 4}, {min(lngs) - 7}], [{max(lats) + 4}, {max(lngs) + 7}]]"
+        f"[[{min(lats) - pad}, {min(lngs) - pad * 1.75}], "
+        f"[{max(lats) + pad}, {max(lngs) + pad * 1.75}]]"
     )
 
     return f"""<!DOCTYPE html>
@@ -172,10 +178,10 @@ def generate_html(zones, period_str: str, title: str, subtitle: str) -> str:
 </head>
 <body>
 <div id="map"></div>
-<div id="titlebox">
+{"" if interactive else f'''<div id="titlebox">
   <h1>{title}</h1>
   <p>{subtitle} · {period_str}</p>
-</div>
+</div>'''}
 <div id="legend">
   <div class="lg-title">Estado del cultivo</div>
   {''.join(legend_items)}
@@ -184,10 +190,13 @@ def generate_html(zones, period_str: str, title: str, subtitle: str) -> str:
 <div id="attrib">Esri, OpenStreetMap contributors · Datos: Copernicus Sentinel-2, ERA5</div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  var interactive = {"true" if interactive else "false"};
   var map = L.map('map', {{
-    zoomControl: false, attributionControl: false,
-    scrollWheelZoom: false, dragging: false, doubleClickZoom: false,
-    boxZoom: false, keyboard: false, touchZoom: false
+    zoomControl: interactive, attributionControl: false,
+    scrollWheelZoom: interactive, dragging: interactive,
+    doubleClickZoom: interactive, boxZoom: interactive,
+    keyboard: interactive, touchZoom: interactive,
+    minZoom: interactive ? 2 : 0
   }});
 
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{{z}}/{{y}}/{{x}}', {{
@@ -201,7 +210,12 @@ def generate_html(zones, period_str: str, title: str, subtitle: str) -> str:
 
 {zones_js}
 
-  map.fitBounds({bounds});
+  if (interactive) {{
+    // Deja libre la esquina inferior derecha (leyenda) al encuadrar.
+    map.fitBounds({bounds}, {{padding: [16, 16], paddingBottomRight: [30, 130]}});
+  }} else {{
+    map.fitBounds({bounds}, {{padding: [0, 0]}});
+  }}
 </script>
 </body>
 </html>"""
@@ -215,6 +229,8 @@ def main():
     parser.add_argument("--out", default="scripts/agrosat-map-editorial.html")
     parser.add_argument("--title", default="Estrés vegetativo en cultivos de Latinoamérica")
     parser.add_argument("--subtitle", default="Cambio en vigor de la vegetación y área degradada por zona")
+    parser.add_argument("--interactive", action="store_true",
+                        help="Habilitar zoom/drag/popups — para iframe embebido")
     args = parser.parse_args()
 
     payload = json.loads(Path(args.zones).read_text(encoding="utf-8"))
@@ -227,7 +243,8 @@ def main():
     else:
         period_str = date.today().strftime("%d/%m/%Y")
 
-    html = generate_html(zones, period_str, args.title, args.subtitle)
+    html = generate_html(zones, period_str, args.title, args.subtitle,
+                         interactive=args.interactive)
     Path(args.out).write_text(html, encoding="utf-8")
     print(f"Mapa editorial: {args.out}")
 

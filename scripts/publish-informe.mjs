@@ -23,6 +23,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const ASSETS = resolve(ROOT, "web", "src", "assets");
 const FIGS_DIR = resolve(ROOT, "web", "public", "figs");
+const MAPS_DIR = resolve(ROOT, "web", "public", "maps");
 const INFORMES_JSON = resolve(ROOT, "web", "src", "data", "informes.json");
 const PYTHON = existsSync(resolve(ROOT, ".venv", "Scripts", "python.exe"))
   ? resolve(ROOT, ".venv", "Scripts", "python.exe")
@@ -247,6 +248,27 @@ function genFigures(figPrefix) {
   return failed;
 }
 
+// Mapa interactivo Leaflet embebido en el informe (iframe /maps/*.html).
+// Devuelve la ruta web relativa o null si no se pudo generar.
+function genInteractiveMap(figPrefix) {
+  try {
+    mkdirSync(MAPS_DIR, { recursive: true });
+    const out = join(MAPS_DIR, `${figPrefix}.html`);
+    execFileSync(PYTHON, [
+      resolve(ROOT, "nooa-agent", "generate_map_editorial.py"),
+      "--zones", ZONES_PATH,
+      "--out", out,
+      "--interactive",
+      "--title", SPEC.mapTitle,
+      "--subtitle", "Explorá cada zona: clic para ver cultivo, estado y hectáreas",
+    ], { stdio: "inherit", cwd: ROOT });
+    return `/maps/${figPrefix}.html`;
+  } catch (err) {
+    console.warn(`  Mapa interactivo no generado: ${err.message}`);
+    return null;
+  }
+}
+
 // Si una figura no se pudo generar, se quita su bloque (img + caption)
 // y se renumeran las restantes — el informe queda publicable igual.
 function stripFailedFigs(article, failedKeys) {
@@ -370,6 +392,10 @@ async function main() {
       entry.article = stripFailedFigs(article, failed);
     }
   }
+
+  // Mapa interactivo embebido en el informe (iframe en la SPA)
+  const mapPath = genInteractiveMap(`${SPEC.category}-${endDate}`);
+  if (mapPath) entry.map = mapPath;
 
   console.log(`Descargando assets para ${slug}...`);
   const okPhoto = await fetchPhoto(SPEC.photoQuery, join(ASSETS, imageFile));

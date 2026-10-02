@@ -56,6 +56,7 @@ interface Informe {
   cta?: string
   hashtags?: string[]
   keyStats?: KeyStat[]
+  map?: string
 }
 
 const informes: Informe[] = informesData.map((item) => ({
@@ -424,6 +425,29 @@ export function TerraSATPortfolio() {
 
                 {selectedParts && selectedParts.body.length > 0 && (
                   <ArticleBody markdown={selectedParts.body} />
+                )}
+
+                {/* Mapa interactivo embebido (Leaflet servido desde /public/maps) */}
+                {selected.map && (
+                  <figure className="mt-6">
+                    <iframe
+                      src={selected.map}
+                      title={`Mapa interactivo — ${selected.title}`}
+                      loading="lazy"
+                      className="h-[480px] w-full rounded-lg border border-border bg-muted/20"
+                    />
+                    <figcaption className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      Mapa interactivo — zoom y clic en cada zona para el detalle.{" "}
+                      <a
+                        href={selected.map}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Abrir en pantalla completa
+                      </a>
+                    </figcaption>
+                  </figure>
                 )}
 
                 {/* CTA comercial — separado del cuerpo editorial */}

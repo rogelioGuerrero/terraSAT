@@ -56,6 +56,7 @@ estado de fases. El pipeline completo es:
    - **Manual**: subir imagen + pegar artículo en el compositor de la página (o copiar el texto del informe publicado en https://terrasat.agtisa.com)
 7. Actualizar SPA: `node scripts/publish-informe.mjs [--product agro|forest|urban]` (genera entrada en `informes.json` + foto/video de Pexels en `web/src/assets/`; `--dry-run` para previsualizar, `--force` para recrear). Idempotente por período+producto.
    - **Figuras editoriales (estilo JRC)**: si el artículo contiene referencias `/figs/` — inyectadas por `article_pipeline.inject_figures()` a partir de los slots `{{FIG_*}}` que ubica el editor — publish las genera antes de publicar: coropleta admin-1 (`scripts/gen-choropleth-echarts.mjs`, ECharts SSR → PNG, región detectada por point-in-polygon sobre Natural Earth 10m en `scripts/data/`) + barras NDVI y hectáreas afectadas (`nooa-agent/gen_fig_editorial.py`, matplotlib). Si una figura falla, su bloque se quita del artículo y el informe sale igual.
+   - **Mapa interactivo embebido**: publish también genera `web/public/maps/<categoria>-<yyyymmdd>.html` con `nooa-agent/generate_map_editorial.py --interactive` (Leaflet, zoom/popups/tooltips habilitados, sin caja de título) y lo embebe como `<iframe>` al final del informe (`campo map` en `informes.json`), con link "Abrir en pantalla completa".
 8. Deploy del sitio: `cd web && npm run build` y luego
    `npx netlify-cli deploy --dir=dist --prod` — el sitio Netlify
    (`terrasat`, site id `4a7c0880-c95c-414f-b5c0-d6a7385d67eb`,

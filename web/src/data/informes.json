@@ -25,7 +25,8 @@
         "value": "+0,147",
         "label": "rebote de NDVI en Minas Gerais"
       }
-    ]
+    ],
+    "map": "/maps/agrosat-20260928.html"
   },
   {
     "id": "14",
