@@ -54,7 +54,7 @@ class AgroZone:
     ndvi_delta: float = 0.0
     lst_delta: float = 0.0
     rainfall_mm: float = 0.0
-    rainfall_pct: float = 0.0  # % vs normal
+    rainfall_pct: float | None = None  # % vs normal; None = sin dato de lluvia
     modis_z_score: float = 0.0
 
     # Estado calculado
@@ -196,7 +196,7 @@ def classify_zone(zone: AgroZone, rng: random.Random | None = None) -> None:
 
     if zone.ndre_delta < -0.08 and zone.ndvi_delta < -0.02:
         zone.status = "critico"
-        if zone.rainfall_pct < -20:
+        if zone.rainfall_pct is not None and zone.rainfall_pct < -20:
             zone.alert_cause = "Sequía severa"
         elif zone.crop == "Café":
             zone.alert_cause = "Enfermedad del cafetal"
@@ -206,7 +206,7 @@ def classify_zone(zone: AgroZone, rng: random.Random | None = None) -> None:
         zone.days_early_warning = 18
     elif zone.ndre_delta < -0.03 and zone.ndvi_delta < -0.01:
         zone.status = "alerta"
-        if zone.rainfall_pct < -20:
+        if zone.rainfall_pct is not None and zone.rainfall_pct < -20:
             zone.alert_cause = "Déficit hídrico"
         elif zone.crop == "Café":
             zone.alert_cause = "Enfermedad del cafetal"
@@ -288,12 +288,19 @@ def generate_bulletin_article(zones: list[AgroZone]) -> str:
             if z.days_early_warning == 0
             else f" | Anticipación: {z.days_early_warning} días"
         )
+        # El colector deja rainfall_pct=None cuando falta el dato de
+        # precipitación — reportarlo como "sin dato", nunca como normal.
+        precip = (
+            f"Precipitación: {z.rainfall_pct:+.0f}% vs normal"
+            if z.rainfall_pct is not None
+            else "Precipitación: sin dato de lluvia"
+        )
         zones_data.append(
             f"- {z.name}, {z.country}: {z.area_ha:,} ha | "
             f"Estado: {status_label} | "
             f"Causa: {z.alert_cause or 'normal'} | "
             f"Área afectada: {z.affected_area_ha:,} ha | "
-            f"Precipitación: {z.rainfall_pct:+.0f}% vs normal"
+            f"{precip}"
             f"{anticipation}"
         )
 
@@ -550,7 +557,6 @@ def main():
         # Pipeline por fases: briefing → bloques → edición → QA
         # Estado persistido en Appwrite (resumible entre corridas)
         print("\n  Generando boletín por fases (briefing → bloques → edición → QA)...\n")
-        article = None
         try:
             zones_doc = json.loads(Path("scripts/agro-zones.json").read_text(encoding="utf-8"))
             from appwrite_store import save_bulletin_data
@@ -558,8 +564,13 @@ def main():
             run_id = save_bulletin_data("agro", zones_doc)
             article = generate("agro", zones_doc, run_id)
         except Exception as e:
-            print(f"  Pipeline por fases falló ({e}) — fallback determinista")
-            article = _fallback_article(zones)
+            # Con datos reales no hay fallback: un boletín determinista sin QA
+            # no es publicable y salir sin guardar evita dejar salidas stale
+            # que la compuerta editorial o FB pudieran recoger por error.
+            print(f"\n  ERROR: el pipeline por fases falló ({e})")
+            print("  No se guardó artículo ni salidas — corregir y reintentar,")
+            print("  o usar --simulate para la demo interna.")
+            sys.exit(2)
 
     # ─── Imprimir boletín ───────────────────────────────────────
     print_bulletin(zones, article, today)

@@ -1,32 +1,33 @@
 """
 article_qa.py — Verificación determinista del artículo generado.
 
-Extrae TODO número del artículo y chequea que corresponda a un valor real
-del JSON de zonas (medido o agregado). Es el gate anti-alucinación:
-un número que no matchea ningún dato → error → repair pass o fallback.
+Compara cifras del artículo con valores medidos o derivados del JSON de zonas.
+No verifica si la cifra corresponde a la zona citada ni afirmaciones causales:
+requiere revisión editorial humana antes de publicar.
 
-No usa LLM — es Python puro, por eso es confiable.
+No usa LLM; reduce ciertos errores, pero no certifica veracidad.
 """
 
 from __future__ import annotations
 
+import argparse
+import json
 import re
+from pathlib import Path
 
-_NUM_RE = re.compile(r"-?\d{1,3}(?:[.,   ]\d{3})+|-?\d+(?:[.,]\d+)?")
+_NUM_RE = re.compile(
+    r"[-\u2010-\u2015\u2212]?(?:[1-9]\d{0,2}(?:[.\u00a0\u202f ]\d{3})+(?:,\d+)?"
+    r"|\d+(?:[.,]\d+)?)"
+)
 
 
 def _parse_num(raw: str) -> float | None:
     s = raw.replace(chr(0x202f), '').replace(chr(0xa0), '').replace(' ', '').strip()
+    s = re.sub(r"[\u2010-\u2015\u2212]", "-", s)
     if not s:
         return None
-    # Miles solo si la parte entera empieza en digito NO-cero:
-    # '14,600' -> 14600   pero   '-0.120' -> -0.12 (decimal)
-    if re.fullmatch(r'-?[1-9]\d{0,2}([.,]\d{3})+', s):
-        try:
-            return float(re.sub(r'[.,]', '', s))
-        except ValueError:
-            return None
-    # Decimal simple: 0.032 | -51,2 | -0.120
+    if re.fullmatch(r"-?[1-9]\d{0,2}(?:\.\d{3})+(?:,\d+)?", s):
+        s = s.replace(".", "")
     s2 = s.replace(',', '.')
     try:
         return float(s2)
@@ -111,27 +112,32 @@ def allowed_values(zones_doc: dict) -> dict[str, float]:
     return vals
 
 
-def validate_article(article: str, zones_doc: dict, tol: float = 0.06) -> list[str]:
+def validate_article(article: str, zones_doc: dict, tol: float = 0.0006) -> list[str]:
     """
-    Devuelve lista de errores (vacía = artículo fiel a los datos).
-    Números ≤ 10 y años se ignoran (conteos de zonas, fechas, etc.).
+    Devuelve errores numéricos detectables (vacía no certifica el artículo).
+    Comprueba también números pequeños y años; no certifica afirmaciones causales.
     """
     allowed = allowed_values(zones_doc)
-    zone_names = {z.get("name", "") for z in zones_doc.get("zones", [])}
     errors = []
 
-    for raw in _NUM_RE.findall(article):
+    # Rutas de imágenes y fechas ISO no son cifras afirmadas por el artículo.
+    text = re.sub(r"!\[[^\]]*\]\([^)]+\)", "", article)
+    text = re.sub(r"\b\d{4}-\d{2}-\d{2}\b", "", text)
+    for m in _NUM_RE.finditer(text):
+        raw = m.group(0)
         v = _parse_num(raw)
-        if v is None or abs(v) <= 10 or 1900 <= v <= 2100:
+        if v is None:
             continue
-        # ¿Existe algún valor permitido a <tol relativo?
-        match = any(abs(v - a) <= max(abs(a) * tol, 0.006) for a in allowed.values())
+        if re.search(r"\bFigura\s+$", text[max(0, m.start() - 12):m.start()], re.I):
+            continue
+        # "7-28 sep" es un rango de fechas, no una cifra negativa.
+        if v < 0 and re.search(r"\d\s*$", text[max(0, m.start() - 2):m.start()]):
+            v = abs(v)
+        # Sólo igualdades con valores/roundings permitidos; 6 % de tolerancia
+        # aceptaba cifras materialmente distintas (13.000 por 13.800).
+        match = any(abs(v - a) <= tol for a in allowed.values())
         if not match:
             errors.append(f"Número no verificable en los datos: {raw}")
-
-    # Zonas mencionadas que no existen (por nombre exacto, capitalizado)
-    for m in re.finditer(r"\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?: [A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?)\b", article):
-        pass  # demasiado fuzzy — el check de números ya cubre lo material
 
     return errors
 
@@ -228,3 +234,23 @@ def validate_format(article: str, title: str = "") -> list[str]:
         )
 
     return errors
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Comprobar cifras y formato antes de publicar")
+    parser.add_argument("--article", type=Path, required=True)
+    parser.add_argument("--zones", type=Path, required=True)
+    args = parser.parse_args(argv)
+    article = args.article.read_text(encoding="utf-8")
+    zones_doc = json.loads(args.zones.read_text(encoding="utf-8"))
+    title = article.splitlines()[0] if article.splitlines() else ""
+    errors = validate_article(article, zones_doc) + validate_format(article, title)
+    if errors:
+        print(json.dumps({"errors": errors}, ensure_ascii=True))
+        return 1
+    print("QA numerico y de formato: OK (requiere revision humana semantica)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

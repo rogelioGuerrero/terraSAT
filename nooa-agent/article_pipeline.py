@@ -26,6 +26,7 @@ zones JSON. Los prompts son genéricos — el dominio entra por config.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 import sys
@@ -49,15 +50,15 @@ PRODUCTS = {
         "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus) y precipitación ERA5",
         "field_glossary": (
             "area_ha=hectáreas monitoreadas; status=critico/alerta/vigilancia/normal/sin_datos; "
-            "alert_cause; affected_area_ha=ha con degradación medida por pixel (exceso vs baseline); "
+            "alert_cause; affected_area_ha=ha indicativas (fracción anómala por área nominal del recuadro); "
             "ndvi_delta/ndre_delta=cambio vs mismo período año anterior; "
             "rainfall_pct=lluvia vs climatología 5 años; meta.latest_image=fecha última imagen limpia; "
             "meta.excess_stressed_frac=fracción de pixels degradados nuevos (área afectada)"
         ),
         "cta": (
             "¿Su plantación, propiedad o empresa agroindustrial opera en alguna de estas zonas? "
-            "AgroSAT detecta situaciones atípicas que pueden afectar sus cultivos semanas antes "
-            "de que aparezcan síntomas visibles, dándole tiempo para actuar. Reportes "
+            "AgroSAT identifica anomalías espectrales para orientar inspecciones "
+            "de campo; no determina causas ni anticipación clínica. Reportes "
             "personalizados disponibles. También trabajamos con aseguradoras y agroservicios. "
             "Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
         ),
@@ -69,12 +70,12 @@ PRODUCTS = {
     "forest": {
         "name": "ForestSAT",
         "category": "forestsat",
-        "subject": "monitoreo satelital de bosques, deforestación y quemas",
+        "subject": "monitoreo satelital de anomalías espectrales en bosques",
         "zones_json": "scripts/forest-zones.json",
         "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus)",
         "field_glossary": (
             "area_ha=hectáreas monitoreadas; status=critico/alerta/vigilancia/normal/sin_datos; "
-            "alert_cause; affected_area_ha=ha con pérdida de cobertura medida por pixel (exceso vs baseline); "
+            "alert_cause; affected_area_ha=ha indicativas (fracción anómala por área nominal del recuadro); "
             "ndvi_delta/ndre_delta=cambio vs mismo período año anterior; "
             "meta.nbr_delta=cambio del índice de quema (NBR) vs año anterior; "
             "meta.latest_image=fecha última imagen limpia; "
@@ -82,8 +83,9 @@ PRODUCTS = {
         ),
         "cta": (
             "¿Su organización gestiona bosques, áreas protegidas o monitorea cambio de uso de suelo? "
-            "ForestSAT detecta pérdida de cobertura y señales de quema en escala regional con datos "
-            "satelitales verificables. Reportes personalizados para gobiernos, ONGs y aseguradoras. "
+            "ForestSAT identifica cambios espectrales a escala regional para "
+            "priorizar la verificación de cobertura en campo. Reportes personalizados "
+            "para gobiernos, ONGs y aseguradoras. "
             "Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
         ),
         "with_rain": False,
@@ -94,13 +96,13 @@ PRODUCTS = {
     "urban": {
         "name": "UrbanSAT",
         "category": "urbansat",
-        "subject": "monitoreo satelital de crecimiento urbano y cambio de uso de suelo",
+        "subject": "monitoreo satelital de cambios espectrales en zonas urbanas",
         "zones_json": "scripts/urban-zones.json",
         "sources": "imágenes satelitales Sentinel-2 de la Agencia Espacial Europea (Copernicus)",
         "field_glossary": (
             "area_ha=hectáreas del área metropolitana monitoreada; "
             "status=critico/alerta/vigilancia/normal/sin_datos; alert_cause; "
-            "affected_area_ha=ha con ganancia de área construida medida por pixel (exceso vs baseline); "
+            "affected_area_ha=ha indicativas (fracción anómala por área nominal del recuadro); "
             "ndvi_delta=cambio de vegetación vs mismo período año anterior; "
             "meta.ndbi_delta=cambio del índice de área construida (NDBI) vs año anterior; "
             "meta.latest_image=fecha última imagen limpia; "
@@ -108,8 +110,8 @@ PRODUCTS = {
         ),
         "cta": (
             "¿Su municipio, desarrolladora o aseguradora opera en alguna de estas ciudades? "
-            "UrbanSAT mide la expansión de área construida y la pérdida de vegetación con "
-            "observación satelital objetiva — catastro, planificación y evaluación de riesgo "
+            "UrbanSAT identifica cambios espectrales para orientar la verificación "
+            "de cobertura y vegetación — planificación y evaluación de riesgo "
             "en escala metropolitana. Reportes personalizados disponibles. "
             "Vea mapa interactivo en terraSAT.agtisa.com. Contacto: info@agtisa.com"
         ),
@@ -121,6 +123,22 @@ PRODUCTS = {
 }
 
 PHASES = ["briefing", "blocks", "edit", "qa"]
+
+EVIDENCE_RULES = (
+    "Los datos son índices espectrales de un recuadro geográfico, NO una "
+    "medición validada de cosecha, superficie construida, tala, incendio, "
+    "enfermedad ni pérdida económica. 'Hectáreas afectadas' es una estimación "
+    "proxy (fracción de píxeles que cruza un umbral frente al año anterior "
+    "multiplicada por el área nominal del recuadro), NO hectáreas verificadas "
+    "en campo ni polígonos reales del cultivo o bosque. No atribuyas causas, "
+    "pronostiques rendimientos, recomiendes tratamientos específicos ni "
+    "afirmes detección anticipada sin evidencia externa documentada. "
+    "Usa 'señal compatible con' o 'anomalía espectral; requiere validación'. "
+    "Si falta precipitación, no afirmes condiciones de lluvia para esa zona. "
+    "Cita solo Copernicus y, para lluvia agro, Open-Meteo; no atribuyas "
+    "estas mediciones a NASA. No introduzcas cifras ni fuentes externas "
+    "que no estén en los datos. "
+)
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -162,6 +180,9 @@ def _state_path(product: str, period: str) -> Path:
 
 
 def _load_state(product: str, period: str, run_id: str | None) -> dict:
+    p = _state_path(product, period)
+    if p.exists():
+        return json.loads(p.read_text(encoding="utf-8"))
     if run_id:
         from appwrite_store import get_run
         doc = get_run(run_id)
@@ -174,9 +195,6 @@ def _load_state(product: str, period: str, run_id: str | None) -> dict:
                 "article": doc.get("final_article"),
                 "qa_errors": doc.get("qa_errors"),
             }
-    p = _state_path(product, period)
-    if p.exists():
-        return json.loads(p.read_text(encoding="utf-8"))
     return {"phase": "data"}
 
 
@@ -225,7 +243,7 @@ def _zone_rows(cfg: dict, zones_doc: dict, statuses: tuple[str, ...] | None = No
             f"dNDVI={z.get('ndvi_delta')}"
         )
         # Índices extra por producto, solo si están medidos
-        if cfg.get("with_rain", True):
+        if cfg.get("with_rain", True) and not meta.get("precip", {}).get("error"):
             row += f" | dNDRE={z.get('ndre_delta')} | lluvia={z.get('rainfall_pct')}%"
         for extra in ("nbr_delta", "ndbi_delta", "ndwi_delta"):
             if meta.get(extra) is not None:
@@ -281,8 +299,9 @@ def _figure_specs(cfg: dict, zones_doc: dict) -> dict[str, tuple[str, str]]:
         ),
         "ha": (
             f"{base}-ha.png",
-            f"Hectáreas con {cfg['alert_what']}, por zona — exceso de píxeles "
-            f"degradados respecto al período base. Fuente: {src}.",
+            f"Superficie indicativa por recuadro: exceso de píxeles que cruzan "
+            f"el umbral espectral respecto al período base, multiplicado por "
+            f"el área nominal. No es pérdida verificada en campo. Fuente: {src}.",
         ),
         "ndvi": (
             f"{base}-ndvi.png",
@@ -348,6 +367,7 @@ def phase_briefing(cfg: dict, zones_doc: dict) -> dict:
         f"Eres el analista de datos de {cfg['name']} ({cfg['subject']}). "
         "No redactas el artículo — produces el briefing analítico que usará el redactor. "
         "Respondes SOLO con JSON válido. No inventes cifras: usa solo las de los datos."
+        + EVIDENCE_RULES
     )
     user = f"""Datos de la corrida ({cfg['sources']}):
 {cfg['field_glossary']}
@@ -373,6 +393,7 @@ def phase_blocks(cfg: dict, zones_doc: dict, briefing: dict) -> dict:
         "Español periodístico profesional, tono de alerta temprana creíble — ni alarmista ni frío. "
         "Citas fuentes como los datos satelitales de la ESA/NASA. NUNCA inventes cifras: "
         "solo las del briefing y los datos de zonas."
+        + EVIDENCE_RULES
     )
     briefing_str = json.dumps(briefing, ensure_ascii=False, indent=1)
     blocks = {}
@@ -455,6 +476,7 @@ def phase_edit(cfg: dict, briefing: dict, blocks: dict) -> dict:
         "pregunta que el artículo responde. Sin hipérbole ni adjetivos alarmistas: la intriga "
         "sale del dato, no de exagerarlo. "
         "Respondes SOLO con JSON válido."
+        + EVIDENCE_RULES
     )
     user = f"""BRIEFING: {json.dumps(briefing, ensure_ascii=False)}
 
@@ -550,7 +572,17 @@ def generate(product: str, zones_doc: dict | None = None,
         zones_doc = json.loads((ROOT / cfg["zones_json"]).read_text(encoding="utf-8"))
 
     period = zones_doc.get("window", {}).get("current", ["", ""])[0][:10] or str(date.today())
+    data_hash = hashlib.sha256(
+        json.dumps(
+            {"zones": zones_doc, "config": cfg, "rules": EVIDENCE_RULES,
+             "editorial_version": 3},
+            sort_keys=True, ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
     state = _load_state(product, period, run_id)
+    if state.get("zones_sha256") != data_hash:
+        log.warning("Datos de zonas cambiaron o estado antiguo sin hash: reiniciar fases")
+        state = {"phase": "data", "zones_sha256": data_hash}
     done = {"data": -1, "briefing": 0, "blocks": 1, "edit": 2, "qa": 3, "done": 4}
     cur = done.get(state.get("phase", "data"), -1)
 
@@ -589,6 +621,12 @@ def generate(product: str, zones_doc: dict | None = None,
         _save_state(product, period, run_id, state)
         if errors:
             raise RuntimeError(f"QA falló tras repair: {errors[:3]}")
+
+    if state.get("phase") == "done":
+        final_errors = validate_article(state.get("article", ""), zones_doc)
+        final_errors += validate_format(state.get("article", ""), state.get("title", ""))
+        if final_errors:
+            raise RuntimeError(f"Artículo guardado no supera QA: {final_errors[:3]}")
 
     # Artículo final para la WEB (limpio: sin CTA ni hashtags).
     # La variante social se compone aparte — ver social_version().

@@ -1,23 +1,33 @@
 /**
  * publish-informe.mjs — Publica el boletín AgroSAT de la semana en la SPA.
  *
- * Lee scripts/generated-article.txt + scripts/agro-zones.json, genera
- * título/excerpt con Groq (fallback determinista si falla), descarga
+ * Lee scripts/generated-article.txt + scripts/agro-zones.json, deriva
+ * título/excerpt deterministas del artículo revisado, descarga
  * foto+video de Pexels optimizados, y prepende la entrada a
  * web/src/data/informes.json. Idempotente por período.
  *
- * Requiere: PEXELS_API_KEY en .env o entorno; GROQ_API_KEY opcional.
+ * Compuerta editorial: exige atestación humana vigente
+ * (scripts/reviews/<producto>-<yyyymmdd>.json, ver
+ * scripts/editorial-review.mjs) ANTES de cualquier generación de assets,
+ * figuras o llamada de red — también con --dry-run y --force. Después de la
+ * atestación corre el QA numérico/formato determinista
+ * (nooa-agent/article_qa.py): una cifra que no existe en los datos aborta.
+ * Si una figura referenciada (/figs/) no se genera, se aborta sin publicar:
+ * el artículo atestado nunca se muta ni se renumera.
+ *
+ * Requiere: PEXELS_API_KEY en .env o entorno.
  * Uso: node scripts/publish-informe.mjs [--dry-run] [--no-video] [--force]
  */
 
 import { readFileSync, writeFileSync, existsSync, unlinkSync, statSync, mkdirSync } from "fs";
 import { execFileSync } from "child_process";
-import { resolve, dirname, join } from "path";
+import { resolve, dirname, join, basename } from "path";
 import { fileURLToPath } from "url";
 import sharp from "sharp";
 import ffmpegPath from "ffmpeg-static";
 import ffmpeg from "fluent-ffmpeg";
 import { fetchPexels, searchPexelsVideos, toClipMetadata } from "./pexels-utils.mjs";
+import { assertEditorialReview } from "./editorial-review.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -73,15 +83,13 @@ if (!SPEC) {
   console.error(`--product debe ser ${Object.keys(PRODUCT_SPECS).join("|")}`);
   process.exit(1);
 }
-const ARTICLE_PATH = SPEC.articlePath;
-const ZONES_PATH = SPEC.zonesPath;
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 
-// Estándar editorial: títulos y excerpts publicables — sin markdown ni
-// emojis (el LLM a veces devuelve "🛰️ **Crisis...**").
+// Estándar editorial: títulos, excerpts y CTA publicables — sin markdown
+// ni emojis (el pipeline a veces produce "🛰️ **Crisis...**").
 const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu;
 
 function sanitizeText(s) {
@@ -97,9 +105,9 @@ function sanitizeText(s) {
 // El artículo web va limpio (sin CTA ni hashtags), pero la SPA renderiza
 // ambos aparte — los extrae de la variante social generada por
 // article_pipeline.social_version(): "<artículo>\n\n<cta> 🌱☕\n\n#tags".
-function extractSocialExtras() {
-  if (!existsSync(SPEC.socialPath)) return {};
-  const lines = readFileSync(SPEC.socialPath, "utf8")
+function extractSocialExtras(socialPath) {
+  if (!existsSync(socialPath)) return {};
+  const lines = readFileSync(socialPath, "utf8")
     .replace(/\r\n?/g, "\n")
     .split("\n");
   const hashtags = [];
@@ -126,110 +134,74 @@ function formatPeriod(isoRange) {
   return `${a.getUTCDate()} ${MESES[a.getUTCMonth()]}–${b.getUTCDate()} ${MESES[b.getUTCMonth()]} ${b.getUTCFullYear()}`;
 }
 
-// Tokens numéricos del artículo normalizados a dígitos puros ("55.000" → "55000").
-// Sirve para verificar que cada cifra de un keyStat exista literalmente en el
-// texto ya validado — si el LLM inventa una cifra, el stat se descarta.
-function articleDigitTokens(article) {
-  const tokens = new Set();
-  for (const m of article.matchAll(/\d[\d.,\s\u00A0\u202F]*/g)) {
-    const d = m[0].replace(/\D/g, "");
-    if (d) tokens.add(d);
-  }
-  return tokens;
+// Corte en límite de palabra: nunca parte una palabra a la mitad.
+function wordTrim(s, n) {
+  const t = s.trim();
+  if (t.length <= n) return t;
+  const cut = t.slice(0, n);
+  const i = cut.lastIndexOf(" ");
+  return (i > 0 ? cut.slice(0, i) : cut).trim();
 }
 
-function statDigits(stat) {
-  const out = [];
-  for (const m of `${stat.value} ${stat.label}`.matchAll(/\d[\d.,\s\u00A0\u202F]*/g)) {
-    const d = m[0].replace(/\D/g, "");
-    if (d) out.push(d);
-  }
-  return out;
+// Un bloque de prosa sustantiva: no encabezado, imagen, cita, subhead en
+// negrita, nota/caption en cursiva ni lista.
+function isProseBlock(block) {
+  const t = block.trim();
+  if (!t) return false;
+  if (/^#{1,6}\s/.test(t)) return false;
+  if (/^[!>]/.test(t)) return false;
+  if (/^\*\*[^*]+\*\*$/.test(t)) return false;
+  if (/^\*[^*]+\*$/.test(t)) return false;
+  if (/^([-*+] |\d+\. )/.test(t)) return false;
+  return true;
 }
 
-function sanitizeStats(raw, article) {
-  if (!Array.isArray(raw)) return undefined;
-  const tokens = articleDigitTokens(article);
-  const stats = raw
-    .filter((s) => s && s.value && s.label)
-    .map((s) => ({
-      value: sanitizeText(String(s.value)).slice(0, 24),
-      label: sanitizeText(String(s.label)).slice(0, 60),
-    }))
-    .filter((s) => statDigits(s).every((d) => tokens.has(d)))
-    .slice(0, 4);
-  return stats.length ? stats : undefined;
-}
-
-async function generateTitleExcerpt(article) {
-  const key = process.env.GROQ_API_KEY;
-  if (!key) return null;
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify({
-        model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
-        max_completion_tokens: 2000,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "user",
-            content:
-              "Del siguiente boletín agro-satelital genera JSON con tres campos: " +
-              '"title" (título periodístico en español, máx 90 caracteres, sin comillas), ' +
-              '"excerpt" (resumen de 1-2 oraciones con zonas y hectáreas concretas, máx 220 caracteres) y ' +
-              '"keyStats" (array de 3-4 objetos {"value","label"} con las cifras clave del informe: ' +
-              'value = la cifra tal como aparece en el texto, ej. "55.000 ha"; label = qué mide en 3-6 palabras). ' +
-              "Solo JSON, nada más.\n\nBOLETÍN:\n" + article.slice(0, 6000),
-          },
-        ],
-      }),
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    const content = data.choices?.[0]?.message?.content || "";
-    const parsed = JSON.parse(content.replace(/```json|```/g, "").trim());
-    if (!parsed.title || !parsed.excerpt) return null;
-    const cut = (s, n) => {
-      const t = String(s).slice(0, n);
-      return t.length < String(s).length ? t.slice(0, t.lastIndexOf(" ")) : t;
-    };
-    return {
-      title: cut(sanitizeText(parsed.title), 90),
-      excerpt: cut(sanitizeText(parsed.excerpt), 220),
-      keyStats: sanitizeStats(parsed.keyStats, article),
-    };
-  } catch {
-    return null;
-  }
-}
-
-function fallbackTitleExcerpt(article, zones) {
+// Título y excerpt deterministas, derivados del artículo ya revisado (el
+// manifiesto fija sus bytes): título = primera línea, excerpt = primer
+// párrafo de prosa sustantiva. No se genera metadata con LLM ni hay
+// fallback que introduzca cifras o nombres de sensores no revisados.
+function deriveTitleExcerpt(article, productName) {
   const title =
-    sanitizeText(article.split("\n")[0]).slice(0, 90) || `Boletín ${SPEC.name}`;
-  const total = zones.reduce((s, z) => s + (z.area_ha || 0), 0);
-  const alert = zones
-    .filter((z) => z.status === "critico" || z.status === "alerta")
-    .reduce((s, z) => s + (z.affected_area_ha || 0), 0);
-  const excerpt =
-    `Sentinel-2: ${alert.toLocaleString("es-ES")} ha en alerta de ` +
-    `${total.toLocaleString("es-ES")} ha monitoreadas en ${zones.length} zonas.`;
-  return { title, excerpt: excerpt.slice(0, 220) };
+    wordTrim(sanitizeText(article.split(/\r?\n/, 1)[0]), 90) || `Boletín ${productName}`;
+  const firstPara = article.split(/\r?\n\s*\r?\n/).find(isProseBlock);
+  const excerpt = wordTrim(sanitizeText(firstPara || title), 220);
+  return { title, excerpt };
+}
+
+// QA determinista anti-alucinación numérica (nooa-agent/article_qa.py):
+// compara cada cifra del artículo con los valores permitidos del zones JSON
+// y chequea formato editorial. Lanza Error con el detalle si no pasa.
+export function runArticleQa(articlePath, zonesPath, python = PYTHON) {
+  try {
+    execFileSync(
+      python,
+      [
+        resolve(ROOT, "nooa-agent", "article_qa.py"),
+        "--article", articlePath,
+        "--zones", zonesPath,
+      ],
+      { stdio: ["ignore", "pipe", "inherit"], cwd: ROOT, encoding: "utf8" }
+    );
+  } catch (err) {
+    const detail = String(err.stdout || "").trim();
+    throw new Error(
+      `QA numérico/formato rechazó ${basename(articlePath)}: ${detail || err.message}`
+    );
+  }
 }
 
 // Figuras editoriales (estilo JRC): coropleta admin-1 (ECharts SSR) +
 // barras matplotlib. Los nombres coinciden con los que article_pipeline
 // inyecta en el markdown: /figs/<category>-<yyyymmdd>-<key>.png
-function genFigures(figPrefix) {
+function genFigures(figPrefix, zonesPath, spec) {
   mkdirSync(FIGS_DIR, { recursive: true });
   const failed = [];
   try {
     execFileSync("node", [
       resolve(ROOT, "scripts", "gen-choropleth-echarts.mjs"),
-      "--zones", ZONES_PATH,
+      "--zones", zonesPath,
       "--out", join(FIGS_DIR, `${figPrefix}-mapa.png`),
-      "--title", SPEC.mapTitle,
+      "--title", spec.mapTitle,
       "--subtitle", "Unidad admin-1 coloreada por estado de la zona monitoreada",
     ], { stdio: "inherit", cwd: ROOT });
   } catch {
@@ -238,7 +210,7 @@ function genFigures(figPrefix) {
   try {
     execFileSync(PYTHON, [
       resolve(ROOT, "nooa-agent", "gen_fig_editorial.py"),
-      "--zones", ZONES_PATH,
+      "--zones", zonesPath,
       "--out-dir", FIGS_DIR,
       "--prefix", figPrefix,
     ], { stdio: "inherit", cwd: ROOT });
@@ -249,17 +221,18 @@ function genFigures(figPrefix) {
 }
 
 // Mapa interactivo Leaflet embebido en el informe (iframe /maps/*.html).
-// Devuelve la ruta web relativa o null si no se pudo generar.
-function genInteractiveMap(figPrefix) {
+// Devuelve la ruta web relativa o null si no se pudo generar — el mapa es
+// un asset complementario, no está referenciado en los bytes del artículo.
+function genInteractiveMap(figPrefix, zonesPath, spec) {
   try {
     mkdirSync(MAPS_DIR, { recursive: true });
     const out = join(MAPS_DIR, `${figPrefix}.html`);
     execFileSync(PYTHON, [
       resolve(ROOT, "nooa-agent", "generate_map_editorial.py"),
-      "--zones", ZONES_PATH,
+      "--zones", zonesPath,
       "--out", out,
       "--interactive",
-      "--title", SPEC.mapTitle,
+      "--title", spec.mapTitle,
       "--subtitle", "Explorá cada zona: clic para ver cultivo, estado y hectáreas",
     ], { stdio: "inherit", cwd: ROOT });
     return `/maps/${figPrefix}.html`;
@@ -267,21 +240,6 @@ function genInteractiveMap(figPrefix) {
     console.warn(`  Mapa interactivo no generado: ${err.message}`);
     return null;
   }
-}
-
-// Si una figura no se pudo generar, se quita su bloque (img + caption)
-// y se renumeran las restantes — el informe queda publicable igual.
-function stripFailedFigs(article, failedKeys) {
-  let out = article;
-  for (const k of failedKeys) {
-    out = out.replace(
-      new RegExp(`\\n?!\\[[^\\]]*\\]\\([^)]*-${k}\\.png\\)\\s*\\n?\\s*\\*Figura[^*]*\\*`, "g"),
-      "\n\n"
-    );
-  }
-  let n = 0;
-  out = out.replace(/\*Figura \d+ —/g, () => `*Figura ${++n} —`);
-  return out.replace(/\n{3,}/g, "\n\n").trim();
 }
 
 async function fetchPhoto(query, outPath) {
@@ -333,85 +291,139 @@ async function fetchVideo(query, slug) {
   }
 }
 
-async function main() {
-  if (!existsSync(ARTICLE_PATH) || !existsSync(ZONES_PATH)) {
-    console.error(`Faltan ${ARTICLE_PATH} o ${ZONES_PATH} — corre el boletín ${PRODUCT} primero`);
-    process.exit(1);
+// Núcleo publicador. Toda operación con side effects (red, escritura de
+// informes.json, generación de assets) va detrás de la compuerta editorial
+// + QA. `deps` permite inyectar stubs en tests (paths y funciones falsas)
+// sin tocar el repo ni la red.
+export async function runPublish(opts = {}, deps = {}) {
+  const product = opts.product || PRODUCT;
+  const spec = PRODUCT_SPECS[product];
+  if (!spec) throw new Error(`--product debe ser ${Object.keys(PRODUCT_SPECS).join("|")}`);
+  const paths = {
+    article: spec.articlePath,
+    zones: spec.zonesPath,
+    social: spec.socialPath,
+    informesJson: INFORMES_JSON,
+    ...(deps.paths || {}),
+  };
+  const fns = {
+    review: assertEditorialReview,
+    qa: runArticleQa,
+    genFigs: (figPrefix) => genFigures(figPrefix, paths.zones, spec),
+    genMap: (figPrefix) => genInteractiveMap(figPrefix, paths.zones, spec),
+    getPhoto: fetchPhoto,
+    getVideo: fetchVideo,
+    ...(deps.fns || {}),
+  };
+  const dryRun = Boolean(opts.dryRun);
+  const noVideo = Boolean(opts.noVideo);
+  const force = Boolean(opts.force);
+
+  if (!existsSync(paths.article) || !existsSync(paths.zones)) {
+    throw new Error(`Faltan ${paths.article} o ${paths.zones} — corre el boletín ${product} primero`);
   }
-  const article = readFileSync(ARTICLE_PATH, "utf8").trim();
-  const zonesData = JSON.parse(readFileSync(ZONES_PATH, "utf8"));
+
+  // 1) Compuerta editorial: atestación humana vigente sobre los bytes
+  //    exactos de artículo+zonas(+social) — antes de cualquier otra cosa,
+  //    incluidos --dry-run y --force.
+  let review;
+  try {
+    review = fns.review({
+      product,
+      articlePath: paths.article,
+      zonesPath: paths.zones,
+      socialPath: existsSync(paths.social) ? paths.social : null,
+    });
+  } catch (err) {
+    throw new Error(`Compuerta editorial: ${err.message}`);
+  }
+  console.log(`Revisión editorial verificada — ${review.reviewer} (${review.reviewed_at})`);
+
+  // 2) QA determinista: cada cifra del artículo revisado debe existir en
+  //    los datos de zonas (article_qa.py). Falla → abort antes de assets.
+  fns.qa(paths.article, paths.zones);
+  console.log("QA numérico/formato: OK");
+
+  const article = readFileSync(paths.article, "utf8").trim();
+  const zonesData = JSON.parse(readFileSync(paths.zones, "utf8"));
   const zones = zonesData.zones || [];
   const period = formatPeriod(zonesData.window.current);
   const endDate = zonesData.window.current[1].slice(0, 10).replace(/-/g, "");
-  const slug = `informe-${SPEC.category}-${endDate}`;
+  const slug = `informe-${spec.category}-${endDate}`;
   const imageFile = `${slug}-opt.jpg`;
   const videoFile = `${slug}-video-opt.mp4`;
 
-  const informes = JSON.parse(readFileSync(INFORMES_JSON, "utf8"));
-  if (!FORCE && informes.some((i) => i.date === period && i.category === SPEC.category)) {
-    console.log(`Ya existe un informe ${SPEC.category} para "${period}" — nada que hacer (o usa --force)`);
+  const informes = JSON.parse(readFileSync(paths.informesJson, "utf8"));
+  if (!force && informes.some((i) => i.date === period && i.category === spec.category)) {
+    console.log(`Ya existe un informe ${spec.category} para "${period}" — nada que hacer (o usa --force)`);
     return;
   }
 
   const countries = new Set(zones.map((z) => z.country)).size;
   const location = `${zones.length} zonas de ${countries} ${countries === 1 ? "país" : "países"} de LAC`;
 
-  console.log("Generando título, excerpt y cifras clave con Groq...");
-  const meta = (await generateTitleExcerpt(article)) || fallbackTitleExcerpt(article, zones);
-  const { title, excerpt } = meta;
+  const { title, excerpt } = deriveTitleExcerpt(article, spec.name);
 
   const entry = {
     id: String(Math.max(...informes.map((i) => parseInt(i.id, 10) || 0)) + 1),
     title,
-    category: SPEC.category,
+    category: spec.category,
     date: period,
     location,
     image: imageFile,
-    ...(NO_VIDEO ? {} : { video: videoFile }),
     excerpt,
     article,
-    ...extractSocialExtras(),
-    ...(meta.keyStats ? { keyStats: meta.keyStats } : {}),
+    ...extractSocialExtras(paths.social),
   };
 
-  if (DRY_RUN) {
+  if (dryRun) {
     console.log("\nDRY-RUN — entrada que se crearía:");
     console.log(JSON.stringify({ ...entry, article: article.slice(0, 120) + "…" }, null, 2));
-    console.log(`Assets: ${imageFile}, ${NO_VIDEO ? "(sin video)" : videoFile}`);
+    console.log(
+      `Assets: ${imageFile}, ` +
+      (noVideo ? "(sin video)" : `${videoFile} (planificado — se incluye solo si la descarga tiene éxito)`)
+    );
     return;
   }
 
-  // Figuras editoriales: solo si el artículo referencia /figs/ (las
-  // inyecta article_pipeline.inject_figures). Si alguna falla se quita
-  // su bloque del artículo — el informe queda publicable igual.
+  // Figuras editoriales: solo si el artículo referencia /figs/ (las inyecta
+  // article_pipeline.inject_figures). Son requeridas: si alguna falla se
+  // aborta SIN publicar — mutar o renumerar el artículo atestado rompería
+  // el manifiesto de revisión (los bytes deben ser idénticos a lo revisado).
   if (article.includes("/figs/")) {
     console.log("Generando figuras editoriales (coropleta + barras)...");
-    const failed = genFigures(`${SPEC.category}-${endDate}`);
+    const failed = fns.genFigs(`${spec.category}-${endDate}`);
     if (failed.length) {
-      console.warn(`  Figuras no generadas: ${failed.join(", ")} — se quitan del artículo`);
-      entry.article = stripFailedFigs(article, failed);
+      throw new Error(
+        `Figuras requeridas no generadas: ${failed.join(", ")} — ` +
+        "publicación abortada; el artículo revisado no se modifica"
+      );
     }
   }
 
   // Mapa interactivo embebido en el informe (iframe en la SPA)
-  const mapPath = genInteractiveMap(`${SPEC.category}-${endDate}`);
+  const mapPath = fns.genMap(`${spec.category}-${endDate}`);
   if (mapPath) entry.map = mapPath;
 
   console.log(`Descargando assets para ${slug}...`);
-  const okPhoto = await fetchPhoto(SPEC.photoQuery, join(ASSETS, imageFile));
+  const okPhoto = await fns.getPhoto(spec.photoQuery, join(ASSETS, imageFile));
   if (!okPhoto) {
-    console.error("No se pudo descargar foto de Pexels — abortando (el informe requiere imagen)");
-    process.exit(1);
+    throw new Error("No se pudo descargar foto de Pexels — abortando (el informe requiere imagen)");
   }
-  if (!NO_VIDEO) await fetchVideo(SPEC.videoQuery, slug);
+  // Video opcional: entra al informe solo si la descarga+optimización tuvo
+  // éxito — nunca una URL rota. Falla → el informe sale sin video.
+  if (!noVideo && (await fns.getVideo(spec.videoQuery, slug))) entry.video = videoFile;
 
   informes.unshift(entry);
-  writeFileSync(INFORMES_JSON, JSON.stringify(informes, null, 2) + "\n");
+  writeFileSync(paths.informesJson, JSON.stringify(informes, null, 2) + "\n");
   console.log(`\nInforme #${entry.id} "${title}" añadido a informes.json`);
   console.log("Siguiente: npm --prefix web run build  (o el deploy automático del workflow)");
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+const IS_CLI = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (IS_CLI) {
+  runPublish({ product: PRODUCT, dryRun: DRY_RUN, noVideo: NO_VIDEO, force: FORCE }).catch((err) => {
+    console.error(err instanceof Error ? err.message : err);
+    process.exit(1);
+  });
+}

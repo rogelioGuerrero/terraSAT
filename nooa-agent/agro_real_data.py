@@ -134,8 +134,8 @@ def zone_bbox(lat: float, lng: float, area_ha: float) -> list[float]:
     side_km = math.sqrt(area_km2)
     lat_delta = side_km / 111.0 / 2
     lng_delta = side_km / (111.0 * math.cos(math.radians(lat))) / 2
-    lat_delta = min(max(lat_delta, 0.05), MAX_BBOX_DELTA)
-    lng_delta = min(max(lng_delta, 0.05), MAX_BBOX_DELTA)
+    if lat_delta > MAX_BBOX_DELTA or lng_delta > MAX_BBOX_DELTA:
+        raise ValueError("Zona demasiado extensa para el bbox máximo: dividirla en zonas menores")
     return [lng - lng_delta, lat - lat_delta, lng + lng_delta, lat + lat_delta]
 
 
@@ -218,7 +218,7 @@ def request_index_stats(
             stressed_means.append(float(s))
         latest_date = interval.get("interval", {}).get("from", "")[:10]
 
-    if not means["ndvi"]:
+    if not means["ndvi"] or not stressed_means:
         return {"error": "Sin días válidos en la ventana"}
 
     out = {
@@ -318,11 +318,11 @@ def _classify_forest(z, d_nbr: float | None):
     """Deforestación/quema: caída de NDVI y NBR vs año anterior."""
     nbr = d_nbr if d_nbr is not None else 0.0
     if z.ndvi_delta < -0.08 and nbr < -0.05:
-        z.status, z.alert_cause = "critico", "Deforestación o quema severa"
+        z.status, z.alert_cause = "critico", "Anomalía espectral severa; causa sin verificar"
     elif z.ndvi_delta < -0.04 or nbr < -0.03:
-        z.status, z.alert_cause = "alerta", "Pérdida de cobertura forestal"
+        z.status, z.alert_cause = "alerta", "Anomalía espectral de cobertura; causa sin verificar"
     elif z.ndvi_delta < -0.02 or nbr < -0.015:
-        z.status, z.alert_cause = "vigilancia", "Degradación incipiente"
+        z.status, z.alert_cause = "vigilancia", "Cambio espectral; verificar en campo"
     else:
         z.status, z.alert_cause = "normal", ""
 
@@ -331,11 +331,11 @@ def _classify_urban(z, d_ndbi: float | None):
     """Expansión urbana: NDBI sube (más construido) + NDVI baja."""
     ndbi = d_ndbi if d_ndbi is not None else 0.0
     if ndbi > 0.08 and z.ndvi_delta < -0.04:
-        z.status, z.alert_cause = "critico", "Expansión urbana masiva"
+        z.status, z.alert_cause = "critico", "Anomalía espectral urbana severa; causa sin verificar"
     elif ndbi > 0.05 and z.ndvi_delta < -0.02:
-        z.status, z.alert_cause = "alerta", "Expansión urbana acelerada"
+        z.status, z.alert_cause = "alerta", "Anomalía espectral urbana; causa sin verificar"
     elif ndbi > 0.02 or (ndbi > 0.015 and z.ndvi_delta < -0.02):
-        z.status, z.alert_cause = "vigilancia", "Crecimiento urbano detectado"
+        z.status, z.alert_cause = "vigilancia", "Cambio espectral urbano; verificar en campo"
     else:
         z.status, z.alert_cause = "normal", ""
 
@@ -431,12 +431,15 @@ def collect_real_zones(
 
         cur = request_index_stats(token, bbox, cur_range, stress_expr=stress_expr)
 
-        if "error" in cur or "error" in base:
+        if "error" in cur or "error" in base or "error" in base_stress:
             z.status = "sin_datos"
             z.alert_cause = "Sin imagen limpia (nubosidad)"
             z.affected_area_ha = 0
             z.days_early_warning = 0
-            z.data_meta = {"error_cur": cur.get("error"), "error_base": base.get("error")}
+            z.data_meta = {
+                "error_cur": cur.get("error"), "error_base": base.get("error"),
+                "error_base_stress": base_stress.get("error"),
+            }
             if verbose:
                 print(f"    sin datos — cur: {cur.get('error', 'ok')[:60]} | base: {base.get('error', 'ok')[:60]}")
         else:
@@ -457,6 +460,14 @@ def collect_real_zones(
             if spec["classify"] == "agro":
                 from demo_alerta_temprana_regional import classify_zone
                 classify_zone(z)
+                if z.status in ("critico", "alerta", "vigilancia"):
+                    z.alert_cause = (
+                        "Anomalía espectral y lluvia inferior a la normal; causa sin verificar"
+                        if "error" not in precip and z.rainfall_pct < -20
+                        else "Anomalía espectral; causa sin verificar"
+                    )
+                if "error" in precip:
+                    z.rainfall_mm = z.rainfall_pct = None
             else:
                 CLASSIFIERS[spec["classify"]](z, d_nbr if spec["classify"] == "forest" else d_ndbi)
 
@@ -500,7 +511,10 @@ def collect_real_zones(
                     extra = f" | NBR d{d_nbr:+.3f}"
                 elif spec["classify"] == "urban":
                     extra = f" | NDBI d{d_ndbi:+.3f}"
-                rain = f" | lluvia {z.rainfall_pct:+.0f}%" if spec["with_rain"] else ""
+                rain = (
+                    f" | lluvia {z.rainfall_pct:+.0f}%"
+                    if spec["with_rain"] and z.rainfall_pct is not None else ""
+                )
                 print(
                     f"    NDVI d{z.ndvi_delta:+.3f}{extra}{rain} | "
                     f"pix afectados {excess_frac*100:.0f}% | {cur['n_days']}d -> {z.status}"
@@ -536,8 +550,8 @@ def dump_zones_json(zones: list, source: str, today: date,
                 "days_early_warning": z.days_early_warning,
                 "ndvi_delta": round(z.ndvi_delta, 4),
                 "ndre_delta": round(z.ndre_delta, 4),
-                "rainfall_mm": round(z.rainfall_mm, 1),
-                "rainfall_pct": round(z.rainfall_pct, 1),
+                "rainfall_mm": round(z.rainfall_mm, 1) if z.rainfall_mm is not None else None,
+                "rainfall_pct": round(z.rainfall_pct, 1) if z.rainfall_pct is not None else None,
                 "meta": getattr(z, "data_meta", {}),
             }
             for z in zones

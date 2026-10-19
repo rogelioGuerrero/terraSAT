@@ -15,6 +15,7 @@
 
 import { readFileSync, existsSync } from "fs";
 import { resolve, basename } from "path";
+import { assertEditorialReview, generatedArticlePaths } from "./editorial-review.mjs";
 
 const args = process.argv.slice(2);
 if (!args[0] || args[0] === "--help" || args[0] === "-h") {
@@ -40,6 +41,23 @@ if (!WEBHOOK_URL) {
 if (!existsSync(imagePath)) {
   console.error(`Error: no existe la imagen ${imagePath}`);
   process.exit(1);
+}
+
+// Compuerta editorial: los artefactos generados del pipeline
+// (generated-article[-forest|-urban][-social].txt) solo se envían si hay
+// manifiesto de revisión humana cuyos hashes cubren el artículo web
+// subyacente + zonas + (si aplica) este archivo social exacto. Captions
+// arbitrarios (texto literal u otros archivos) quedan fuera del gate.
+if (articleArg.startsWith("@")) {
+  const gated = generatedArticlePaths(articleArg.slice(1));
+  if (gated) {
+    try {
+      assertEditorialReview(gated);
+    } catch (err) {
+      console.error(`⛔ Compuerta editorial — no se envía: ${err.message}`);
+      process.exit(1);
+    }
+  }
 }
 
 const caption = articleArg.startsWith("@")
